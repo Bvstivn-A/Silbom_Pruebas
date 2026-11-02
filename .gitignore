@@ -1,0 +1,60 @@
+# ====================================================================
+# CONTROL 2 DE CIBERSEGURIDAD: ELIMINACIÓN DE SECRETOS Y ARTEFACTOS GIT
+# ====================================================================
+
+# Archivos de entorno y credenciales (NUNCA SUBIR A GIT)
+.env
+.env.local
+.env.production
+.env.txt
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.jks
+*.keystore
+
+# Directorio de construccion de Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Archivos compilados y binarios
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Logs de ejecucion del servidor y JVM
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+
+# Configuracion de Entornos de Desarrollo (IDEs)
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
