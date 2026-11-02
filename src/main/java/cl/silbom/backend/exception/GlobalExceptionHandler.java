@@ -150,6 +150,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler({org.springframework.dao.DataIntegrityViolationException.class,
+                       org.springframework.dao.PessimisticLockingFailureException.class})
+    public ResponseEntity<ErrorResponseDTO> handleDatabaseConflict(Exception ex, HttpServletRequest request) {
+        return error(409, "Conflicto de datos", "La operación viola una restricción o existe una operación concurrente; revise el estado actual", request);
+    }
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handleParameter(Exception ex, HttpServletRequest request) {
+        return error(400, "Parámetro inválido", "Revise el tipo de los parámetros enviados", request);
+    }
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNoResource(Exception ex, HttpServletRequest request) {
+        return error(404, "Recurso no encontrado", "Ruta no encontrada", request);
+    }
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMedia(Exception ex, HttpServletRequest request) {
+        return error(415, "Tipo de contenido no admitido", "Use application/json para el cuerpo de la petición", request);
+    }
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleMethod(org.springframework.web.HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        return ResponseEntity.status(405).allow(ex.getSupportedHttpMethods().toArray(org.springframework.http.HttpMethod[]::new))
+            .body(new ErrorResponseDTO(LocalDateTime.now(),405,"Método no permitido","Verbo HTTP no admitido para este recurso",request.getRequestURI()));
+    }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccess(Exception ex, HttpServletRequest request) {
+        return error(403, "Acceso prohibido", "Operación no autorizada", request);
+    }
+    private ResponseEntity<ErrorResponseDTO> error(int status,String title,String message,HttpServletRequest request) {
+        return ResponseEntity.status(status).body(new ErrorResponseDTO(LocalDateTime.now(),status,title,message,request.getRequestURI()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex, HttpServletRequest request) {
         // En log interno se puede registrar el error, pero al cliente NUNCA se expone el stack trace

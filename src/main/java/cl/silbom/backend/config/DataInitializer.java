@@ -15,6 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import cl.silbom.backend.model.Tecnico;
+import cl.silbom.backend.model.Rol;
+import cl.silbom.backend.model.EventoLoto;
+import cl.silbom.backend.repository.TecnicoRepository;
+import cl.silbom.backend.repository.EventoLotoRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * QUÉ HACE:
@@ -34,18 +40,35 @@ public class DataInitializer implements CommandLineRunner {
     private final MaquinaRepository maquinaRepository;
     private final BloqueoLotoRepository bloqueoLotoRepository;
     private final String plantaId;
+    private final TecnicoRepository tecnicos;
+    private final EventoLotoRepository eventos;
+    private final PasswordEncoder encoder;
+    private final String bootstrapUsername;
+    private final String bootstrapPassword;
 
     public DataInitializer(MaquinaRepository maquinaRepository,
                            BloqueoLotoRepository bloqueoLotoRepository,
-                           @Value("${silbom.security.planta-id:PLANTA-SAN-JOAQUIN}") String plantaId) {
+                           @Value("${silbom.security.planta-id:PLANTA-SAN-JOAQUIN}") String plantaId,
+                           TecnicoRepository tecnicos, EventoLotoRepository eventos, PasswordEncoder encoder,
+                           @Value("${silbom.bootstrap.username:}") String bootstrapUsername,
+                           @Value("${silbom.bootstrap.password:}") String bootstrapPassword) {
         this.maquinaRepository = maquinaRepository;
         this.bloqueoLotoRepository = bloqueoLotoRepository;
         this.plantaId = plantaId;
+        this.tecnicos = tecnicos; this.eventos = eventos; this.encoder = encoder;
+        this.bootstrapUsername = bootstrapUsername; this.bootstrapPassword = bootstrapPassword;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
+        if (tecnicos.findByPlantaIdAndActivoTrueOrderById(plantaId).isEmpty() && !bootstrapUsername.isBlank()) {
+            if (!bootstrapUsername.matches("[A-Za-z0-9._-]{3,50}") || bootstrapPassword.startsWith("CAMBIAR_") || bootstrapPassword.length()<12 ||
+                bootstrapPassword.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)
+                throw new IllegalArgumentException("Bootstrap requiere usuario válido y contraseña de 12 caracteres / máximo 72 bytes");
+            tecnicos.save(new Tecnico(bootstrapUsername, "Supervisor inicial", encoder.encode(bootstrapPassword), Rol.SUPERVISOR, plantaId));
+            log.info("Cuenta supervisora inicial creada; retire las variables de bootstrap del entorno");
+        }
         if (maquinaRepository.count() == 0) {
             log.info("Inicializando datos maestros de Planta San Joaquín...");
 
@@ -102,7 +125,8 @@ public class DataInitializer implements CommandLineRunner {
                 )
             );
 
-            bloqueoLotoRepository.saveAll(historialInicial);
+            bloqueoLotoRepository.saveAll(historialInicial).forEach(b ->
+                eventos.save(new EventoLoto(b.getId(), null, "LEGADO_IMPORTADO", plantaId)));
             log.info("Se cargaron exitosamente los 3 tickets históricos cerrados.");
         } else {
             log.info("La base de datos ya contiene registros maestros (total: {} máquinas). Omitiendo seed inicial.", maquinaRepository.count());

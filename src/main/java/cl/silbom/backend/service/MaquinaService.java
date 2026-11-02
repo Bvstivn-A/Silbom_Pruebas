@@ -34,13 +34,15 @@ public class MaquinaService {
     private final MaquinaRepository maquinaRepository;
     private final BloqueoLotoRepository bloqueoLotoRepository;
     private final String plantaId;
+    private final cl.silbom.backend.security.ActorActual actor;
 
     public MaquinaService(MaquinaRepository maquinaRepository,
                           BloqueoLotoRepository bloqueoLotoRepository,
-                          @Value("${silbom.security.planta-id:PLANTA-SAN-JOAQUIN}") String plantaId) {
+                          @Value("${silbom.security.planta-id:PLANTA-SAN-JOAQUIN}") String plantaId, cl.silbom.backend.security.ActorActual actor) {
         this.maquinaRepository = maquinaRepository;
         this.bloqueoLotoRepository = bloqueoLotoRepository;
         this.plantaId = plantaId;
+        this.actor = actor;
     }
 
     /**
@@ -59,7 +61,7 @@ public class MaquinaService {
      */
     @Transactional(readOnly = true)
     public MaquinaResponseDTO obtenerPorId(String id) {
-        Maquina maquina = maquinaRepository.findByIdAndPlantaId(id, this.plantaId)
+        Maquina maquina = maquinaRepository.findByIdAndPlantaIdAndActivaTrue(id, this.plantaId)
             .orElseThrow(() -> new ResourceNotFoundException("Máquina con ID '" + id + "' no encontrada en " + this.plantaId));
         return MaquinaResponseDTO.fromEntity(maquina);
     }
@@ -69,6 +71,7 @@ public class MaquinaService {
      */
     @Transactional
     public MaquinaResponseDTO crearMaquina(MaquinaCreateDTO dto) {
+        actor.exigirSupervisor();
         // Control 12: Detección de bots por trampa honeypot
         if (dto.honeypot() != null && !dto.honeypot().isBlank()) {
             throw new BotDetectionException("Actividad automatizada detectada vía honeypot.");
@@ -80,9 +83,9 @@ public class MaquinaService {
         }
 
         // Control 15: Sanitización de entradas de texto libre
-        String nombreSanitizado = InputSanitizer.sanitize(dto.nombre());
-        String areaSanitizada = InputSanitizer.sanitize(dto.area());
-        String iconoSanitizado = InputSanitizer.sanitize(dto.icono());
+        String nombreSanitizado = InputSanitizer.required(dto.nombre(),3,100);
+        String areaSanitizada = InputSanitizer.required(dto.area(),3,100);
+        String iconoSanitizado = InputSanitizer.required(dto.icono(),1,10);
 
         Maquina nuevaMaquina = new Maquina(
             dto.id(),
@@ -103,12 +106,13 @@ public class MaquinaService {
      */
     @Transactional
     public MaquinaResponseDTO actualizarMaquina(String id, MaquinaUpdateDTO dto) {
-        Maquina maquina = maquinaRepository.findByIdAndPlantaId(id, this.plantaId)
+        actor.exigirSupervisor();
+        Maquina maquina = maquinaRepository.findForUpdate(id, this.plantaId)
             .orElseThrow(() -> new ResourceNotFoundException("Máquina con ID '" + id + "' no encontrada para actualizar"));
 
-        String nombreSanitizado = InputSanitizer.sanitize(dto.nombre());
-        String areaSanitizada = InputSanitizer.sanitize(dto.area());
-        String iconoSanitizado = InputSanitizer.sanitize(dto.icono());
+        String nombreSanitizado = InputSanitizer.required(dto.nombre(),3,100);
+        String areaSanitizada = InputSanitizer.required(dto.area(),3,100);
+        String iconoSanitizado = InputSanitizer.required(dto.icono(),1,10);
 
         maquina.actualizarDatos(
             nombreSanitizado,
@@ -127,7 +131,8 @@ public class MaquinaService {
      */
     @Transactional
     public void eliminarMaquina(String id) {
-        Maquina maquina = maquinaRepository.findByIdAndPlantaId(id, this.plantaId)
+        actor.exigirSupervisor();
+        Maquina maquina = maquinaRepository.findForUpdate(id, this.plantaId)
             .orElseThrow(() -> new ResourceNotFoundException("Máquina con ID '" + id + "' no encontrada para eliminar"));
 
         // Regla de Seguridad Industrial LOTO: Prohibido eliminar equipos con personal trabajando
@@ -141,6 +146,6 @@ public class MaquinaService {
             throw new BusinessConflictException("No se puede eliminar la máquina '" + id + "' porque tiene " + bloqueosActivos + " bloqueos LOTO activos");
         }
 
-        maquinaRepository.delete(maquina);
+        maquina.desactivar();
     }
 }
