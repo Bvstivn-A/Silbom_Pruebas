@@ -207,3 +207,6 @@ Se evaluó Flyway: es conveniente versionar migraciones, pero no se activa un
 baseline automático sobre bases existentes desconocidas. En este alcance se
 usa SQL transaccional/repetible; Flyway requiere un inventario y baseline
 explícito, probado y respaldado.
+
+La revisión posterior de higiene, normalización de notas y documentación pedagógica
+está registrada en [Auditoría de la propuesta Gemini](docs/REGISTRO_AUDITORIA_GEMINI.md).
