@@ -200,6 +200,7 @@ presentarse como una nueva demostración de esta revisión si no se vuelve a cor
 
 ## Archivos adicionales modificados
 
+- `README.md`: enlace al registro de esta auditoría para localizarlo desde el proyecto.
 - `src/test/resources/application-test.properties`: eliminación de una propiedad obsoleta.
 - `src/test/java/cl/silbom/backend/SilbomApplicationTests.java`: cinco casos de regresión.
 - `docs/REGISTRO_AUDITORIA_GEMINI.md`: este registro técnico y guía de continuidad.
