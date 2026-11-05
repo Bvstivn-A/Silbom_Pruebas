@@ -7,6 +7,9 @@ import cl.silbom.backend.security.TecnicoPrincipal;
 import cl.silbom.backend.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -201,5 +204,39 @@ class SilbomApplicationTests {
         var dto=new TecnicoCreateDTO("unicode-pass","Técnico prueba","á".repeat(40),Rol.TECNICO);
         mvc.perform(post("/api/v1/tecnicos").contentType(MediaType.APPLICATION_JSON).content(json(dto)))
             .andExpect(status().isBadRequest());
+    }
+
+    // Regresión: el POST y el GET autorizado deben devolver el texto normalizado persistido.
+    @Test void notasSeNormalizanAntesDeCifrarYResponder() throws Exception {
+        var dto = new BloqueoCreateDTO("EQ-PR-04", TipoIntervencion.PREVENTIVA,
+            "Prueba de notas", null, true,
+            "<b>Revisión</b>\n<script>alert(1)</script>\u0000pendiente", null, null);
+        var result = mvc.perform(post("/api/v1/bloqueos")
+                .contentType(MediaType.APPLICATION_JSON).content(json(dto)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.notasAuditoria", is("Revisión pendiente")))
+            .andReturn();
+        long id = mapper.readTree(result.getResponse().getContentAsString()).get("id").asLong();
+        mvc.perform(get("/api/v1/bloqueos/" + id))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.notasAuditoria", is("Revisión pendiente")));
+    }
+
+    // Una nota ausente o vacía tras normalizar no debe persistirse como otro valor.
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {" \r\n\t ", "<b></b>"})
+    void notasSinContenidoSonNullEnAltaYConsulta(String nota) throws Exception {
+        var dto = new BloqueoCreateDTO("EQ-PR-04", TipoIntervencion.PREVENTIVA,
+            "Prueba de nota vacía", null, true, nota, null, null);
+        var result = mvc.perform(post("/api/v1/bloqueos")
+                .contentType(MediaType.APPLICATION_JSON).content(json(dto)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.notasAuditoria", nullValue()))
+            .andReturn();
+        long id = mapper.readTree(result.getResponse().getContentAsString()).get("id").asLong();
+        mvc.perform(get("/api/v1/bloqueos/" + id))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.notasAuditoria", nullValue()));
     }
 }
