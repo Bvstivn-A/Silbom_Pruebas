@@ -1,6 +1,6 @@
 # SILBOM · Guion de video y demostración del backend
 
-**Objetivo:** 6:35 de contenido, con 25 segundos de margen hasta 7:00. Cuatro voces: Bastián, Belén, Benjamín y Vicente. Preparado el 10 de noviembre de 2026.
+**Objetivo:** 6:50 en total, incluidos los 50 segundos del video de IA, con 10 segundos de margen hasta 7:00. Cuatro voces: Bastián, Belén, Benjamín y Vicente. Preparado el 10 de noviembre de 2026.
 
 **Condición de la rúbrica:** A1 exige peticiones en vivo y sitúa una grabación en “En desarrollo”. Este material permite grabar una ejecución real, pero el video por sí solo no obtiene el nivel destacado de ejecución en vivo salvo que el docente autorice otro formato. A5 se demuestra al responder la pregunta aleatoria; el video no sustituye esa respuesta.
 
@@ -8,85 +8,99 @@
 
 | Tiempo | Voz | Qué se demuestra |
 |---|---|---|
-| 0:00–0:20 | Bastián | Presentación del problema |
-| 0:20–0:55 | Bastián | 01 · Crear máquina — POST → 201 |
-| 0:55–1:35 | Bastián | 02 · Leer máquina guardada — GET → 200 |
-| 1:35–2:05 | Belén | 03 · Actualizar máquina — PUT → 200 |
-| 2:05–2:25 | Belén | 04 · Leer actualización y comprobar PostgreSQL |
-| 2:25–2:50 | Belén | 05 · Dar de baja — DELETE → 204 |
-| 2:50–3:10 | Belén | 06 · Verificar baja — GET → 404; SQL activa=false |
-| 3:10–3:55 | Benjamín | Código real: recorrido y motivo de la separación |
-| 3:55–4:55 | Benjamín | Tecnologías: criterio, alternativa y costo |
-| 4:55–6:20 | Vicente | Monolito: postura y condiciones del proyecto |
-| 6:20–6:35 | Vicente | Cierre |
+| 0:00–0:15 | Bastián | Presentación del problema |
+| 0:15–1:05 | Video IA · sin intervención del equipo | Video explicativo del proceso · 50 segundos |
+| 1:05–1:15 | Bastián | Pasar del video al backend real |
+| 1:15–1:45 | Bastián | 01 · Crear máquina — POST → 201 |
+| 1:45–2:10 | Bastián | 02 · Leer máquina guardada — GET → 200 |
+| 2:10–2:40 | Belén | 03 · Actualizar máquina — PUT → 200 |
+| 2:40–3:00 | Belén | 04 · Leer actualización y comprobar PostgreSQL |
+| 3:00–3:20 | Belén | 05 · Dar de baja — DELETE → 204 |
+| 3:20–3:40 | Belén | 06 · Verificar baja — GET → 404; SQL activa=false |
+| 3:40–4:20 | Benjamín | Código real: recorrido y motivo de la separación |
+| 4:20–5:15 | Benjamín | Tecnologías: criterio, alternativa y costo |
+| 5:15–6:35 | Vicente | Monolito: postura y condiciones del proyecto |
+| 6:35–6:50 | Vicente | Cierre |
 
-El texto hablado contiene aproximadamente 584 palabras. Las franjas incluyen acciones y cambios de pantalla: ensayar a ritmo natural, no leerlo todo de corrido para luego añadir los clics. Terminar el contenido en 6:35; no planificar hasta 7:00 exactos.
+El texto hablado contiene aproximadamente 596 palabras. Las franjas incluyen acciones y cambios de pantalla: ensayar a ritmo natural, no leerlo todo de corrido para luego añadir los clics. Terminar el contenido en 6:50; no planificar hasta 7:00 exactos.
 
 ## 2. Guion literal y acciones
 
-### 0:00–0:20 · Bastián · Presentación del problema
+### 0:00–0:15 · Bastián · Presentación del problema
 
-**Pantalla y acción:** 1) Mostrar un título que diga «SILBOM · Backend» o la cámara del equipo. 2) Abrir Postman, el programa desde el que enviaremos las solicitudes. Dejar visible la lista numerada del 01 al 06.
+**Pantalla y acción:** 1) Mostrar el título «SILBOM · Backend» o la cámara del equipo. 2) Dejar listo el video de 50 segundos para reproducirlo al terminar esta frase. No abrir todavía Postman.
 
-**Qué decir:** “Soy Bastián. SILBOM registra intervenciones y bloqueos digitales en maquinaria. Mostraremos el backend funcionando, sus datos persistidos y nuestras decisiones técnicas. El registro digital complementa el candado físico; no verifica por sí solo el aislamiento de energía.”
+**Qué decir:** “Soy Bastián. SILBOM registra intervenciones y bloqueos digitales de maquinaria. Primero mostraremos una ilustración hecha con inteligencia artificial para entender el proceso; después probaremos el backend real.”
 
-### 0:20–0:55 · Bastián · 01 · Crear máquina — POST → 201
+### 0:15–1:05 · Video IA · sin intervención del equipo · Video explicativo del proceso · 50 segundos
+
+**Pantalla y acción:** 1) Reproducir completo el video del equipo, a pantalla completa, sin pausarlo. 2) Dejar visible el rótulo «Visualización conceptual creada con IA». 3) Si tiene sonido, mantenerlo y no hablar encima. Preparar el volumen antes de grabar. No añadir otra introducción al clip.
+
+**Qué decir:** “[Sin intervención del equipo durante los 50 segundos; conservar el audio del video si lo tiene.]”
+
+### 1:05–1:15 · Bastián · Pasar del video al backend real
+
+**Pantalla y acción:** 1) Al terminar los 50 segundos, cambiar directamente a Postman. 2) Dejar visible la lista de solicitudes del 01 al 06. No volver a reproducir el video.
+
+**Qué decir:** “El video ilustra el proceso previsto. Ahora mostraremos qué funciona realmente: enviaremos peticiones con Postman y comprobaremos los datos guardados en PostgreSQL.”
+
+### 1:15–1:45 · Bastián · 01 · Crear máquina — POST → 201
 
 **Pantalla y acción:** 1) En Postman, hacer clic en «01 · Crear máquina». 2) Abrir la pestaña Body para que se vean los datos que se enviarán; dejar visibles POST y la dirección de arriba. 3) Hacer clic en Send (Enviar). 4) En la respuesta de abajo, señalar con el cursor «201 Created», el identificador junto a id y el valor «mtbf: null». No abrir la pestaña Authorization, donde se configura el acceso.
 
 **Qué decir:** “Creamos una máquina de demostración con ciento veinte horas y cero fallas. Enviamos un POST con JSON. El servidor valida los datos y responde doscientos uno: recurso creado. Sin fallas observadas, el MTBF aparece como nulo, porque todavía no es calculable.”
 
-### 0:55–1:35 · Bastián · 02 · Leer máquina guardada — GET → 200
+### 1:45–2:10 · Bastián · 02 · Leer máquina guardada — GET → 200
 
 **Pantalla y acción:** 1) Hacer clic en «02 · Leer máquina guardada» y luego en Send. 2) Señalar «200 OK» y mostrar que el nombre, las horas y el identificador coinciden con los de la máquina recién creada. 3) Copiar el identificador que aparece junto a id para usarlo en la consulta a la base de datos. No escribir otra máquina a mano.
 
 **Qué decir:** “Ahora consultamos el mismo identificador mediante una petición independiente. Recibimos doscientos y los datos enviados. No estamos mostrando una respuesta escrita a mano: Postman consulta el servicio en ejecución. Enseguida contrastaremos el registro directamente con PostgreSQL para comprobar la persistencia.”
 
-### 1:35–2:05 · Belén · 03 · Actualizar máquina — PUT → 200
+### 2:10–2:40 · Belén · 03 · Actualizar máquina — PUT → 200
 
 **Pantalla y acción:** 1) Abrir «03 · Actualizar máquina». 2) En Body, mostrar que horasOperativas dice 150.0 y fallasCorrectivas dice 2. Esos datos ya vienen preparados. 3) Pulsar Send. 4) En la respuesta de abajo, señalar «200 OK» y «mtbf: 75.0»; también puede aparecer como 75.
 
 **Qué decir:** “Soy Belén. Actualizo las mediciones a ciento cincuenta horas y dos fallas mediante PUT. La respuesta es doscientos y el MTBF cambia a setenta y cinco horas por falla. El cálculo se hace en el backend; las horas son una medición declarada.”
 
-### 2:05–2:25 · Belén · 04 · Leer actualización y comprobar PostgreSQL
+### 2:40–3:00 · Belén · 04 · Leer actualización y comprobar PostgreSQL
 
 **Pantalla y acción:** 1) Abrir «04 · Leer actualización guardada» y pulsar Send para mostrar otra vez los datos nuevos. 2) Cambiar a la ventana preparada para consultar la base de datos. Antes de grabar, dejar listo el comando del archivo verificar_persistencia.sql; usar ahora el identificador copiado. 3) Ejecutarlo y señalar en la fila obtenida: 150 horas, 2 fallas, MTBF 75 y activa=true. true significa que la máquina sigue activa.
 
 **Qué decir:** “Otra consulta recupera los valores actualizados. En PostgreSQL vemos el mismo identificador, ciento cincuenta horas, dos fallas y MTBF setenta y cinco. Así comprobamos que el dato quedó guardado en el motor real.”
 
-### 2:25–2:50 · Belén · 05 · Dar de baja — DELETE → 204
+### 3:00–3:20 · Belén · 05 · Dar de baja — DELETE → 204
 
 **Pantalla y acción:** 1) Volver a Postman y abrir «05 · Dar de baja máquina». 2) Pulsar Send. 3) Señalar «204 No Content». Debajo no deben aparecer datos: en esta operación la respuesta vacía es lo esperado.
 
 **Qué decir:** “Ejecutamos DELETE sobre esa máquina de prueba. El servidor responde doscientos cuatro, sin cuerpo. Implementamos una baja lógica: retiramos el equipo del catálogo activo y conservamos las referencias históricas. No se permite retirar una máquina con bloqueos activos.”
 
-### 2:50–3:10 · Belén · 06 · Verificar baja — GET → 404; SQL activa=false
+### 3:20–3:40 · Belén · 06 · Verificar baja — GET → 404; SQL activa=false
 
 **Pantalla y acción:** 1) Abrir «06 · Consultar máquina retirada» y pulsar Send. 2) Señalar «404»: la máquina ya no está disponible en el catálogo activo. 3) Volver a la ventana de la base de datos y ejecutar de nuevo la misma consulta, con el mismo identificador. 4) Señalar que la fila sigue ahí, pero ahora dice activa=false. false significa que quedó dada de baja.
 
 **Qué decir:** “El GET posterior devuelve cuatrocientos cuatro. En la base, la fila permanece con activa en falso. Eso confirma la baja lógica y completa crear, leer, actualizar y borrar del catálogo.”
 
-### 3:10–3:55 · Benjamín · Código real: recorrido y motivo de la separación
+### 3:40–4:20 · Benjamín · Código real: recorrido y motivo de la separación
 
 **Pantalla y acción:** Antes de grabar, dejar abiertos estos tres archivos en el programa donde ven el código, dentro de src/main/java/cl/silbom/backend: controller/MaquinaController.java, service/MaquinaService.java y repository/MaquinaRepository.java. 1) En el primero, usar Buscar (Ctrl+F) para localizar «public ResponseEntity<MaquinaResponseDTO> crear»; mostrar las líneas de esa función. 2) Cambiar al segundo y buscar «public MaquinaResponseDTO crearMaquina»; señalar @Transactional, la comprobación de supervisor y la línea con save. 3) Abrir el tercero para mostrar dónde se definen las búsquedas de máquinas. Aumentar el tamaño de letra y cambiar de archivo según la explicación; no desplazarse por todo el código.
 
 **Qué decir:** “Soy Benjamín. En MaquinaController, Valid comprueba el DTO y el controlador delega al servicio. MaquinaService exige supervisor, normaliza los campos y guarda mediante el repositorio dentro de una transacción. El controlador devuelve doscientos uno. Separar estas responsabilidades evita mezclar HTTP con reglas del negocio y consultas. El DTO delimita los campos aceptados y devueltos; la planta se determina en el servidor, no en el JSON del cliente.”
 
-### 3:55–4:55 · Benjamín · Tecnologías: criterio, alternativa y costo
+### 4:20–5:15 · Benjamín · Tecnologías: criterio, alternativa y costo
 
 **Pantalla y acción:** 1) Abrir pom.xml, ubicado en la carpeta principal del proyecto. Dejar localizadas las líneas que dicen spring-boot-starter-parent, 3.5.16 y java.version con 21. Señalarlas mientras se explica la elección. 2) Abrir db/schema.sql y mostrar la parte donde se crean las tablas, por ejemplo CREATE TABLE IF NOT EXISTS maquinas. 3) Usar letra grande; no leer todas las líneas ni escribir comandos nuevos durante este tramo.
 
 **Qué decir:** “Elegimos Java veintiuno por su modelo de dominio tipado y records para los DTO. Node con TypeScript también era viable; asumimos instalar el JDK y compilar. Spring Boot reúne HTTP, validación, seguridad y transacciones. Frente a Express con bibliotecas separadas, reduce la integración manual, a cambio de más configuración y comprender sus proxies. PostgreSQL ofrece transacciones, claves foráneas y seguridad por filas integrada, que motivó elegirlo frente a MySQL para este diseño. Asumimos instalar el motor, administrar roles y aplicar migraciones. Estas elecciones priorizan integridad y trazabilidad, no una supuesta superioridad universal.”
 
-### 4:55–6:20 · Vicente · Monolito: postura y condiciones del proyecto
+### 5:15–6:35 · Vicente · Monolito: postura y condiciones del proyecto
 
 **Pantalla y acción:** 1) Abrir la imagen arquitectura_backend.png, incluida en el kit. 2) Mostrarla completa y con tamaño suficiente para leer los recuadros. 3) Mover el cursor desde el primer recuadro hasta el último, siguiendo las flechas de arriba hacia abajo, mientras se explica cómo llega una solicitud a la base de datos. 4) Dejar la imagen visible hasta terminar la explicación.
 
 **Qué decir:** “Soy Vicente. Elegimos un monolito organizado por capas. Somos cuatro integrantes y desarrollamos un prototipo académico; la carga prevista son consultas y escrituras esporádicas de mantenimiento con los participantes del piloto, no tráfico industrial medido que justifique servicios independientes. Un proceso de backend y una base simplifican el despliegue y el costo de operación. Además, crear un ticket, actualizar el contador de máquina y registrar el evento deben confirmarse juntos en una transacción. Separarlos en microservicios agregaría llamadas de red, coordinación de fallos y observabilidad distribuida. Aceptamos que los módulos se despliegan juntos, que una caída del proceso afecta al servicio y que no podemos escalar cada parte por separado. Revisaríamos esta decisión si las mediciones mostraran necesidades distintas de escala o disponibilidad, o equipos autónomos. Las pruebas concurrentes verifican consistencia; no certifican capacidad de carga industrial.”
 
-### 6:20–6:35 · Vicente · Cierre
+### 6:35–6:50 · Vicente · Cierre
 
-**Pantalla y acción:** 1) Volver a Postman y dejar visible la lista de las seis solicitudes usadas. 2) Mantener esa pantalla mientras Vicente dice el cierre. 3) Detener la grabación al terminar; apuntar a 6:35 y no pasar de 6:45 para conservar margen. No agregar una despedida o créditos largos.
+**Pantalla y acción:** 1) Volver a Postman y dejar visible la lista de las seis solicitudes usadas. 2) Mantener esa pantalla mientras Vicente dice el cierre. 3) Detener la grabación al terminar; apuntar a 6:50 y detener el video antes de 7:00, contando también el clip de IA y los cambios de ventana. No agregar una despedida o créditos largos.
 
 **Qué decir:** “Mostramos el CRUD, la persistencia y el recorrido del código, con tecnologías justificadas y sus costos. La integración del backend al repositorio oficial del equipo sigue pendiente.”
 
@@ -117,6 +131,8 @@ RLS requiere la planta correcta mediante app.current_planta_id dentro de la tran
 
 ## 4. Preparación y grabación
 
+Antes de empezar: tener descargado el video de IA del equipo y comprobar que dura 50 segundos. Preparar su apertura en pantalla completa y su volumen. Identificarlo como visualización conceptual y revisar que cualquier función ilustrada que aún no esté implementada no se presente como terminada. El clip explica la idea y no cuenta como una de las peticiones reales de Postman. El kit no incluye ese video porque no se recibió el archivo.
+
 1. Preparar una base de demostración PostgreSQL y una cuenta supervisora. Levantar el backend antes de grabar; no gastar los siete minutos instalando o compilando.
 2. Importar SILBOM_Demo_7min.postman_collection.json. Fijar baseUrl con /api/v1 y credenciales propias en valores locales o Vault. No mostrar Authorization, el entorno de secretos ni .env en pantalla.
 3. Ejecutar 01–06 manualmente y en orden durante el ensayo. El POST genera un ID nuevo cada vez; no reutilizar un ID dado de baja ni crear una variable de entorno maquinaId que oculte la variable de colección.
@@ -124,7 +140,7 @@ RLS requiere la planta correcta mediante app.current_planta_id dentro de la tran
 5. Ensayar el cambio de Postman a SQL después de 04 y después de 06. Usar el mismo ID. Antes del DELETE debe verse activa=true; después, false. No cambiar permisos ni desactivar RLS para que aparezcan filas.
 6. Dejar abiertas las pestañas de código y el diagrama del informe. Aumentar el zoom hasta leer URL, JSON, código HTTP y SQL en una grabación de 1080p.
 7. Grabar pantalla y voces reales del equipo. Identificar a cada integrante al iniciar su turno. Una sola captura continua de las peticiones ayuda a mostrar la secuencia; no sustituir las respuestas por capturas preparadas.
-8. Ensayar con cronómetro a 6:35. El cambio de pestañas y los clics cuentan dentro del tiempo. Si superan 6:45, acortar comentarios repetidos; conservar CRUD, SQL, costos, arquitectura y código.
+8. Ensayar con cronómetro a 6:50. El cambio de pestañas y los clics cuentan dentro del tiempo. Si superan 6:50, acortar comentarios repetidos; conservar CRUD, SQL, costos, arquitectura y código.
 9. Exportar el video a MP4, 1920×1080 y audio claro. Revisar su duración real: como máximo 7:00. Evitar introducciones musicales y créditos que consuman el margen.
 10. No llamar "microservicios" a paquetes ni afirmar frontend, QR/NFC o predicción implementados. El repositorio técnico es Bvstivn-A/Silbom_Pruebas, rama improvement/backend-hito2; la integración al repositorio oficial de Vicente sigue pendiente.
 
@@ -199,10 +215,10 @@ Cuatro integrantes, alcance académico, un proceso y necesidad transaccional. Co
 | Criterio | Evidencia preparada | Condición para el nivel destacado |
 |---|---|---|
 | A1 · 15 | 01–06, estados y SQL antes/después. | Ejecutar en vivo; una grabación no equivale al destacado descrito. |
-| A2 · 12 | 3:55–4:55: Java/Spring/PostgreSQL, alternativas y costo asumido. | Explicar criterios aplicados, no solo nombrar herramientas. |
-| A3 · 8 | 4:55–6:20: monolito, carga, cuatro personas, operación y despliegue. | Argumentar con el contexto real y reconocer los costos. |
-| A4 · 5 | Cuatro voces, orden y objetivo 6:35. | Ensayar y verificar duración final ≤7:00. |
-| A5 · 10 | Recorrido de código 3:10–3:55 y preguntas de ensayo. | El integrante sorteado explica qué hace el código y por qué; el video no acredita esta respuesta. |
+| A2 · 12 | 4:20–5:15: Java/Spring/PostgreSQL, alternativas y costo asumido. | Explicar criterios aplicados, no solo nombrar herramientas. |
+| A3 · 8 | 5:15–6:35: monolito, carga, cuatro personas, operación y despliegue. | Argumentar con el contexto real y reconocer los costos. |
+| A4 · 5 | Cuatro voces, orden y objetivo 6:50. | Ensayar y verificar duración final ≤7:00. |
+| A5 · 10 | Recorrido de código 3:40–4:20 y preguntas de ensayo. | El integrante sorteado explica qué hace el código y por qué; el video no acredita esta respuesta. |
 
 ## 7. Fuentes y registro del material
 
@@ -213,6 +229,6 @@ Cuatro integrantes, alcance académico, un proceso y necesidad transaccional. Co
 - [MaquinaController.crear](../../src/main/java/cl/silbom/backend/controller/MaquinaController.java); [MaquinaService](../../src/main/java/cl/silbom/backend/service/MaquinaService.java); [MaquinaRepository](../../src/main/java/cl/silbom/backend/repository/MaquinaRepository.java).
 - [Reglas de máquina](../../src/main/java/cl/silbom/backend/model/Maquina.java); [BloqueoService](../../src/main/java/cl/silbom/backend/service/BloqueoService.java); [contexto RLS](../../src/main/java/cl/silbom/backend/config/PlantaTransactionAspect.java).
 - Asistencia de IA: Codex redactó el guion y preparó la colección; las rutas, campos y decisiones se contrastaron con el código. El equipo debe ensayar, comprender y grabar sus propias voces.
-- Esta entrega prepara material de grabación; no contiene un video ni evidencia de la defensa oral. No cambia código de producción, esquema, permisos ni el informe anterior.
+- Se reserva un espacio para el video de IA que el equipo indicó que dura 50 segundos. El archivo no se adjuntó a esta revisión: no se inspeccionó su contenido, audio ni duración real y no se incluye en el kit. Esta entrega no contiene una grabación final ni evidencia de la defensa oral. No cambia código de producción, esquema, permisos ni el informe anterior.
 
 Ver [VALIDACION.md](VALIDACION.md) para el ensayo técnico de la colección y SQL.
