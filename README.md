@@ -210,3 +210,7 @@ explícito, probado y respaldado.
 
 La revisión posterior de higiene, normalización de notas y documentación pedagógica
 está registrada en [Auditoría de la propuesta Gemini](docs/REGISTRO_AUDITORIA_GEMINI.md).
+
+## Guion para presentar el backend
+
+Material para cuatro voces con objetivo de 6:35: [guion y preparación](docs/video_backend/GUION_VIDEO_BACKEND_7_MIN.md), [Word editable](docs/video_backend/SILBOM_Guion_Video_Backend_7min.docx), colección corta de Postman, consulta SQL y diagrama en [docs/video_backend](docs/video_backend). El [registro del ensayo](docs/video_backend/VALIDACION.md) documenta seis peticiones y la persistencia en PostgreSQL. La rúbrica exige ejecución en vivo y respuesta aleatoria; el video por sí solo no sustituye esas condiciones.

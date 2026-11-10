@@ -1,0 +1,269 @@
+{
+  "info": {
+    "name": "SILBOM · Demo Hito 2 · 6 peticiones",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar manualmente en orden 01–06 contra una base de demostración PostgreSQL. El POST genera un ID nuevo. Cada petición comprueba el código y los datos. El DELETE es baja lógica. Configurar credenciales propias solo en valores locales o Vault; esta colección no contiene secretos. No crear una variable de entorno maquinaId que oculte la variable de colección."
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{supervisorUser}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{supervisorPassword}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "supervisorUser",
+      "value": ""
+    },
+    {
+      "key": "supervisorPassword",
+      "value": ""
+    },
+    {
+      "key": "maquinaId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 · Crear máquina",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"{{maquinaId}}\",\n  \"nombre\": \"Máquina demostración Hito 2\",\n  \"area\": \"Taller de pruebas\",\n  \"icono\": \"X\",\n  \"horasOperativas\": 120.0,\n  \"fallasCorrectivas\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "// Cada POST prepara un ID nuevo; la baja lógica impide reutilizar IDs.",
+              "const letters = Array.from({length: 4}, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join(\"\");",
+              "const digits = String(Math.floor(Math.random() * 100)).padStart(2, \"0\");",
+              "pm.collectionVariables.set(\"maquinaId\", \"EQ-\" + letters + \"-\" + digits);",
+              "})();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const data = pm.response.json();",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(data.id).to.eql(pm.collectionVariables.get(\"maquinaId\"));",
+              "  pm.expect(data.horasOperativas).to.eql(120);",
+              "  pm.expect(data.mtbf).to.eql(null);",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Leer máquina guardada",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas/{{maquinaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(data.id).to.eql(pm.collectionVariables.get(\"maquinaId\"));",
+              "  pm.expect(data.horasOperativas).to.eql(120);",
+              "  pm.expect(data.fallasCorrectivas).to.eql(0);",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Actualizar máquina",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas/{{maquinaId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Máquina demostración Hito 2\",\n  \"area\": \"Taller de pruebas\",\n  \"icono\": \"X\",\n  \"horasOperativas\": 150.0,\n  \"fallasCorrectivas\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(data.horasOperativas).to.eql(150);",
+              "  pm.expect(data.fallasCorrectivas).to.eql(2);",
+              "  pm.expect(data.mtbf).to.eql(75);",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 · Leer actualización guardada",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas/{{maquinaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const data = pm.response.json();",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(data.horasOperativas).to.eql(150);",
+              "  pm.expect(data.fallasCorrectivas).to.eql(2);",
+              "  pm.expect(data.mtbf).to.eql(75);",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 · Dar de baja máquina",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas/{{maquinaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(pm.response.text()).to.eql(\"\");",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 · Consultar máquina retirada",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "User-Agent",
+            "value": "SILBOM-Demo-Hito2/1.0"
+          }
+        ],
+        "url": "{{baseUrl}}/maquinas/{{maquinaId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "(() => {",
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+              "const data = pm.response.json();",
+              "pm.test(\"Contrato y datos esperados\", () => {",
+              "  pm.expect(data.status).to.eql(404);",
+              "});",
+              "})();"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
