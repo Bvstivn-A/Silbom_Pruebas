@@ -26,67 +26,67 @@ El texto hablado contiene aproximadamente 584 palabras. Las franjas incluyen acc
 
 ### 0:00–0:20 · Bastián · Presentación del problema
 
-**Pantalla y acción:** Pantalla del equipo o título sencillo: SILBOM · Backend. Luego mostrar Postman con la API disponible.
+**Pantalla y acción:** 1) Mostrar un título que diga «SILBOM · Backend» o la cámara del equipo. 2) Abrir Postman, el programa desde el que enviaremos las solicitudes. Dejar visible la lista numerada del 01 al 06.
 
 **Qué decir:** “Soy Bastián. SILBOM registra intervenciones y bloqueos digitales en maquinaria. Mostraremos el backend funcionando, sus datos persistidos y nuestras decisiones técnicas. El registro digital complementa el candado físico; no verifica por sí solo el aislamiento de energía.”
 
 ### 0:20–0:55 · Bastián · 01 · Crear máquina — POST → 201
 
-**Pantalla y acción:** Abrir 01 en la colección corta. Mostrar método, URL y JSON. Pulsar Send y señalar 201 Created, el ID generado y mtbf: null. No abrir Authorization.
+**Pantalla y acción:** 1) En Postman, hacer clic en «01 · Crear máquina». 2) Abrir la pestaña Body para que se vean los datos que se enviarán; dejar visibles POST y la dirección de arriba. 3) Hacer clic en Send (Enviar). 4) En la respuesta de abajo, señalar con el cursor «201 Created», el identificador junto a id y el valor «mtbf: null». No abrir la pestaña Authorization, donde se configura el acceso.
 
 **Qué decir:** “Creamos una máquina de demostración con ciento veinte horas y cero fallas. Enviamos un POST con JSON. El servidor valida los datos y responde doscientos uno: recurso creado. Sin fallas observadas, el MTBF aparece como nulo, porque todavía no es calculable.”
 
 ### 0:55–1:35 · Bastián · 02 · Leer máquina guardada — GET → 200
 
-**Pantalla y acción:** Ejecutar 02 con el mismo {{maquinaId}}. Señalar 200 OK y los campos de la máquina. Dejar visible el ID para la consulta SQL preparada.
+**Pantalla y acción:** 1) Hacer clic en «02 · Leer máquina guardada» y luego en Send. 2) Señalar «200 OK» y mostrar que el nombre, las horas y el identificador coinciden con los de la máquina recién creada. 3) Copiar el identificador que aparece junto a id para usarlo en la consulta a la base de datos. No escribir otra máquina a mano.
 
 **Qué decir:** “Ahora consultamos el mismo identificador mediante una petición independiente. Recibimos doscientos y los datos enviados. No estamos mostrando una respuesta escrita a mano: Postman consulta el servicio en ejecución. Enseguida contrastaremos el registro directamente con PostgreSQL para comprobar la persistencia.”
 
 ### 1:35–2:05 · Belén · 03 · Actualizar máquina — PUT → 200
 
-**Pantalla y acción:** Ejecutar 03: 150.0 horas y 2 fallas. Mostrar el cuerpo enviado, 200 y mtbf: 75.0 en la respuesta.
+**Pantalla y acción:** 1) Abrir «03 · Actualizar máquina». 2) En Body, mostrar que horasOperativas dice 150.0 y fallasCorrectivas dice 2. Esos datos ya vienen preparados. 3) Pulsar Send. 4) En la respuesta de abajo, señalar «200 OK» y «mtbf: 75.0»; también puede aparecer como 75.
 
 **Qué decir:** “Soy Belén. Actualizo las mediciones a ciento cincuenta horas y dos fallas mediante PUT. La respuesta es doscientos y el MTBF cambia a setenta y cinco horas por falla. El cálculo se hace en el backend; las horas son una medición declarada.”
 
 ### 2:05–2:25 · Belén · 04 · Leer actualización y comprobar PostgreSQL
 
-**Pantalla y acción:** Ejecutar 04. Cambiar a la terminal SQL ya preparada, usar el ID recibido y ejecutar verificar_persistencia.sql. Mostrar horas_operativas=150.0, fallas_correctivas=2, mtbf=75.0 y activa=true.
+**Pantalla y acción:** 1) Abrir «04 · Leer actualización guardada» y pulsar Send para mostrar otra vez los datos nuevos. 2) Cambiar a la ventana preparada para consultar la base de datos. Antes de grabar, dejar listo el comando del archivo verificar_persistencia.sql; usar ahora el identificador copiado. 3) Ejecutarlo y señalar en la fila obtenida: 150 horas, 2 fallas, MTBF 75 y activa=true. true significa que la máquina sigue activa.
 
 **Qué decir:** “Otra consulta recupera los valores actualizados. En PostgreSQL vemos el mismo identificador, ciento cincuenta horas, dos fallas y MTBF setenta y cinco. Así comprobamos que el dato quedó guardado en el motor real.”
 
 ### 2:25–2:50 · Belén · 05 · Dar de baja — DELETE → 204
 
-**Pantalla y acción:** Volver a Postman. Ejecutar 05. Señalar 204 No Content y el cuerpo vacío; no esperar un JSON de éxito.
+**Pantalla y acción:** 1) Volver a Postman y abrir «05 · Dar de baja máquina». 2) Pulsar Send. 3) Señalar «204 No Content». Debajo no deben aparecer datos: en esta operación la respuesta vacía es lo esperado.
 
 **Qué decir:** “Ejecutamos DELETE sobre esa máquina de prueba. El servidor responde doscientos cuatro, sin cuerpo. Implementamos una baja lógica: retiramos el equipo del catálogo activo y conservamos las referencias históricas. No se permite retirar una máquina con bloqueos activos.”
 
 ### 2:50–3:10 · Belén · 06 · Verificar baja — GET → 404; SQL activa=false
 
-**Pantalla y acción:** Ejecutar 06 y señalar 404. Repetir el mismo SELECT en PostgreSQL: la fila permanece y activa es false.
+**Pantalla y acción:** 1) Abrir «06 · Consultar máquina retirada» y pulsar Send. 2) Señalar «404»: la máquina ya no está disponible en el catálogo activo. 3) Volver a la ventana de la base de datos y ejecutar de nuevo la misma consulta, con el mismo identificador. 4) Señalar que la fila sigue ahí, pero ahora dice activa=false. false significa que quedó dada de baja.
 
 **Qué decir:** “El GET posterior devuelve cuatrocientos cuatro. En la base, la fila permanece con activa en falso. Eso confirma la baja lógica y completa crear, leer, actualizar y borrar del catálogo.”
 
 ### 3:10–3:55 · Benjamín · Código real: recorrido y motivo de la separación
 
-**Pantalla y acción:** En el editor, abrir MaquinaController.crear, luego MaquinaService.crearMaquina y MaquinaRepository. Preparar las pestañas antes. Resaltar @Valid, la delegación, @Transactional y save; no recorrer todo el archivo.
+**Pantalla y acción:** Antes de grabar, dejar abiertos estos tres archivos en el programa donde ven el código, dentro de src/main/java/cl/silbom/backend: controller/MaquinaController.java, service/MaquinaService.java y repository/MaquinaRepository.java. 1) En el primero, usar Buscar (Ctrl+F) para localizar «public ResponseEntity<MaquinaResponseDTO> crear»; mostrar las líneas de esa función. 2) Cambiar al segundo y buscar «public MaquinaResponseDTO crearMaquina»; señalar @Transactional, la comprobación de supervisor y la línea con save. 3) Abrir el tercero para mostrar dónde se definen las búsquedas de máquinas. Aumentar el tamaño de letra y cambiar de archivo según la explicación; no desplazarse por todo el código.
 
 **Qué decir:** “Soy Benjamín. En MaquinaController, Valid comprueba el DTO y el controlador delega al servicio. MaquinaService exige supervisor, normaliza los campos y guarda mediante el repositorio dentro de una transacción. El controlador devuelve doscientos uno. Separar estas responsabilidades evita mezclar HTTP con reglas del negocio y consultas. El DTO delimita los campos aceptados y devueltos; la planta se determina en el servidor, no en el JSON del cliente.”
 
 ### 3:55–4:55 · Benjamín · Tecnologías: criterio, alternativa y costo
 
-**Pantalla y acción:** Mostrar pom.xml con Java 21 y Spring Boot; después el esquema PostgreSQL. Usar zoom legible. La explicación es la comparación; no leer dependencias completas.
+**Pantalla y acción:** 1) Abrir pom.xml, ubicado en la carpeta principal del proyecto. Dejar localizadas las líneas que dicen spring-boot-starter-parent, 3.5.16 y java.version con 21. Señalarlas mientras se explica la elección. 2) Abrir db/schema.sql y mostrar la parte donde se crean las tablas, por ejemplo CREATE TABLE IF NOT EXISTS maquinas. 3) Usar letra grande; no leer todas las líneas ni escribir comandos nuevos durante este tramo.
 
 **Qué decir:** “Elegimos Java veintiuno por su modelo de dominio tipado y records para los DTO. Node con TypeScript también era viable; asumimos instalar el JDK y compilar. Spring Boot reúne HTTP, validación, seguridad y transacciones. Frente a Express con bibliotecas separadas, reduce la integración manual, a cambio de más configuración y comprender sus proxies. PostgreSQL ofrece transacciones, claves foráneas y seguridad por filas integrada, que motivó elegirlo frente a MySQL para este diseño. Asumimos instalar el motor, administrar roles y aplicar migraciones. Estas elecciones priorizan integridad y trazabilidad, no una supuesta superioridad universal.”
 
 ### 4:55–6:20 · Vicente · Monolito: postura y condiciones del proyecto
 
-**Pantalla y acción:** Mostrar el diagrama de arquitectura del informe o arquitectura_backend.png. Señalar cliente → seguridad → controller → service → repository → PostgreSQL. Mantenerlo visible mientras se justifica la decisión.
+**Pantalla y acción:** 1) Abrir la imagen arquitectura_backend.png, incluida en el kit. 2) Mostrarla completa y con tamaño suficiente para leer los recuadros. 3) Mover el cursor desde el primer recuadro hasta el último, siguiendo las flechas de arriba hacia abajo, mientras se explica cómo llega una solicitud a la base de datos. 4) Dejar la imagen visible hasta terminar la explicación.
 
 **Qué decir:** “Soy Vicente. Elegimos un monolito organizado por capas. Somos cuatro integrantes y desarrollamos un prototipo académico; la carga prevista son consultas y escrituras esporádicas de mantenimiento con los participantes del piloto, no tráfico industrial medido que justifique servicios independientes. Un proceso de backend y una base simplifican el despliegue y el costo de operación. Además, crear un ticket, actualizar el contador de máquina y registrar el evento deben confirmarse juntos en una transacción. Separarlos en microservicios agregaría llamadas de red, coordinación de fallos y observabilidad distribuida. Aceptamos que los módulos se despliegan juntos, que una caída del proceso afecta al servicio y que no podemos escalar cada parte por separado. Revisaríamos esta decisión si las mediciones mostraran necesidades distintas de escala o disponibilidad, o equipos autónomos. Las pruebas concurrentes verifican consistencia; no certifican capacidad de carga industrial.”
 
 ### 6:20–6:35 · Vicente · Cierre
 
-**Pantalla y acción:** Mostrar una vista final del recorrido CRUD o el repositorio técnico en improvement/backend-hito2. Detener la grabación a más tardar en 6:45, sin créditos largos.
+**Pantalla y acción:** 1) Volver a Postman y dejar visible la lista de las seis solicitudes usadas. 2) Mantener esa pantalla mientras Vicente dice el cierre. 3) Detener la grabación al terminar; apuntar a 6:35 y no pasar de 6:45 para conservar margen. No agregar una despedida o créditos largos.
 
 **Qué decir:** “Mostramos el CRUD, la persistencia y el recorrido del código, con tecnologías justificadas y sus costos. La integración del backend al repositorio oficial del equipo sigue pendiente.”
 

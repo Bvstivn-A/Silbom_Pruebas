@@ -64,3 +64,13 @@ clics, lectura de respuestas y cambios de pantalla.
 - Codex asistió en la redacción y preparación de la colección, contrastando
   las rutas, campos y decisiones con el código y ejecutando el ensayo descrito.
   La comprensión y la grabación de las voces corresponden al equipo.
+
+## Revisión de las instrucciones de pantalla
+
+Por solicitud del equipo se simplificaron las once instrucciones de PANTALLA:
+se indica qué abrir, dónde hacer clic y qué dato señalar, conservando los
+nombres visibles de botones, archivos y campos para encontrarlos. Se comparó
+el Word con la versión anterior: los once textos de DECIR permanecen idénticos,
+al igual que los tiempos y participantes. Se revisó nuevamente la presentación
+de las nueve páginas, sin texto cortado. La colección y el SQL no cambiaron;
+se conserva el resultado del ensayo técnico anterior.
