@@ -1,0 +1,26 @@
+{
+  "name": "SILBOM Técnico LOTO",
+  "short_name": "SILBOM App",
+  "description": "Aplicación móvil industrial de bloqueo y desbloqueo LOTO para técnicos en terreno.",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#22272B",
+  "theme_color": "#0CB7F2",
+  "lang": "es-CL",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%2322272B'/%3E%3Cpath d='M56 80V60c0-22.1 17.9-40 40-40s40 17.9 40 40v20' fill='none' stroke='%230CB7F2' stroke-width='16' stroke-linecap='round'/%3E%3Crect x='36' y='78' width='120' height='88' rx='22' fill='%230CB7F2'/%3E%3Ccircle cx='96' cy='124' r='12' fill='%2317252D'/%3E%3Cpath d='M96 136v14' stroke='%2317252D' stroke-width='12' stroke-linecap='round'/%3E%3Cpath d='M74 108c6.2-6 13.8-9 22-9s15.8 3 22 9' fill='none' stroke='%2317252D' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%2322272B'/%3E%3Cpath d='M150 214V160c0-58.5 47.5-106 106-106s106 47.5 106 106v54' fill='none' stroke='%230CB7F2' stroke-width='40' stroke-linecap='round'/%3E%3Crect x='96' y='208' width='320' height='236' rx='56' fill='%230CB7F2'/%3E%3Ccircle cx='256' cy='330' r='32' fill='%2317252D'/%3E%3Cpath d='M256 362v36' stroke='%2317252D' stroke-width='30' stroke-linecap='round'/%3E%3Cpath d='M196 286c16.5-16 37-24 60-24s43.5 8 60 24' fill='none' stroke='%2317252D' stroke-width='26' stroke-linecap='round'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

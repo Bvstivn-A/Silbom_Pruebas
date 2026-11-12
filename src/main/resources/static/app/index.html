@@ -1,0 +1,3028 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0CB7F2">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SILBOM Técnico · App LOTO en Terreno</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <style>
+    /* ==========================================================================
+       SISTEMA DE DISEÑO OFICIAL SILBOM · PALETA DE COLORES
+       ========================================================================== */
+    :root {
+      --azul-industrial: #0CB7F2;
+      --azul-industrial-dark: #0798C9;
+      --azul-pale: rgba(12, 183, 242, 0.14);
+      --grafito-industrial: #252A2E;
+      --grafito-profundo: #22272B;
+      --gris-acero: #343C42;
+      --gris-metalico: #56616A;
+      --blanco: #FFFFFF;
+      --gris-claro: #C4CDD5;
+      --texto-grafito: #17252D;
+
+      --verde-seguridad: #66DDB0;
+      --verde-pale: rgba(102, 221, 176, 0.14);
+      --ambar-industrial: #F5A623;
+      --ambar-pale: rgba(245, 166, 35, 0.14);
+      --rojo-peligro: #FF7379;
+      --rojo-pale: rgba(255, 115, 121, 0.16);
+
+      --bg-body: var(--grafito-industrial);
+      --bg-header: var(--grafito-profundo);
+      --bg-card: var(--gris-acero);
+      --bg-input: #2A3136;
+      --border-color: var(--gris-metalico);
+      --text-main: var(--blanco);
+      --text-muted: var(--gris-claro);
+      --text-dim: #9AA5AF;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.28);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.48);
+
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.2s ease;
+    }
+
+    [data-theme="light"] {
+      --bg-body: #F3F6F9;
+      --bg-header: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-input: #F8FAFC;
+      --border-color: #CBD5E1;
+      --text-main: #17252D;
+      --text-muted: #475569;
+      --text-dim: #64748B;
+      --shadow-sm: 0 2px 8px rgba(23, 37, 45, 0.06);
+      --shadow-lg: 0 10px 25px rgba(23, 37, 45, 0.12);
+      --azul-pale: rgba(12, 183, 242, 0.12);
+      --verde-pale: rgba(102, 221, 176, 0.18);
+      --ambar-pale: rgba(245, 166, 35, 0.16);
+      --rojo-pale: rgba(255, 115, 121, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--azul-industrial);
+      outline-offset: 2px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==========================================================================
+       CABECERA MÓVIL NATIVA Y SUB-BARRA DE SESIÓN / SERVIDOR
+       ========================================================================== */
+    .app-header {
+      background-color: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .app-header-row {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand-compact {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .brand-emblem {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #1E2429 0%, #2C353D 100%);
+      border: 1.5px solid var(--azul-industrial);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    [data-theme="light"] .brand-emblem {
+      background: linear-gradient(135deg, #17252D 0%, #223540 100%);
+    }
+
+    .brand-emblem svg {
+      width: 21px;
+      height: 21px;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.05;
+      color: var(--text-main);
+    }
+
+    .brand-sub {
+      font-size: 0.64rem;
+      font-weight: 800;
+      color: var(--azul-industrial);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .icon-pill-btn {
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.76rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .icon-pill-btn:hover {
+      border-color: var(--azul-industrial);
+    }
+
+    .icon-pill-btn.primary {
+      background: var(--azul-industrial);
+      border-color: var(--azul-industrial);
+      color: var(--texto-grafito);
+    }
+
+    .app-status-strip {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 14px;
+    }
+
+    .app-status-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .connection-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .connection-pill.online {
+      background: var(--verde-pale);
+      color: var(--verde-seguridad);
+      border-color: var(--verde-seguridad);
+    }
+
+    .connection-pill.offline {
+      background: var(--ambar-pale);
+      color: var(--ambar-industrial);
+      border-color: var(--ambar-industrial);
+    }
+
+    .operator-pill {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+
+    /* Panel desplegable: Conectar a IP del Servidor */
+    .server-config-drawer {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 14px;
+    }
+
+    .server-config-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip-btn {
+      min-height: 36px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--azul-industrial);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       CONTENEDOR PRINCIPAL DE PANTALLAS DEL TÉCNICO (100% FULL-SCREEN MÓVIL)
+       ========================================================================== */
+    .tech-shell {
+      flex: 1;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 14px calc(92px + env(safe-area-inset-bottom, 0px)) 14px;
+    }
+
+    .tech-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+    }
+
+    .mobile-screen-title {
+      font-size: 1.18rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mobile-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    .http-monitor-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      word-break: break-word;
+    }
+
+    /* ==========================================================================
+       STEPPER DE 3 PANTALLAS ENCADENADAS
+       ========================================================================== */
+    .screen-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: var(--text-dim);
+      transition: var(--transition);
+    }
+
+    .step-indicator .step-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 900;
+    }
+
+    .step-indicator.active {
+      color: var(--azul-industrial);
+    }
+
+    .step-indicator.active .step-badge {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      border-color: var(--azul-industrial);
+    }
+
+    .step-indicator.completed {
+      color: var(--verde-seguridad);
+    }
+
+    .step-indicator.completed .step-badge {
+      background: var(--verde-pale);
+      color: var(--verde-seguridad);
+      border-color: var(--verde-seguridad);
+    }
+
+    .step-indicator.locked-active {
+      color: var(--rojo-peligro);
+    }
+
+    .step-indicator.locked-active .step-badge {
+      background: var(--rojo-peligro);
+      color: #FFFFFF;
+      border-color: var(--rojo-peligro);
+      animation: pulseAlert 1.5s infinite;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .step-connector-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border-color);
+      margin: 0 8px;
+      transition: var(--transition);
+    }
+
+    .step-connector-line.active {
+      background: var(--azul-industrial);
+    }
+
+    /* Paso 1: NFC + Selección de máquina */
+    .nfc-tap-area {
+      background: var(--bg-input);
+      border: 2px dashed var(--azul-industrial);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 18px;
+    }
+
+    .nfc-tap-area:hover {
+      background: var(--azul-pale);
+      transform: translateY(-1px);
+    }
+
+    .nfc-pulse-ring {
+      width: 68px;
+      height: 68px;
+      background: var(--azul-pale);
+      border: 2px solid var(--azul-industrial);
+      border-radius: 50%;
+      margin: 0 auto 12px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      animation: pulseAnimation 2s infinite;
+    }
+
+    @keyframes pulseAnimation {
+      0% { box-shadow: 0 0 0 0 rgba(12, 183, 242, 0.45); }
+      70% { box-shadow: 0 0 0 18px rgba(12, 183, 242, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(12, 183, 242, 0); }
+    }
+
+    .nfc-tap-btn {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      font-weight: 900;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+    }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin: 14px 0;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .or-divider span {
+      padding: 0 10px;
+    }
+
+    /* Campos e inputs touch >= 48px */
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .field-control {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    textarea.field-control {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .field-control:focus {
+      border-color: var(--azul-industrial);
+      outline: none;
+    }
+
+    /* Paso 2: Tarjeta objetivo + Tipo intervención + DS 594 */
+    .target-machine-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .target-machine-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--azul-pale);
+      border: 1px solid var(--azul-industrial);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .target-machine-info h3 {
+      font-size: 0.96rem;
+      color: var(--text-main);
+      font-weight: 900;
+    }
+
+    .target-machine-info p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .intervention-type-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .type-card {
+      background: var(--bg-input);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      min-height: 92px;
+      transition: var(--transition);
+    }
+
+    .type-card.selected {
+      border-color: var(--azul-industrial);
+      background: var(--azul-pale);
+    }
+
+    .type-card .icon {
+      font-size: 1.55rem;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .type-card .title {
+      font-size: 0.84rem;
+      font-weight: 900;
+      color: var(--text-main);
+      display: block;
+    }
+
+    .type-card .desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: block;
+    }
+
+    .legal-confirmation-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .legal-confirmation-box input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      min-width: 22px;
+      accent-color: var(--azul-industrial);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+
+    .legal-confirmation-box label {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      font-weight: 700;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+
+    /* Botones industriales de acción (>= 48px táctil) */
+    .btn-primary-blue {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      font-size: 0.92rem;
+      font-weight: 900;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary-blue:hover:not(:disabled) {
+      background: var(--azul-industrial-dark);
+    }
+
+    .btn-action-primary {
+      width: 100%;
+      min-height: 52px;
+      padding: 13px 16px;
+      background: var(--rojo-peligro);
+      color: #FFFFFF;
+      font-size: 0.95rem;
+      font-weight: 900;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 14px rgba(255, 115, 121, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-action-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-action-unlock {
+      width: 100%;
+      min-height: 52px;
+      padding: 13px 16px;
+      background: var(--verde-seguridad);
+      color: var(--texto-grafito);
+      font-size: 0.95rem;
+      font-weight: 900;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 14px rgba(102, 221, 176, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-step-secondary {
+      width: 100%;
+      min-height: 48px;
+      background: var(--bg-input);
+      border: 1px dashed var(--border-color);
+      color: var(--text-main);
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .btn-step-secondary:hover {
+      border-color: var(--azul-industrial);
+      color: var(--azul-industrial);
+    }
+
+    .btn-link-muted {
+      width: 100%;
+      min-height: 48px;
+      background: transparent;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    /* Paso 3: Banner activo + Cronómetro + Tabla ticket */
+    .locked-state-banner {
+      background: var(--rojo-pale);
+      border: 2px solid var(--rojo-peligro);
+      border-radius: var(--radius-md);
+      padding: 18px 14px;
+      text-align: center;
+      margin-bottom: 14px;
+      animation: pulseBorder 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseBorder {
+      0% { border-color: rgba(255, 115, 121, 0.45); }
+      50% { border-color: rgba(255, 115, 121, 1); }
+      100% { border-color: rgba(255, 115, 121, 0.45); }
+    }
+
+    .locked-state-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--rojo-peligro);
+      color: #FFFFFF;
+      font-weight: 900;
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .locked-machine-title {
+      font-size: 1.08rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .locked-timer-display {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--rojo-peligro);
+      font-variant-numeric: tabular-nums;
+      margin: 6px 0;
+    }
+
+    .multi-loto-selector-box {
+      background: var(--rojo-pale);
+      border: 1px solid var(--rojo-peligro);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .locked-details-table {
+      width: 100%;
+      margin: 12px 0;
+      font-size: 0.84rem;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .locked-details-table td {
+      padding: 7px 4px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    .locked-details-table td.label {
+      color: var(--text-muted);
+      font-weight: 700;
+      width: 38%;
+    }
+
+    .locked-details-table td.val {
+      color: var(--text-main);
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    /* Pestaña 2: Historial y Notas */
+    .audit-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .filter-chip {
+      min-height: 40px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .filter-chip.active {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      border-color: var(--azul-industrial);
+    }
+
+    .mobile-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mobile-history-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      text-align: left;
+      width: 100%;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-history-card.is-active {
+      border-left: 4px solid var(--rojo-peligro);
+    }
+
+    .mobile-history-card.is-closed {
+      border-left: 4px solid var(--verde-seguridad);
+    }
+
+    .mobile-history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .mobile-history-meta {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    /* ==========================================================================
+       BARRA DE NAVEGACIÓN INFERIOR FIJA (SIEMPRE VISIBLE EN LA APP ANDROID)
+       ========================================================================== */
+    .mobile-bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-header);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.35);
+      z-index: 180;
+      padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)) 10px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .mobile-nav-btn {
+      flex: 1;
+      max-width: 210px;
+      min-height: 52px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 4px 6px;
+    }
+
+    .mobile-nav-btn .nav-ico {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .mobile-nav-btn.active {
+      background: var(--azul-pale);
+      color: var(--azul-industrial);
+      border-color: var(--azul-industrial);
+    }
+
+    /* ==========================================================================
+       MODALES (FICHA DE AUDITORÍA + INSTALADOR ANDROID)
+       ========================================================================== */
+    .silbom-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 16, 20, 0.78);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .silbom-modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 640px;
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .silbom-modal-header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .silbom-modal-close {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      min-width: 44px;
+      min-height: 44px;
+      font-weight: 900;
+      font-size: 1rem;
+    }
+
+    .silbom-modal-body {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .kpi-status-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .tag-green { background-color: var(--verde-pale); color: var(--verde-seguridad); }
+    .tag-red { background-color: var(--rojo-pale); color: var(--rojo-peligro); }
+    .tag-blue { background-color: var(--azul-pale); color: var(--azul-industrial); }
+    .tag-amber { background-color: var(--ambar-pale); color: var(--ambar-industrial); }
+
+    .audit-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .audit-meta-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+    }
+
+    .audit-meta-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 3px;
+    }
+
+    .audit-meta-value {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .audit-notes-box {
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+    }
+
+    .audit-notes-box.decrypted {
+      border-color: var(--verde-seguridad);
+      background: var(--verde-pale);
+    }
+
+    .audit-notes-box.locked {
+      border-color: var(--ambar-industrial);
+      background: var(--ambar-pale);
+    }
+
+    .audit-notes-text {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .event-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-left: 2px solid var(--azul-industrial);
+      padding-left: 12px;
+      margin-left: 4px;
+    }
+
+    .event-timeline-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+
+    /* Toast */
+    .toast-notification {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120px);
+      width: calc(100% - 28px);
+      max-width: 520px;
+      background: var(--bg-card);
+      border-left: 4px solid var(--azul-industrial);
+      color: var(--text-main);
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      font-size: 0.85rem;
+      font-weight: 800;
+      z-index: 900;
+      opacity: 0;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast-notification.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER MÓVIL DE LA APP ANDROID
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="app-header-row">
+      <div class="brand-compact">
+        <div class="brand-emblem" title="SILBOM · App Técnico Android">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 10V7.5C7 4.74 9.24 2.5 12 2.5C14.76 2.5 17 4.74 17 7.5V10" stroke="#0CB7F2" stroke-width="2.4" stroke-linecap="round"/>
+            <rect x="4" y="9.5" width="16" height="12" rx="3" fill="#0CB7F2"/>
+            <circle cx="12" cy="15.5" r="1.8" fill="#17252D"/>
+            <path d="M12 17.3V19" stroke="#17252D" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M9.2 13.5C10 12.7 11 12.3 12 12.3C13 12.3 14 12.7 14.8 13.5" stroke="#17252D" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">SILBOM Técnico</div>
+          <div class="brand-sub">Bloqueo LOTO · Terreno</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="icon-pill-btn" id="btn-toggle-server-cfg" onclick="toggleServerConfigDrawer()" title="Configurar IP del servidor backend">
+          ⚙️ IP
+        </button>
+        <button type="button" class="icon-pill-btn primary" id="btn-open-install-modal" onclick="openInstallModal()" title="Instalar PWA o descargar archivo HTML">
+          ⬇️ Instalar
+        </button>
+        <button type="button" class="icon-pill-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro">
+          <span id="theme-icon">☀️</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sub-barra de estado en vivo -->
+  <div class="app-status-strip">
+    <div class="app-status-inner">
+      <span class="connection-pill offline" id="api-connection-badge" aria-live="polite">
+        🟡 Modo Demo Local (Offline)
+      </span>
+      <span class="operator-pill" id="mobile-operator-pill" aria-live="polite">
+        👤 Sin sesión activa
+      </span>
+    </div>
+  </div>
+
+  <!-- Drawer desplegable: Conectar a IP del Servidor -->
+  <section class="server-config-drawer hidden" id="server-config-drawer" aria-label="Configuración de conexión con servidor SILBOM">
+    <div class="server-config-inner">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+        <strong style="font-size: 0.84rem; color: var(--azul-industrial);">⚙️ Conectar a IP del Servidor</strong>
+        <button type="button" class="chip-btn" onclick="toggleServerConfigDrawer(false)">Cerrar ✕</button>
+      </div>
+      <div class="field-group" style="margin-bottom: 0;">
+        <label class="field-label" for="server-url-input">URL base del backend Spring Boot (sin /api/v1):</label>
+        <input type="url" id="server-url-input" class="field-control" placeholder="http://10.50.56.241:8080">
+      </div>
+      <div class="preset-chips">
+        <button type="button" class="chip-btn" onclick="setServerUrlPreset('http://10.50.56.241:8080')">📶 Red Planta (10.50.56.241)</button>
+        <button type="button" class="chip-btn" onclick="setServerUrlPreset('http://localhost:8080')">💻 Localhost (8080)</button>
+      </div>
+      <button type="button" class="btn-primary-blue" onclick="applyAndTestServerConnection()">
+        🔌 Guardar IP y Probar Conexión
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       CONTENEDOR PRINCIPAL DE LAS 3 PANTALLAS DEL TÉCNICO
+       ======================================================================== -->
+  <main class="tech-shell">
+
+    <!-- PESTAÑA 1: OPERAR LOTO (3 PASOS + NFC/QR + MULTI-LOTO) -->
+    <section id="tech-tab-operar" aria-label="Operación LOTO en terreno">
+      <div class="tech-card">
+        <div class="screen-stepper" aria-label="Flujo de 3 pantallas encadenadas">
+          <div class="step-indicator active" id="stepper-item-1">
+            <span class="step-badge">1</span>
+            <span>Identificar</span>
+          </div>
+          <div class="step-connector-line" id="stepper-line-1"></div>
+          <div class="step-indicator" id="stepper-item-2">
+            <span class="step-badge">2</span>
+            <span>Bloqueo</span>
+          </div>
+          <div class="step-connector-line" id="stepper-line-2"></div>
+          <div class="step-indicator" id="stepper-item-3">
+            <span class="step-badge">3</span>
+            <span>En Curso</span>
+          </div>
+        </div>
+
+        <!-- PASO 1: IDENTIFICACIÓN NFC/QR O MANUAL -->
+        <div id="tech-step-1">
+          <h1 class="mobile-screen-title">🔒 Punto de Bloqueo LOTO</h1>
+          <p class="mobile-subtitle">Acerca el celular al tag NFC/QR adherido al chasis de la máquina o selecciona el equipo manualmente.</p>
+
+          <div id="guest-login-nudge" class="tech-card" style="background: var(--azul-pale); border-color: var(--azul-industrial); padding: 12px; margin-bottom: 14px;">
+            <p style="font-size: 0.78rem; color: var(--text-main); font-weight: 700; margin-bottom: 8px;">
+              👷 Inicia sesión con tu usuario para registrar bloqueos reales en PostgreSQL.
+            </p>
+            <button type="button" class="btn-primary-blue" onclick="switchMobileTab('tecnicos')">
+              🔐 Ir a Iniciar Sesión / Crear Técnico
+            </button>
+          </div>
+
+          <div class="nfc-tap-area" role="button" tabindex="0" onclick="simulateNfcTap('EQ-ENV-01')" onkeydown="handleActivateKey(event, () => simulateNfcTap('EQ-ENV-01'))">
+            <div class="nfc-pulse-ring">📡</div>
+            <strong style="color: var(--text-main); display: block; font-size: 0.98rem;">Tocar Tag NFC / Escanear QR</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 4px;">
+              Soporta etiquetas físicas ?maquina=EQ-...
+            </span>
+            <div class="nfc-tap-btn">▶ Simular Tap NFC (EQ-ENV-01)</div>
+          </div>
+
+          <div class="or-divider"><span>O SELECCIÓN MANUAL EN PLANTA</span></div>
+
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="manual-machine-select">Activos de la Planta:</label>
+            <select class="field-control" id="manual-machine-select" onchange="simulateManualSelect(this.value)">
+              <option value="" disabled selected>-- Seleccione una máquina --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- PASO 2: FORMULARIO ÁGIL DE BLOQUEO -->
+        <div id="tech-step-2" class="hidden">
+          <div class="target-machine-card">
+            <div class="target-machine-icon" id="target-card-icon">📦</div>
+            <div class="target-machine-info">
+              <h3 id="form-machine-code">EQ-ENV-01</h3>
+              <p id="form-machine-name">Envasadora Rotativa Automática</p>
+              <p id="form-machine-status" style="color: var(--verde-seguridad); font-size: 0.75rem; font-weight: 900;">🟢 ESTADO: OPERATIVO</p>
+            </div>
+          </div>
+
+          <button type="button" class="btn-step-secondary hidden" id="btn-step2-view-active" style="margin-top: 0; margin-bottom: 14px;" onclick="openActiveLocksForSelectedMachine()">
+            🔓 Ver bloqueo(s) activo(s) de este equipo → Paso 3
+          </button>
+
+          <label class="field-label">1. Tipo de Intervención:</label>
+          <div class="intervention-type-group">
+            <div class="type-card selected" id="card-type-corrective" role="button" tabindex="0" aria-pressed="true" onclick="selectInterventionType('correctiva')" onkeydown="handleActivateKey(event, () => selectInterventionType('correctiva'))">
+              <span class="icon">🛠️</span>
+              <span class="title">Falla Correctiva</span>
+              <span class="desc">Avería no programada</span>
+            </div>
+            <div class="type-card" id="card-type-preventive" role="button" tabindex="0" aria-pressed="false" onclick="selectInterventionType('preventiva')" onkeydown="handleActivateKey(event, () => selectInterventionType('preventiva'))">
+              <span class="icon">⚙️</span>
+              <span class="title">Mantención Prev.</span>
+              <span class="desc">Pauta programada</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="field-reason">2. Motivo Específico:</label>
+            <select class="field-control" id="field-reason"></select>
+          </div>
+
+          <div class="field-group" id="group-referencia-falla">
+            <label class="field-label" for="field-referencia-falla">2b. Referencia de Falla (Obligatoria en Correctiva):</label>
+            <input type="text" id="field-referencia-falla" class="field-control" placeholder="Ej: FALLA-2026-001" value="FALLA-2026-001" maxlength="80">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="field-notas">3. Notas de Auditoría (Cifrado AES-256-GCM en BD):</label>
+            <textarea id="field-notas" class="field-control" rows="2" maxlength="2000" placeholder="Opcional: detalle técnico confidencial (máx. 2000 caracteres)..."></textarea>
+          </div>
+
+          <div class="legal-confirmation-box">
+            <input type="checkbox" id="check-padlock" onchange="toggleSubmitButton()">
+            <label for="check-padlock">
+              <strong>Cumplimiento Legal (DS 594):</strong> Aplicaré mi candado físico personal y tarjeta de advertencia en el desconectador principal antes de intervenir.
+            </label>
+          </div>
+
+          <button type="button" class="btn-action-primary" id="btn-submit-lock" disabled onclick="executeDigitalLock()">
+            🔒 ACTIVAR BLOQUEO DIGITAL LOTO
+          </button>
+
+          <button type="button" class="btn-link-muted" onclick="cancelToStep1()">
+            ← Cancelar y elegir otro equipo
+          </button>
+        </div>
+
+        <!-- PASO 3: BLOQUEO ACTIVO + MULTI-LOTO + LIBERACIÓN -->
+        <div id="tech-step-3" class="hidden">
+          <div class="locked-state-banner">
+            <div class="locked-state-badge" id="locked-state-badge">🔴 BLOQUEO LOTO ACTIVO</div>
+            <div class="locked-machine-title" id="locked-banner-machine">EQ-ENV-01 · Envasadora Rotativa</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);" id="locked-banner-subtitle">Activo desenergizado y asegurado</div>
+            <div class="locked-timer-display" id="active-lock-timer">00:00:00</div>
+            <span style="font-size: 0.74rem; color: var(--text-dim);">Cronómetro en línea de fuego</span>
+          </div>
+
+          <div class="multi-loto-selector-box hidden" id="group-unlock-ticket">
+            <label class="field-label" for="unlock-ticket-select" style="color: var(--rojo-peligro);">
+              🔐 Multi-LOTO: Selecciona tu ticket/candado a liberar
+            </label>
+            <select class="field-control" id="unlock-ticket-select" onchange="onSelectUnlockTicket(this.value)"></select>
+          </div>
+
+          <table class="locked-details-table">
+            <tr>
+              <td class="label">Ticket ID:</td>
+              <td class="val" id="locked-detail-ticket-id">—</td>
+            </tr>
+            <tr>
+              <td class="label">Técnico Resp.:</td>
+              <td class="val" id="locked-detail-tech">—</td>
+            </tr>
+            <tr>
+              <td class="label">Tipo de Orden:</td>
+              <td class="val" id="locked-detail-type">—</td>
+            </tr>
+            <tr>
+              <td class="label">Motivo:</td>
+              <td class="val" id="locked-detail-reason">—</td>
+            </tr>
+            <tr id="locked-detail-notes-row" class="hidden">
+              <td class="label">Notas (AES-GCM):</td>
+              <td class="val" id="locked-detail-notes">—</td>
+            </tr>
+            <tr>
+              <td class="label">Inicio Bloqueo:</td>
+              <td class="val" id="locked-detail-time">—</td>
+            </tr>
+          </table>
+
+          <div style="background: var(--bg-input); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; font-size: 0.8rem; color: var(--text-muted); border-left: 3px solid var(--verde-seguridad);">
+            💡 <strong>Desbloqueo Seguro:</strong> Solo el dueño del ticket puede liberar su candado digital (el servidor rechaza con <code>403</code> a otros usuarios).
+          </div>
+
+          <button type="button" class="btn-action-unlock" id="btn-unlock-lock" onclick="executeDigitalUnlock()">
+            🔓 RETIRAR CANDADO Y LIBERAR EQUIPO
+          </button>
+
+          <button type="button" class="btn-step-secondary" id="btn-step3-add-lock" onclick="openStep2ForCurrentMachine()">
+            ➕ Añadir otro bloqueo en este equipo (Multi-LOTO)
+          </button>
+          <button type="button" class="btn-link-muted" onclick="cancelToStep1()">
+            ← Volver a lista de equipos
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PESTAÑA 2: HISTORIAL Y NOTAS DE AUDITORÍA -->
+    <section id="tech-tab-historial" class="hidden" aria-label="Historial de bloqueos y notas descifradas">
+      <div class="tech-card" style="margin-bottom: 12px;">
+        <h2 class="mobile-screen-title">📋 Historial y Notas LOTO</h2>
+        <p class="mobile-subtitle" style="margin-bottom: 12px;">Consulta bloqueos activos y cerrados. Toca una tarjeta para abrir su ficha completa y ver notas descifradas.</p>
+
+        <div class="audit-filter-bar" style="margin-bottom: 0;" role="group" aria-label="Filtro de bloqueos">
+          <button type="button" class="filter-chip active" data-audit-filter="ALL" onclick="setAuditFilter('ALL')">Todos</button>
+          <button type="button" class="filter-chip" data-audit-filter="ACTIVO" onclick="setAuditFilter('ACTIVO')">🔴 Activos</button>
+          <button type="button" class="filter-chip" data-audit-filter="CERRADO" onclick="setAuditFilter('CERRADO')">🟢 Cerrados (Histórico)</button>
+        </div>
+      </div>
+
+      <div class="mobile-history-list" id="mobile-history-list"></div>
+    </section>
+
+    <!-- PESTAÑA 3: TÉCNICOS Y SESIÓN EN MEMORIA -->
+    <section id="tech-tab-tecnicos" class="hidden" aria-label="Sesión HTTP Basic y alta de técnicos">
+      <div class="tech-card">
+        <h2 class="mobile-screen-title">👷 Sesión en Memoria</h2>
+        <p id="mobile-session-summary" style="font-size: 0.84rem; color: var(--text-main); font-weight: 800; margin-bottom: 10px;">
+          Sin sesión activa (Solo lectura pública)
+        </p>
+
+        <form onsubmit="event.preventDefault(); loginFromMobilePanel();" style="display: flex; flex-direction: column; gap: 10px;">
+          <input type="text" id="mobile-auth-user" class="field-control" placeholder="Usuario (ej: tecnico1 o supervisor-local)" autocomplete="username">
+          <input type="password" id="mobile-auth-pass" class="field-control" placeholder="Contraseña" autocomplete="current-password">
+          <div style="display: flex; gap: 8px;">
+            <button type="submit" class="btn-primary-blue" style="flex: 1;">🔑 Iniciar Sesión</button>
+            <button type="button" class="chip-btn hidden" id="mobile-btn-logout" style="min-height: 48px; padding: 0 16px; color: var(--rojo-peligro); border-color: var(--rojo-peligro);" onclick="logoutOperator()">Salir</button>
+          </div>
+        </form>
+
+        <div style="margin-top: 12px;">
+          <div style="font-size: 0.72rem; font-weight: 800; color: var(--text-dim); margin-bottom: 4px;">MONITOR HTTP EN VIVO</div>
+          <div class="http-monitor-box" id="http-status-monitor" aria-live="polite">
+            HTTP · Esperando conexión...
+          </div>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div style="font-size: 0.84rem; font-weight: 900; color: var(--verde-seguridad); margin-bottom: 10px;">
+          ➕ CREAR NUEVO TÉCNICO (BCrypt 12)
+        </div>
+        <form id="mobile-create-tech-form" onsubmit="event.preventDefault(); createTechnicianFromForm();" style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="mtech-nombre">Nombre completo</label>
+            <input type="text" id="mtech-nombre" class="field-control" required minlength="3" maxlength="80" placeholder="Ej: Bastián Araya">
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="mtech-username">Username (3-50 caracteres, sin espacios)</label>
+            <input type="text" id="mtech-username" class="field-control" required pattern="[a-zA-Z0-9._-]{3,50}" placeholder="Ej: b.araya">
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="mtech-password">Contraseña (mínimo 12 caracteres)</label>
+            <input type="password" id="mtech-password" class="field-control" required minlength="12" maxlength="72" placeholder="Ej: Tecnico2026!">
+          </div>
+          <div class="field-group" style="margin-bottom: 0;">
+            <label class="field-label" for="mtech-rol">Rol de Acceso</label>
+            <select id="mtech-rol" class="field-control">
+              <option value="TECNICO" selected>TECNICO (Operación en terreno)</option>
+              <option value="SUPERVISOR">SUPERVISOR (Consola + Auditoría total)</option>
+            </select>
+          </div>
+
+          <div id="mobile-sup-auth-box" style="background: var(--bg-input); border: 1px dashed var(--ambar-industrial); border-radius: var(--radius-sm); padding: 10px;">
+            <p style="font-size: 0.74rem; color: var(--ambar-industrial); font-weight: 800; margin-bottom: 8px;">
+              🔐 Autorización de Supervisor (POST /api/v1/tecnicos exige ROLE_SUPERVISOR)
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <input type="text" id="mtech-sup-user" class="field-control" placeholder="Usuario supervisor (ej: supervisor-local)" autocomplete="off">
+              <input type="password" id="mtech-sup-pass" class="field-control" placeholder="Contraseña de supervisor" autocomplete="off">
+            </div>
+          </div>
+
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: var(--text-main); cursor: pointer;">
+            <input type="checkbox" id="mtech-autologin" checked style="width: 20px; height: 20px; accent-color: var(--azul-industrial);">
+            Iniciar sesión automáticamente con este nuevo técnico
+          </label>
+
+          <button type="submit" class="btn-action-unlock" id="mtech-submit-btn">
+            👷 CREAR Y ACTIVAR TÉCNICO
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       BARRA DE NAVEGACIÓN INFERIOR FIJA DEL TÉCNICO
+       ======================================================================== -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Navegación de la app móvil">
+    <button type="button" class="mobile-nav-btn active" id="mnav-operar" onclick="switchMobileTab('operar')">
+      <span class="nav-ico">🛡️</span>
+      <span>Operar LOTO</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" id="mnav-historial" onclick="switchMobileTab('historial')">
+      <span class="nav-ico">📋</span>
+      <span>Historial y Notas</span>
+    </button>
+    <button type="button" class="mobile-nav-btn" id="mnav-tecnicos" onclick="switchMobileTab('tecnicos')">
+      <span class="nav-ico">👷</span>
+      <span>Técnicos / Sesión</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       MODAL: FICHA DE AUDITORÍA Y NOTAS DESCIFRADAS (AES-256-GCM)
+       ======================================================================== -->
+  <div class="silbom-modal-backdrop hidden" id="audit-detail-modal" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" onclick="if (event.target === this) closeAuditDetailModal();">
+    <div class="silbom-modal">
+      <div class="silbom-modal-header">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <h2 id="audit-modal-title" style="font-size: 1rem; font-weight: 900; color: var(--text-main);">Ticket LOTO #—</h2>
+          <span id="audit-modal-status-badge" class="kpi-status-tag tag-green">🟢 CERRADO</span>
+        </div>
+        <button type="button" class="silbom-modal-close" onclick="closeAuditDetailModal()" aria-label="Cerrar ficha">✕</button>
+      </div>
+      <div class="silbom-modal-body">
+        <div class="audit-meta-grid" id="audit-modal-meta"></div>
+
+        <div class="audit-notes-box" id="audit-modal-notes-box">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+            <strong style="font-size: 0.84rem; color: var(--text-main);">🔐 Notas de Auditoría (AES-256-GCM)</strong>
+            <span id="audit-modal-notes-badge" class="kpi-status-tag tag-blue">Verificando...</span>
+          </div>
+          <div class="audit-notes-text" id="audit-modal-notes-text">—</div>
+        </div>
+
+        <div>
+          <h3 style="font-size: 0.86rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">
+            📜 Trazabilidad Inmutable (eventos_loto)
+          </h3>
+          <div class="event-timeline" id="audit-modal-events">
+            <div class="event-timeline-item">Cargando eventos...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: INSTALAR / DESCARGAR APP ANDROID
+       ======================================================================== -->
+  <div class="silbom-modal-backdrop hidden" id="install-app-modal" role="dialog" aria-modal="true" aria-labelledby="install-modal-title" onclick="if (event.target === this) closeInstallModal();">
+    <div class="silbom-modal">
+      <div class="silbom-modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h2 id="install-modal-title" style="font-size: 1rem; font-weight: 900; color: var(--text-main);">📲 Instalar / Descargar App</h2>
+          <span class="kpi-status-tag tag-blue">Android</span>
+        </div>
+        <button type="button" class="silbom-modal-close" onclick="closeInstallModal()" aria-label="Cerrar diálogo de instalación">✕</button>
+      </div>
+      <div class="silbom-modal-body">
+        <button type="button" class="btn-primary-blue hidden" id="btn-native-pwa-install" onclick="triggerNativePwaInstall()">
+          📲 Instalar App en Pantalla de Inicio
+        </button>
+
+        <div class="tech-card" style="background: var(--bg-input); margin-bottom: 0;">
+          <strong style="font-size: 0.84rem; color: var(--azul-industrial); display: block; margin-bottom: 6px;">
+            📲 Instalar como App en Android (Chrome)
+          </strong>
+          <ol style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: var(--text-main); line-height: 1.5;">
+            <li>Abre <code>http://&lt;IP_PC&gt;:8080/app/</code> en Google Chrome del teléfono conectado al Wi-Fi.</li>
+            <li>Toca el menú <strong>⋮</strong> y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>.</li>
+          </ol>
+        </div>
+
+        <button type="button" class="btn-action-unlock" onclick="downloadStandaloneTechnicianHtml()">
+          ⬇️ Descargar Copia Autónoma (SILBOM-Tecnico-App.html)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-notification" id="app-toast">
+    <span id="toast-icon">🔔</span>
+    <span id="toast-message">Mensaje del sistema</span>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       CONFIGURACIÓN DE SERVIDOR Y ESTADO EN MEMORIA (ZERO CREDENCIALES EN STORAGE)
+       ========================================================================== */
+    function resolveInitialServerOrigin() {
+      const params = new URLSearchParams(window.location.search);
+      const apiParam = (params.get('api') || '').trim();
+      if (apiParam) {
+        return apiParam.replace(/\/api\/v1\/?$/i, '').replace(/\/+$/, '');
+      }
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (window.location.port === '8080') {
+          return window.location.origin;
+        }
+        const host = window.location.hostname || 'localhost';
+        return `http://${host}:8080`;
+      }
+      return 'http://10.50.56.241:8080';
+    }
+
+    const HTTP_STATUS_LABELS = {
+      200: 'OK',
+      201: 'Created',
+      204: 'No Content',
+      400: 'Bad Request',
+      401: 'Unauthorized',
+      403: 'Forbidden',
+      404: 'Not Found',
+      405: 'Method Not Allowed',
+      409: 'Conflict',
+      415: 'Unsupported Media Type',
+      429: 'Too Many Requests',
+      500: 'Internal Server Error'
+    };
+
+    const DEFAULT_DEMO_MACHINES = [
+      { id: 'EQ-ENV-01', name: 'Envasadora Rotativa Automática', area: 'Línea de Envasado 1', icon: '📦', isLocked: false, activeLocks: 0 },
+      { id: 'EQ-PR-04', name: 'Prensa Hidráulica 200T', area: 'Área de Estampado', icon: '⚙️', isLocked: false, activeLocks: 0 },
+      { id: 'EQ-EXT-02', name: 'Extrusora de Polímeros', area: 'Área de Moldeo', icon: '🔄', isLocked: false, activeLocks: 0 },
+      { id: 'EQ-MEZ-01', name: 'Mezclador Industrial de Cinta', area: 'Área de Preparación', icon: '🥣', isLocked: false, activeLocks: 0 },
+      { id: 'EQ-COM-03', name: 'Compresor de Tornillo', area: 'Sala de Máquinas', icon: '💨', isLocked: false, activeLocks: 0 },
+      { id: 'EQ-TR-01', name: 'Cinta Transportadora Principal', area: 'Logística y Despacho', icon: '🏗️', isLocked: false, activeLocks: 0 }
+    ];
+
+    const DEFAULT_DEMO_TICKETS = [
+      {
+        id: 3,
+        maquinaId: 'EQ-ENV-01',
+        tipoIntervencion: 'CORRECTIVA',
+        motivo: 'Atascamiento de cabezal móvil (Mecánico)',
+        nombreTecnico: 'Benjamín V.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 86400000).toISOString(),
+        horaFin: new Date(Date.now() - 84300000).toISOString(),
+        duracionMinutos: 35,
+        notasAuditoria: 'Se verifica desconexión total de variador y purga neumática antes de destrabar mordaza.',
+        fallaId: 103
+      },
+      {
+        id: 2,
+        maquinaId: 'EQ-EXT-02',
+        tipoIntervencion: 'CORRECTIVA',
+        motivo: 'Sobrecalentamiento en motor principal (Eléctrico)',
+        nombreTecnico: 'Vicente M.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 172800000).toISOString(),
+        horaFin: new Date(Date.now() - 168480000).toISOString(),
+        duracionMinutos: 72,
+        notasAuditoria: 'Ventilador auxiliar obstruido. Medición de tensión cero validada con multímetro calibrado.',
+        fallaId: 102
+      },
+      {
+        id: 1,
+        maquinaId: 'EQ-PR-04',
+        tipoIntervencion: 'PREVENTIVA',
+        motivo: 'Inspección y lubricación semanal programada',
+        nombreTecnico: 'Carlos R.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 259200000).toISOString(),
+        horaFin: new Date(Date.now() - 256500000).toISOString(),
+        duracionMinutos: 45,
+        notasAuditoria: null,
+        fallaId: null
+      }
+    ];
+
+    function buildAuditLogsFromTickets(tickets) {
+      return tickets.map(b => ({
+        id: b.id,
+        time: formatShortDateTime(b.horaInicio),
+        machineId: b.maquinaId,
+        type: b.tipoIntervencion === 'CORRECTIVA' ? 'Correctiva' : 'Preventiva',
+        technician: b.nombreTecnico || 'Operador',
+        status: b.estado === 'ACTIVO'
+          ? '🔴 Bloqueo Activo'
+          : `Cerrado (${formatDuration(b.duracionMinutos)})`,
+        isActive: b.estado === 'ACTIVO',
+        motivo: b.motivo,
+        notasAuditoria: b.notasAuditoria,
+        tecnicoId: b.tecnicoId ?? null,
+        fallaId: b.fallaId ?? null
+      }));
+    }
+
+    const AppState = {
+      theme: 'dark',
+      serverOrigin: resolveInitialServerOrigin(),
+      mobileTab: 'operar',
+      auditFilter: 'ALL',
+      currentStep: 1,
+      selectedMachineId: 'EQ-ENV-01',
+      selectedType: 'correctiva',
+      selectedTicketId: null,
+      apiOnline: false,
+      isSubmitting: false,
+      auth: null, // SOLO EN MEMORIA: { username, password, header, rol, id, nombre }
+      timerInterval: null,
+      timerSeconds: 0,
+      deferredInstallPrompt: null,
+      localTicketSeq: 100,
+      machines: DEFAULT_DEMO_MACHINES.map(m => ({ ...m })),
+      tickets: DEFAULT_DEMO_TICKETS.map(t => ({ ...t })),
+      auditLogs: buildAuditLogsFromTickets(DEFAULT_DEMO_TICKETS)
+    };
+
+    /* ==========================================================================
+       UTILIDADES DE SEGURIDAD, HTTP Y SERVIDOR
+       ========================================================================== */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function handleActivateKey(event, callback) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        callback();
+      }
+    }
+
+    function encodeBasicAuth(username, password) {
+      const bytes = new TextEncoder().encode(`${username}:${password}`);
+      let binary = '';
+      bytes.forEach(b => {
+        binary += String.fromCharCode(b);
+      });
+      return 'Basic ' + btoa(binary);
+    }
+
+    function getApiBaseUrl() {
+      return `${AppState.serverOrigin}/api/v1`;
+    }
+
+    function updateConnectionBadge(isOnline) {
+      AppState.apiOnline = isOnline;
+      const badge = document.getElementById('api-connection-badge');
+      if (!badge) return;
+      if (isOnline) {
+        badge.className = 'connection-pill online';
+        badge.textContent = `🟢 API Conectada (${AppState.serverOrigin.replace(/^https?:\/\//, '')})`;
+      } else {
+        badge.className = 'connection-pill offline';
+        badge.textContent = '🟡 Modo Demo Local (Offline)';
+      }
+    }
+
+    function updateHttpMonitor(method, endpoint, status, customText) {
+      const monitor = document.getElementById('http-status-monitor');
+      if (!monitor) return;
+
+      const label = customText || HTTP_STATUS_LABELS[status] || '';
+      const statusDisplay = status ? `${status}${label ? ' ' + label : ''}` : (label || 'OFFLINE');
+      monitor.textContent = `${method} /api/v1${endpoint} → ${statusDisplay}`;
+
+      if (status >= 200 && status < 300) {
+        monitor.style.color = '#66DDB0';
+        monitor.style.borderColor = '#66DDB0';
+        monitor.style.backgroundColor = 'rgba(102, 221, 176, 0.14)';
+      } else if (status === 400 || status === 409) {
+        monitor.style.color = '#F5A623';
+        monitor.style.borderColor = '#F5A623';
+        monitor.style.backgroundColor = 'rgba(245, 166, 35, 0.14)';
+      } else {
+        monitor.style.color = '#FF7379';
+        monitor.style.borderColor = '#FF7379';
+        monitor.style.backgroundColor = 'rgba(255, 115, 121, 0.14)';
+      }
+    }
+
+    async function apiFetch(endpoint, options = {}) {
+      const method = (options.method || 'GET').toUpperCase();
+      const silentMonitor = Boolean(options.silentMonitor);
+      const authHeaderOverride = options.authHeaderOverride || null;
+      const fetchOptions = { ...options };
+      delete fetchOptions.silentMonitor;
+      delete fetchOptions.authHeaderOverride;
+
+      const headers = {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(fetchOptions.headers || {})
+      };
+
+      if (fetchOptions.body !== undefined && fetchOptions.body !== null && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+      }
+
+      if (authHeaderOverride) {
+        headers['Authorization'] = authHeaderOverride;
+      } else if (AppState.auth && AppState.auth.header) {
+        headers['Authorization'] = AppState.auth.header;
+      }
+
+      let response;
+      try {
+        response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
+          ...fetchOptions,
+          method,
+          headers
+        });
+      } catch (networkErr) {
+        updateConnectionBadge(false);
+        if (!silentMonitor) {
+          updateHttpMonitor(method, endpoint, 0, 'OFFLINE (Sin conexión)');
+        }
+        const err = new Error('Servidor backend no disponible');
+        err.isNetworkError = true;
+        throw err;
+      }
+
+      updateConnectionBadge(true);
+
+      let data = null;
+      const rawText = await response.text();
+      if (rawText) {
+        try {
+          data = JSON.parse(rawText);
+        } catch (parseErr) {
+          data = { mensaje: rawText };
+        }
+      }
+
+      if (!silentMonitor) {
+        updateHttpMonitor(method, endpoint, response.status, response.statusText || HTTP_STATUS_LABELS[response.status]);
+      }
+
+      return {
+        ok: response.ok,
+        status: response.status,
+        data
+      };
+    }
+
+    function extractApiError(data, status) {
+      if (data && typeof data === 'object') {
+        if (data.mensaje) return data.mensaje;
+        if (data.error) return data.error;
+      }
+      return `Error HTTP ${status}`;
+    }
+
+    function toggleServerConfigDrawer(forceOpen) {
+      const drawer = document.getElementById('server-config-drawer');
+      if (!drawer) return;
+      const willOpen = forceOpen !== undefined ? forceOpen : drawer.classList.contains('hidden');
+      drawer.classList.toggle('hidden', !willOpen);
+      const input = document.getElementById('server-url-input');
+      if (willOpen && input) {
+        input.value = AppState.serverOrigin;
+      }
+    }
+
+    function setServerUrlPreset(url) {
+      const input = document.getElementById('server-url-input');
+      if (input) input.value = url;
+    }
+
+    async function applyAndTestServerConnection() {
+      const input = document.getElementById('server-url-input');
+      const raw = input ? input.value.trim() : '';
+      if (!/^https?:\/\/[^/\s]+/i.test(raw)) {
+        showToast('Ingresa una URL válida (ej: http://10.50.56.241:8080)', '⚠️');
+        return;
+      }
+
+      AppState.serverOrigin = raw.replace(/\/api\/v1\/?$/i, '').replace(/\/+$/, '');
+      const ok = await loadMachinesFromApi();
+      if (ok) {
+        if (AppState.auth && AppState.auth.header) {
+          await loadBloqueosFromApi();
+        }
+        showToast(`Conectado a ${AppState.serverOrigin}`, '🟢');
+        toggleServerConfigDrawer(false);
+      } else {
+        showToast(`No responde ${AppState.serverOrigin}. Verifica Wi-Fi y puerto 8080`, '🚫');
+      }
+    }
+
+    /* ==========================================================================
+       AUTENTICACIÓN EN MEMORIA Y SESIÓN
+       ========================================================================== */
+    function renderAuthUI() {
+      const mobilePill = document.getElementById('mobile-operator-pill');
+      const mobileSummary = document.getElementById('mobile-session-summary');
+      const mobileLogoutBtn = document.getElementById('mobile-btn-logout');
+      const mobileSupAuthBox = document.getElementById('mobile-sup-auth-box');
+      const guestNudge = document.getElementById('guest-login-nudge');
+
+      if (AppState.auth && AppState.auth.username) {
+        const roleTag = AppState.auth.rol ? ` (${AppState.auth.rol})` : '';
+        if (mobilePill) mobilePill.textContent = `👤 ${AppState.auth.username}${roleTag}`;
+        if (mobileSummary) mobileSummary.textContent = `Sesión activa: ${AppState.auth.username}${roleTag}`;
+        if (mobileLogoutBtn) mobileLogoutBtn.classList.remove('hidden');
+        if (mobileSupAuthBox) {
+          mobileSupAuthBox.classList.toggle('hidden', AppState.auth.rol === 'SUPERVISOR');
+        }
+        if (guestNudge) guestNudge.classList.add('hidden');
+      } else {
+        if (mobilePill) mobilePill.textContent = '👤 Sin sesión activa';
+        if (mobileSummary) mobileSummary.textContent = 'Sin sesión activa (Solo lectura pública)';
+        if (mobileLogoutBtn) mobileLogoutBtn.classList.add('hidden');
+        if (mobileSupAuthBox) mobileSupAuthBox.classList.remove('hidden');
+        if (guestNudge) guestNudge.classList.remove('hidden');
+      }
+    }
+
+    async function probeAuthenticatedRole() {
+      if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) return;
+      try {
+        const res = await apiFetch('/tecnicos', { silentMonitor: true });
+        if (res.ok && Array.isArray(res.data)) {
+          AppState.auth.rol = 'SUPERVISOR';
+          const match = res.data.find(t => t.username === AppState.auth.username);
+          if (match) {
+            AppState.auth.id = match.id;
+            AppState.auth.nombre = match.nombre;
+          }
+        } else if (res.status === 403) {
+          AppState.auth.rol = 'TECNICO';
+        }
+      } catch (err) {
+        // Ignorar fallo en detección de rol
+      }
+    }
+
+    async function performLogin(username, password) {
+      if (!username || !password) {
+        showToast('Ingresa usuario y contraseña para iniciar sesión', '⚠️');
+        return false;
+      }
+
+      AppState.auth = {
+        username,
+        password,
+        header: encodeBasicAuth(username, password),
+        rol: null,
+        id: null,
+        nombre: null
+      };
+      renderAuthUI();
+
+      await loadMachinesFromApi();
+
+      if (AppState.apiOnline) {
+        const res = await loadBloqueosFromApi();
+        if (res && res.status === 401) {
+          AppState.auth = null;
+          AppState.tickets = [];
+          AppState.auditLogs = [];
+          renderAuthUI();
+          renderMobileHistorial();
+          showToast('Credenciales inválidas (401 Unauthorized)', '🚫');
+          return false;
+        }
+        await probeAuthenticatedRole();
+        renderAuthUI();
+
+        const roleLabel = AppState.auth.rol || 'OPERADOR';
+        showToast(`Sesión iniciada: ${username} (${roleLabel})`, '👷');
+        if (AppState.currentStep === 3) {
+          const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+          if (m) updateLockedDisplay(m);
+        }
+      } else {
+        AppState.auth.rol = username.toLowerCase().includes('supervisor') ? 'SUPERVISOR' : 'TECNICO';
+        renderAuthUI();
+        showToast(`Operador cargado en modo offline: ${username}`, '🟡');
+      }
+
+      renderMobileHistorial();
+      return true;
+    }
+
+    async function loginFromMobilePanel() {
+      const userInput = document.getElementById('mobile-auth-user');
+      const passInput = document.getElementById('mobile-auth-pass');
+      const username = userInput.value.trim();
+      const password = passInput.value;
+      passInput.value = '';
+      await performLogin(username, password);
+    }
+
+    function logoutOperator() {
+      AppState.auth = null;
+      renderAuthUI();
+
+      if (AppState.apiOnline) {
+        AppState.tickets = [];
+        AppState.auditLogs = [];
+        if (AppState.currentStep === 3) {
+          clearInterval(AppState.timerInterval);
+          showTechStep(1);
+        }
+      } else {
+        AppState.tickets = DEFAULT_DEMO_TICKETS.map(t => ({ ...t }));
+        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
+      }
+
+      renderMobileHistorial();
+      showToast('Sesión cerrada de memoria', '🔒');
+    }
+
+    /* ==========================================================================
+       SINCRONIZACIÓN API REST Y NAVEGACIÓN DE PESTAÑAS
+       ========================================================================== */
+    function populateMachineSelect() {
+      const select = document.getElementById('manual-machine-select');
+      if (!select) return;
+      const previous = select.value;
+      select.innerHTML = '';
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      placeholder.textContent = '-- Seleccione una máquina --';
+      select.appendChild(placeholder);
+
+      AppState.machines.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = `${m.id} · ${m.name}`;
+        select.appendChild(opt);
+      });
+
+      if (previous && AppState.machines.some(m => m.id === previous)) {
+        select.value = previous;
+      }
+    }
+
+    async function loadMachinesFromApi(silentMonitor = false) {
+      try {
+        const { ok, data } = await apiFetch('/maquinas', { silentMonitor });
+        if (ok && Array.isArray(data)) {
+          AppState.machines = data.map(m => ({
+            id: m.id,
+            name: m.nombre,
+            area: m.area,
+            icon: m.icono || '⚙️',
+            isLocked: Boolean(m.bloqueada),
+            activeLocks: Number(m.bloqueosActivos ?? 0)
+          }));
+
+          if (!AppState.machines.some(m => m.id === AppState.selectedMachineId) && AppState.machines.length > 0) {
+            AppState.selectedMachineId = AppState.machines[0].id;
+          }
+          populateMachineSelect();
+          return true;
+        }
+      } catch (err) {
+        populateMachineSelect();
+      }
+      return false;
+    }
+
+    async function loadBloqueosFromApi(silentMonitor = false) {
+      if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) {
+        return null;
+      }
+
+      try {
+        const res = await apiFetch('/bloqueos', { silentMonitor });
+        if (res.ok && Array.isArray(res.data)) {
+          AppState.tickets = res.data;
+          AppState.auditLogs = buildAuditLogsFromTickets(res.data);
+          renderMobileHistorial();
+        }
+        return res;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function formatShortDateTime(isoStr) {
+      if (!isoStr) return 'Reciente';
+      const d = new Date(isoStr);
+      if (Number.isNaN(d.getTime())) return String(isoStr);
+      return d.toLocaleString('es-CL', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatDuration(mins) {
+      if (mins === null || mins === undefined) return '0 min';
+      if (mins < 60) return `${mins} min`;
+      return `${(mins / 60).toFixed(1)} hrs`;
+    }
+
+    function switchMobileTab(tab) {
+      AppState.mobileTab = tab;
+      const tabOperar = document.getElementById('tech-tab-operar');
+      const tabHistorial = document.getElementById('tech-tab-historial');
+      const tabTecnicos = document.getElementById('tech-tab-tecnicos');
+      const navOperar = document.getElementById('mnav-operar');
+      const navHistorial = document.getElementById('mnav-historial');
+      const navTecnicos = document.getElementById('mnav-tecnicos');
+
+      if (tabOperar) tabOperar.classList.toggle('hidden', tab !== 'operar');
+      if (tabHistorial) tabHistorial.classList.toggle('hidden', tab !== 'historial');
+      if (tabTecnicos) tabTecnicos.classList.toggle('hidden', tab !== 'tecnicos');
+
+      if (navOperar) navOperar.classList.toggle('active', tab === 'operar');
+      if (navHistorial) navHistorial.classList.toggle('active', tab === 'historial');
+      if (navTecnicos) navTecnicos.classList.toggle('active', tab === 'tecnicos');
+
+      if (tab === 'historial') {
+        if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+          loadBloqueosFromApi(true);
+        } else {
+          renderMobileHistorial();
+        }
+      }
+    }
+
+    /* ==========================================================================
+       OPERACIÓN LOTO DEL TÉCNICO (3 PANTALLAS + MULTI-LOTO + DS 594)
+       ========================================================================== */
+    function playBeep(type) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'nfc') {
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(1320, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.18);
+        } else if (type === 'lock') {
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.38);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.38);
+        } else if (type === 'unlock') {
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.2);
+          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.32);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.32);
+        }
+      } catch (e) {
+        // Ignorar restricción de audio antes de gesto táctil
+      }
+
+      if (navigator.vibrate) {
+        if (type === 'nfc') navigator.vibrate([40, 60, 40]);
+        if (type === 'lock') navigator.vibrate([150, 80, 150]);
+        if (type === 'unlock') navigator.vibrate(80);
+      }
+    }
+
+    function getActiveTicketsForMachine(machineId) {
+      return AppState.tickets.filter(t => t.maquinaId === machineId && t.estado === 'ACTIVO');
+    }
+
+    function simulateNfcTap(machineId) {
+      switchMobileTab('operar');
+      playBeep('nfc');
+      showToast(`¡Tag NFC detectado! Equipo: ${machineId}`, '📡');
+      loadMachineIntoForm(machineId);
+    }
+
+    function simulateManualSelect(machineId) {
+      if (!machineId) return;
+      playBeep('nfc');
+      showToast(`Equipo seleccionado: ${machineId}`, '🔍');
+      loadMachineIntoForm(machineId);
+    }
+
+    function openStep2ForCurrentMachine() {
+      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+      if (!m) return;
+      populateStep2Form(m);
+      showTechStep(2);
+    }
+
+    function openActiveLocksForSelectedMachine() {
+      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+      if (!m) return;
+      showTechStep(3);
+      updateLockedDisplay(m);
+    }
+
+    function populateStep2Form(m) {
+      document.getElementById('form-machine-code').textContent = m.id;
+      document.getElementById('form-machine-name').textContent = m.name;
+      document.getElementById('target-card-icon').textContent = m.icon;
+
+      const statusEl = document.getElementById('form-machine-status');
+      const viewActiveBtn = document.getElementById('btn-step2-view-active');
+      const activeCount = Math.max(m.activeLocks || 0, getActiveTicketsForMachine(m.id).length);
+
+      if (m.isLocked || activeCount > 0) {
+        statusEl.textContent = `🔴 BLOQUEADA (${activeCount || 1} bloqueo(s) activo(s) · Multi-LOTO)`;
+        statusEl.style.color = 'var(--rojo-peligro)';
+        if (viewActiveBtn) viewActiveBtn.classList.remove('hidden');
+      } else {
+        statusEl.textContent = '🟢 ESTADO: OPERATIVO';
+        statusEl.style.color = 'var(--verde-seguridad)';
+        if (viewActiveBtn) viewActiveBtn.classList.add('hidden');
+      }
+
+      document.getElementById('check-padlock').checked = false;
+      document.getElementById('btn-submit-lock').disabled = true;
+      const notesInput = document.getElementById('field-notas');
+      if (notesInput) notesInput.value = '';
+      const refInput = document.getElementById('field-referencia-falla');
+      if (refInput && !refInput.value.trim()) refInput.value = 'FALLA-2026-001';
+
+      selectInterventionType(AppState.selectedType);
+    }
+
+    function loadMachineIntoForm(machineId) {
+      AppState.selectedMachineId = machineId;
+      const m = AppState.machines.find(x => x.id === machineId);
+      if (!m) return;
+      populateStep2Form(m);
+      showTechStep(2);
+    }
+
+    function selectInterventionType(type) {
+      AppState.selectedType = type;
+      const cardCorr = document.getElementById('card-type-corrective');
+      const cardPrev = document.getElementById('card-type-preventive');
+      const refGroup = document.getElementById('group-referencia-falla');
+
+      if (type === 'correctiva') {
+        cardCorr.classList.add('selected');
+        cardCorr.setAttribute('aria-pressed', 'true');
+        cardPrev.classList.remove('selected');
+        cardPrev.setAttribute('aria-pressed', 'false');
+        if (refGroup) refGroup.classList.remove('hidden');
+      } else {
+        cardPrev.classList.add('selected');
+        cardPrev.setAttribute('aria-pressed', 'true');
+        cardCorr.classList.remove('selected');
+        cardCorr.setAttribute('aria-pressed', 'false');
+        if (refGroup) refGroup.classList.add('hidden');
+      }
+
+      populateReasons(type);
+    }
+
+    function populateReasons(type) {
+      const select = document.getElementById('field-reason');
+      select.innerHTML = '';
+
+      const correctiveReasons = [
+        'Atascamiento de cabezal móvil (Mecánico)',
+        'Sobrecalentamiento en motor principal (Eléctrico)',
+        'Fuga de presión en electroválvulas (Neumático)',
+        'Falla de sensor inductivo de posición (Control)',
+        'Desalineación y vibración anómala en cinta'
+      ];
+
+      const preventiveReasons = [
+        'Inspección y lubricación semanal programada',
+        'Cambio de rodamientos y sellos de desgaste',
+        'Ajuste y calibración de torque en mordazas',
+        'Limpieza técnica profunda y despeje de tolva',
+        'Revisión semestral de conexiones de potencia'
+      ];
+
+      const list = type === 'correctiva' ? correctiveReasons : preventiveReasons;
+      list.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        select.appendChild(opt);
+      });
+    }
+
+    function toggleSubmitButton() {
+      if (AppState.isSubmitting) return;
+      const check = document.getElementById('check-padlock').checked;
+      document.getElementById('btn-submit-lock').disabled = !check;
+    }
+
+    function cancelToStep1() {
+      showTechStep(1);
+      const sel = document.getElementById('manual-machine-select');
+      if (sel) sel.value = '';
+    }
+
+    async function executeDigitalLock() {
+      if (AppState.isSubmitting) return;
+      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+      if (!machine) return;
+
+      const submitBtn = document.getElementById('btn-submit-lock');
+      const originalBtnText = submitBtn.textContent;
+      const reason = document.getElementById('field-reason').value;
+      const confirmPadlock = document.getElementById('check-padlock').checked;
+      const refInput = document.getElementById('field-referencia-falla');
+      const notesInput = document.getElementById('field-notas');
+
+      const rawNotas = notesInput ? notesInput.value.trim() : '';
+      const rawRef = refInput ? refInput.value.trim() : '';
+      const tipoIntervencion = AppState.selectedType === 'correctiva' ? 'CORRECTIVA' : 'PREVENTIVA';
+
+      const payload = {
+        maquinaId: machine.id,
+        tipoIntervencion,
+        motivo: reason,
+        confirmacionCandadoDs594: confirmPadlock,
+        notasConfidenciales: rawNotas.length > 0 ? rawNotas : null,
+        referenciaFalla: tipoIntervencion === 'CORRECTIVA' ? (rawRef.length > 0 ? rawRef : null) : null
+      };
+
+      AppState.isSubmitting = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Procesando...';
+
+      try {
+        if (AppState.apiOnline) {
+          try {
+            const { ok, status, data } = await apiFetch('/bloqueos', {
+              method: 'POST',
+              body: JSON.stringify(payload)
+            });
+
+            if (ok && status === 201 && data) {
+              AppState.selectedTicketId = data.id;
+              if (AppState.auth && data.tecnicoId) {
+                AppState.auth.id = data.tecnicoId;
+              }
+              playBeep('lock');
+              showToast(`¡BLOQUEO LOTO #${data.id} REGISTRADO! Activo: ${machine.id}`, '🔒');
+
+              await loadMachinesFromApi();
+              await loadBloqueosFromApi();
+
+              const updatedMachine = AppState.machines.find(x => x.id === machine.id) || machine;
+              showTechStep(3);
+              updateLockedDisplay(updatedMachine);
+              renderMobileHistorial();
+              return;
+            }
+
+            if (status === 401) {
+              showToast('Inicia sesión primero en la pestaña "Técnicos / Sesión" (401)', '🔐');
+            } else {
+              showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
+            }
+            return;
+          } catch (err) {
+            if (!err.isNetworkError) {
+              showToast('Error inesperado al registrar bloqueo', '🚫');
+              return;
+            }
+          }
+        }
+
+        // Fallback Offline
+        if (tipoIntervencion === 'CORRECTIVA' && !payload.referenciaFalla) {
+          showToast('Ingrese referencia de falla para intervención correctiva', '⚠️');
+          return;
+        }
+
+        const localId = ++AppState.localTicketSeq;
+        const operador = (AppState.auth && AppState.auth.username) ? AppState.auth.username : 'Operador Demo';
+
+        const localTicket = {
+          id: localId,
+          maquinaId: machine.id,
+          tipoIntervencion,
+          motivo: reason,
+          nombreTecnico: operador,
+          confirmacionCandadoDs594: true,
+          estado: 'ACTIVO',
+          horaInicio: new Date().toISOString(),
+          horaFin: null,
+          duracionMinutos: null,
+          notasAuditoria: payload.notasConfidenciales,
+          referenciaFalla: payload.referenciaFalla,
+          fallaId: tipoIntervencion === 'CORRECTIVA' ? 1 : null
+        };
+
+        AppState.tickets.unshift(localTicket);
+        AppState.selectedTicketId = localId;
+        machine.isLocked = true;
+        machine.activeLocks = (machine.activeLocks || 0) + 1;
+        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
+
+        playBeep('lock');
+        showToast(`¡BLOQUEO LOTO LOCAL REGISTRADO! Activo: ${machine.id}`, '🔒');
+        showTechStep(3);
+        updateLockedDisplay(machine);
+        renderMobileHistorial();
+      } finally {
+        AppState.isSubmitting = false;
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = !document.getElementById('check-padlock').checked;
+      }
+    }
+
+    function onSelectUnlockTicket(ticketIdStr) {
+      const id = Number(ticketIdStr);
+      AppState.selectedTicketId = Number.isNaN(id) ? null : id;
+      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+      if (m) updateLockedDisplay(m);
+    }
+
+    function updateLockedDisplay(machine) {
+      document.getElementById('locked-banner-machine').textContent = `${machine.id} · ${machine.name}`;
+
+      const activeTickets = getActiveTicketsForMachine(machine.id);
+      const activeCount = Math.max(machine.activeLocks || 0, activeTickets.length);
+      const badgeEl = document.getElementById('locked-state-badge');
+      const subtitleEl = document.getElementById('locked-banner-subtitle');
+
+      if (activeCount > 1) {
+        badgeEl.textContent = `🔴 BLOQUEO MULTI-LOTO ACTIVO (${activeCount} Técnicos)`;
+        if (subtitleEl) subtitleEl.textContent = `${activeCount} candados personales instalados simultáneamente`;
+      } else {
+        badgeEl.textContent = '🔴 BLOQUEO LOTO ACTIVO';
+        if (subtitleEl) subtitleEl.textContent = 'Activo desenergizado y asegurado';
+      }
+
+      const selectorBox = document.getElementById('group-unlock-ticket');
+      const selector = document.getElementById('unlock-ticket-select');
+
+      let currentTicket = activeTickets.find(t => t.id === AppState.selectedTicketId);
+      if (!currentTicket && activeTickets.length > 0) {
+        currentTicket = activeTickets[0];
+        AppState.selectedTicketId = currentTicket.id;
+      }
+
+      if (selector && selectorBox) {
+        selector.innerHTML = '';
+        if (activeTickets.length > 1) {
+          activeTickets.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = String(t.id);
+            opt.textContent = `Ticket #${t.id} · ${t.nombreTecnico} (${t.tipoIntervencion})`;
+            selector.appendChild(opt);
+          });
+          selector.value = String(currentTicket.id);
+          selectorBox.classList.remove('hidden');
+        } else {
+          selectorBox.classList.add('hidden');
+        }
+      }
+
+      const ticketIdEl = document.getElementById('locked-detail-ticket-id');
+      const techEl = document.getElementById('locked-detail-tech');
+      const typeEl = document.getElementById('locked-detail-type');
+      const reasonEl = document.getElementById('locked-detail-reason');
+      const timeEl = document.getElementById('locked-detail-time');
+      const notesRow = document.getElementById('locked-detail-notes-row');
+      const notesEl = document.getElementById('locked-detail-notes');
+
+      if (currentTicket) {
+        ticketIdEl.textContent = `#${currentTicket.id}`;
+        techEl.textContent = currentTicket.nombreTecnico || 'Operador';
+        typeEl.textContent = currentTicket.tipoIntervencion === 'CORRECTIVA' ? 'Falla Correctiva' : 'Mantención Preventiva';
+        reasonEl.textContent = currentTicket.motivo || '—';
+        timeEl.textContent = formatShortDateTime(currentTicket.horaInicio);
+
+        if (currentTicket.notasAuditoria) {
+          notesEl.textContent = currentTicket.notasAuditoria;
+          notesRow.classList.remove('hidden');
+        } else {
+          notesEl.textContent = '—';
+          notesRow.classList.add('hidden');
+        }
+        startLockTimer(currentTicket.horaInicio);
+      } else {
+        ticketIdEl.textContent = '—';
+        techEl.textContent = (AppState.auth && AppState.auth.username) ? AppState.auth.username : 'Inicie sesión para ver tickets';
+        typeEl.textContent = '—';
+        reasonEl.textContent = '—';
+        timeEl.textContent = '—';
+        notesRow.classList.add('hidden');
+        startLockTimer(null);
+      }
+    }
+
+    function startLockTimer(startIso) {
+      clearInterval(AppState.timerInterval);
+      let initialSeconds = 0;
+      if (startIso) {
+        const parsed = new Date(startIso).getTime();
+        if (!Number.isNaN(parsed)) {
+          initialSeconds = Math.max(0, Math.floor((Date.now() - parsed) / 1000));
+        }
+      }
+      AppState.timerSeconds = initialSeconds;
+      updateTimerText();
+
+      AppState.timerInterval = setInterval(() => {
+        AppState.timerSeconds++;
+        updateTimerText();
+      }, 1000);
+    }
+
+    function updateTimerText() {
+      const h = Math.floor(AppState.timerSeconds / 3600).toString().padStart(2, '0');
+      const m = Math.floor((AppState.timerSeconds % 3600) / 60).toString().padStart(2, '0');
+      const s = (AppState.timerSeconds % 60).toString().padStart(2, '0');
+      const el = document.getElementById('active-lock-timer');
+      if (el) el.textContent = `${h}:${m}:${s}`;
+    }
+
+    async function executeDigitalUnlock() {
+      if (AppState.isSubmitting) return;
+      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+      const activeTickets = machine ? getActiveTicketsForMachine(machine.id) : [];
+      const ticketId = AppState.selectedTicketId || (activeTickets[0] ? activeTickets[0].id : null);
+
+      if (!ticketId) {
+        showToast('No hay un ticket activo seleccionado para liberar (inicie sesión)', '⚠️');
+        return;
+      }
+
+      const unlockBtn = document.getElementById('btn-unlock-lock');
+      const originalBtnText = unlockBtn.textContent;
+      AppState.isSubmitting = true;
+      unlockBtn.disabled = true;
+      unlockBtn.textContent = '⏳ Procesando...';
+
+      try {
+        if (AppState.apiOnline) {
+          try {
+            const { ok, status, data } = await apiFetch(`/bloqueos/${ticketId}/liberar`, {
+              method: 'PUT'
+            });
+
+            if (ok && status === 200) {
+              if (AppState.auth && data && data.tecnicoId) {
+                AppState.auth.id = data.tecnicoId;
+              }
+              playBeep('unlock');
+              await loadMachinesFromApi();
+              await loadBloqueosFromApi();
+
+              const updatedMachine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
+              const remaining = updatedMachine ? getActiveTicketsForMachine(updatedMachine.id) : [];
+
+              if (updatedMachine && (updatedMachine.isLocked || updatedMachine.activeLocks > 0 || remaining.length > 0)) {
+                AppState.selectedTicketId = remaining[0] ? remaining[0].id : null;
+                showToast(`Ticket #${ticketId} liberado. ${updatedMachine.id} sigue bloqueado (${updatedMachine.activeLocks} activo(s))`, '🟡');
+                showTechStep(3);
+                updateLockedDisplay(updatedMachine);
+              } else {
+                clearInterval(AppState.timerInterval);
+                AppState.selectedTicketId = null;
+                showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
+                showTechStep(1);
+                const sel = document.getElementById('manual-machine-select');
+                if (sel) sel.value = '';
+              }
+
+              renderMobileHistorial();
+              return;
+            }
+
+            showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
+            return;
+          } catch (err) {
+            if (!err.isNetworkError) {
+              showToast('Error inesperado al liberar bloqueo', '🚫');
+              return;
+            }
+          }
+        }
+
+        // Fallback Offline
+        const targetTicket = AppState.tickets.find(t => t.id === ticketId);
+        if (targetTicket) {
+          targetTicket.estado = 'CERRADO';
+          targetTicket.horaFin = new Date().toISOString();
+          targetTicket.duracionMinutos = Math.max(0, Math.round(AppState.timerSeconds / 60));
+        }
+
+        if (machine) {
+          machine.activeLocks = Math.max(0, (machine.activeLocks || 1) - 1);
+          machine.isLocked = machine.activeLocks > 0;
+        }
+
+        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
+
+        playBeep('unlock');
+        const remainingOffline = machine ? getActiveTicketsForMachine(machine.id) : [];
+
+        if (machine && machine.isLocked && remainingOffline.length > 0) {
+          AppState.selectedTicketId = remainingOffline[0].id;
+          showToast(`Candado #${ticketId} liberado. ${machine.id} sigue con ${machine.activeLocks} bloqueo(s)`, '🟡');
+          updateLockedDisplay(machine);
+        } else {
+          clearInterval(AppState.timerInterval);
+          AppState.selectedTicketId = null;
+          showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
+          showTechStep(1);
+          const sel = document.getElementById('manual-machine-select');
+          if (sel) sel.value = '';
+        }
+
+        renderMobileHistorial();
+      } finally {
+        AppState.isSubmitting = false;
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = originalBtnText;
+      }
+    }
+
+    function showTechStep(step) {
+      AppState.currentStep = step;
+      document.getElementById('tech-step-1').classList.toggle('hidden', step !== 1);
+      document.getElementById('tech-step-2').classList.toggle('hidden', step !== 2);
+      document.getElementById('tech-step-3').classList.toggle('hidden', step !== 3);
+
+      const s1 = document.getElementById('stepper-item-1');
+      const s2 = document.getElementById('stepper-item-2');
+      const s3 = document.getElementById('stepper-item-3');
+      const l1 = document.getElementById('stepper-line-1');
+      const l2 = document.getElementById('stepper-line-2');
+
+      if (s1 && s2 && s3 && l1 && l2) {
+        [s1, s2, s3].forEach(s => s.className = 'step-indicator');
+        [l1, l2].forEach(l => l.className = 'step-connector-line');
+
+        if (step === 1) {
+          s1.classList.add('active');
+        } else if (step === 2) {
+          s1.classList.add('completed');
+          l1.classList.add('active');
+          s2.classList.add('active');
+        } else if (step === 3) {
+          s1.classList.add('completed');
+          l1.classList.add('active');
+          s2.classList.add('completed');
+          l2.classList.add('active');
+          s3.classList.add('locked-active');
+        }
+      }
+    }
+
+    /* ==========================================================================
+       HISTORIAL MÓVIL, MODAL DE NOTAS AES-256-GCM Y EVENTOS INMUTABLES
+       ========================================================================== */
+    function setAuditFilter(filter) {
+      AppState.auditFilter = filter;
+      document.querySelectorAll('[data-audit-filter]').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-audit-filter') === filter);
+      });
+      renderMobileHistorial();
+    }
+
+    function getFilteredAuditLogs() {
+      if (AppState.auditFilter === 'ACTIVO') {
+        return AppState.auditLogs.filter(l => l.isActive);
+      }
+      if (AppState.auditFilter === 'CERRADO') {
+        return AppState.auditLogs.filter(l => !l.isActive);
+      }
+      return AppState.auditLogs;
+    }
+
+    function renderMobileHistorial() {
+      const container = document.getElementById('mobile-history-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (AppState.apiOnline && (!AppState.auth || !AppState.auth.header)) {
+        const box = document.createElement('div');
+        box.className = 'tech-card';
+        box.innerHTML = `
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 12px;">
+            Inicia sesión para consultar bloqueos activos, históricos cerrados y tus notas descifradas.
+          </p>
+          <button type="button" class="btn-primary-blue" onclick="switchMobileTab('tecnicos')">
+            👷 Ir a Iniciar Sesión
+          </button>
+        `;
+        container.appendChild(box);
+        return;
+      }
+
+      const filtered = getFilteredAuditLogs();
+      if (filtered.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'tech-card';
+        empty.innerHTML = '<p style="font-size: 0.84rem; color: var(--text-muted); text-align: center;">No hay registros para el filtro seleccionado.</p>';
+        container.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(log => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `mobile-history-card ${log.isActive ? 'is-active' : 'is-closed'}`;
+        btn.onclick = () => openAuditDetailModal(log.id);
+
+        const noteTag = log.notasAuditoria
+          ? '🔓 Nota descifrable'
+          : '🔒 Ver ficha / eventos';
+
+        btn.innerHTML = `
+          <div class="mobile-history-top">
+            <span>Ticket #${escapeHtml(log.id)} · ${escapeHtml(log.machineId)}</span>
+            <span style="color: ${log.isActive ? 'var(--rojo-peligro)' : 'var(--verde-seguridad)'};">${escapeHtml(log.status)}</span>
+          </div>
+          <div style="font-size: 0.84rem; font-weight: 700; color: var(--text-main);">
+            ${escapeHtml(log.motivo || 'Intervención LOTO')}
+          </div>
+          <div class="mobile-history-meta">
+            <span>👷 ${escapeHtml(log.technician)} · ${escapeHtml(log.type)}</span>
+            <span>🕒 ${escapeHtml(log.time)}</span>
+          </div>
+          <div style="font-size: 0.76rem; color: var(--azul-industrial); font-weight: 800;">
+            📝 Ver Nota / Trazabilidad (${escapeHtml(noteTag)})
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    async function openAuditDetailModal(ticketId) {
+      const modal = document.getElementById('audit-detail-modal');
+      if (!modal) return;
+
+      let ticket = AppState.tickets.find(t => Number(t.id) === Number(ticketId));
+      if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+        try {
+          const detailRes = await apiFetch(`/bloqueos/${ticketId}`, { silentMonitor: true });
+          if (detailRes.ok && detailRes.data) {
+            ticket = detailRes.data;
+          }
+        } catch (err) {
+          // Usar caché si falla la red
+        }
+      }
+
+      if (!ticket) {
+        showToast('No se encontró el detalle del ticket seleccionado', '⚠️');
+        return;
+      }
+
+      const isActive = ticket.estado === 'ACTIVO';
+      document.getElementById('audit-modal-title').textContent = `Ticket LOTO #${ticket.id} · ${ticket.maquinaId}`;
+
+      const statusBadge = document.getElementById('audit-modal-status-badge');
+      statusBadge.className = `kpi-status-tag ${isActive ? 'tag-red' : 'tag-green'}`;
+      statusBadge.textContent = isActive ? '🔴 ACTIVO' : `🟢 CERRADO (${formatDuration(ticket.duracionMinutos)})`;
+
+      const metaGrid = document.getElementById('audit-modal-meta');
+      metaGrid.innerHTML = `
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Técnico Responsable</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.nombreTecnico || '—')}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Tipo</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.tipoIntervencion)}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Inicio</span>
+          <span class="audit-meta-value">${escapeHtml(formatShortDateTime(ticket.horaInicio))}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Cierre</span>
+          <span class="audit-meta-value">${ticket.horaFin ? escapeHtml(formatShortDateTime(ticket.horaFin)) : 'En intervención'}</span>
+        </div>
+        <div class="audit-meta-item" style="grid-column: 1 / -1;">
+          <span class="audit-meta-label">Motivo</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.motivo || '—')}</span>
+        </div>
+      `;
+
+      const notesBox = document.getElementById('audit-modal-notes-box');
+      const notesBadge = document.getElementById('audit-modal-notes-badge');
+      const notesText = document.getElementById('audit-modal-notes-text');
+      const role = AppState.auth ? AppState.auth.rol : null;
+
+      if (ticket.notasAuditoria) {
+        notesBox.className = 'audit-notes-box decrypted';
+        notesBadge.className = 'kpi-status-tag tag-green';
+        notesBadge.textContent = '🔓 Descifrada (AES-256-GCM)';
+        notesText.textContent = ticket.notasAuditoria;
+      } else if (AppState.apiOnline && role === 'TECNICO') {
+        notesBox.className = 'audit-notes-box locked';
+        notesBadge.className = 'kpi-status-tag tag-amber';
+        notesBadge.textContent = '🔒 Acceso Restringido';
+        notesText.textContent = 'Este ticket no tiene notas confidenciales o pertenece a otro técnico (solo el autor o un Supervisor pueden leerlas).';
+      } else {
+        notesBox.className = 'audit-notes-box';
+        notesBadge.className = 'kpi-status-tag tag-blue';
+        notesBadge.textContent = 'Sin nota adjunta';
+        notesText.textContent = 'No se registraron notas confidenciales en este bloqueo.';
+      }
+
+      const timeline = document.getElementById('audit-modal-events');
+      timeline.innerHTML = '<div class="event-timeline-item">Cargando eventos...</div>';
+      modal.classList.remove('hidden');
+
+      if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+        try {
+          const evRes = await apiFetch(`/bloqueos/${ticketId}/eventos`, { silentMonitor: true });
+          if (evRes.ok && Array.isArray(evRes.data) && evRes.data.length > 0) {
+            timeline.innerHTML = '';
+            evRes.data.forEach(ev => {
+              const item = document.createElement('div');
+              item.className = 'event-timeline-item';
+              const isOpenEv = ev.accion === 'BLOQUEO_CREADO';
+              item.innerHTML = `
+                <strong style="color: ${isOpenEv ? 'var(--rojo-peligro)' : 'var(--verde-seguridad)'};">
+                  ${isOpenEv ? '🔒' : '🔓'} ${escapeHtml(ev.accion)} (Técnico #${escapeHtml(ev.tecnicoId)})
+                </strong>
+                <span style="color: var(--text-muted);">${escapeHtml(formatShortDateTime(ev.fecha))}</span>
+              `;
+              timeline.appendChild(item);
+            });
+            return;
+          }
+        } catch (err) {
+          // Fallback local
+        }
+      }
+
+      timeline.innerHTML = `
+        <div class="event-timeline-item">
+          <strong style="color: var(--rojo-peligro);">🔒 BLOQUEO_CREADO</strong>
+          <span style="color: var(--text-muted);">${escapeHtml(formatShortDateTime(ticket.horaInicio))}</span>
+        </div>
+        ${ticket.horaFin ? `
+        <div class="event-timeline-item">
+          <strong style="color: var(--verde-seguridad);">🔓 BLOQUEO_LIBERADO</strong>
+          <span style="color: var(--text-muted);">${escapeHtml(formatShortDateTime(ticket.horaFin))}</span>
+        </div>` : ''}
+      `;
+    }
+
+    function closeAuditDetailModal() {
+      const modal = document.getElementById('audit-detail-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    /* ==========================================================================
+       ALTA DE TÉCNICOS DESDE TERRENO (POST /api/v1/tecnicos)
+       ========================================================================== */
+    async function createTechnicianFromForm() {
+      const nombreEl = document.getElementById('mtech-nombre');
+      const usernameEl = document.getElementById('mtech-username');
+      const passwordEl = document.getElementById('mtech-password');
+      const rolEl = document.getElementById('mtech-rol');
+      const submitBtn = document.getElementById('mtech-submit-btn');
+
+      const nombre = nombreEl ? nombreEl.value.trim() : '';
+      const username = usernameEl ? usernameEl.value.trim() : '';
+      const password = passwordEl ? passwordEl.value : '';
+      const rol = rolEl ? rolEl.value : 'TECNICO';
+
+      if (nombre.length < 3 || nombre.length > 80) {
+        showToast('El nombre debe tener entre 3 y 80 caracteres', '⚠️');
+        return;
+      }
+      if (!/^[a-zA-Z0-9._-]{3,50}$/.test(username)) {
+        showToast('Username inválido: usa 3-50 caracteres [a-zA-Z0-9._-]', '⚠️');
+        return;
+      }
+      if (password.length < 12 || password.length > 72) {
+        showToast('La contraseña debe tener entre 12 y 72 caracteres', '⚠️');
+        return;
+      }
+
+      let authHeaderOverride = null;
+      if (!AppState.auth || AppState.auth.rol !== 'SUPERVISOR') {
+        const supUserEl = document.getElementById('mtech-sup-user');
+        const supPassEl = document.getElementById('mtech-sup-pass');
+        const supUser = supUserEl ? supUserEl.value.trim() : '';
+        const supPass = supPassEl ? supPassEl.value : '';
+        if (!supUser || !supPass) {
+          showToast('Ingresa usuario y contraseña de Supervisor para autorizar el alta', '🔐');
+          return;
+        }
+        authHeaderOverride = encodeBasicAuth(supUser, supPass);
+      }
+
+      if (!AppState.apiOnline) {
+        showToast('Conéctate al servidor Spring Boot para registrar cuentas en PostgreSQL', '🟡');
+        return;
+      }
+
+      const originalBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Creando...';
+      }
+
+      try {
+        const { ok, status, data } = await apiFetch('/tecnicos', {
+          method: 'POST',
+          authHeaderOverride,
+          body: JSON.stringify({ username, nombre, password, rol })
+        });
+
+        if (ok && status === 201 && data) {
+          showToast(`✅ Técnico '${data.username}' creado en PostgreSQL`, '👷');
+          const createdPassword = password;
+          if (nombreEl) nombreEl.value = '';
+          if (usernameEl) usernameEl.value = '';
+          if (passwordEl) passwordEl.value = '';
+          const supPassEl = document.getElementById('mtech-sup-pass');
+          if (supPassEl) supPassEl.value = '';
+
+          const autoLoginBox = document.getElementById('mtech-autologin');
+          if (autoLoginBox && autoLoginBox.checked) {
+            AppState.auth = {
+              username: data.username,
+              password: createdPassword,
+              header: encodeBasicAuth(data.username, createdPassword),
+              rol: data.rol,
+              id: data.id,
+              nombre: data.nombre
+            };
+            renderAuthUI();
+            await loadMachinesFromApi();
+            await loadBloqueosFromApi();
+            switchMobileTab('operar');
+            renderMobileHistorial();
+            showToast(`📱 Sesión iniciada automáticamente como ${data.username}`, '🟢');
+          }
+          return;
+        }
+
+        showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
+      } catch (err) {
+        showToast('No fue posible conectar con /api/v1/tecnicos', '🚫');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
+      }
+    }
+
+    /* ==========================================================================
+       PWA INSTALL, DESCARGA AUTÓNOMA, TEMA Y NOTIFICACIONES
+       ========================================================================== */
+    function initTheme() {
+      const saved = localStorage.getItem('silbom_theme') || 'dark';
+      AppState.theme = saved;
+      applyTheme(saved);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.textContent = theme === 'light' ? '🌙' : '☀️';
+      localStorage.setItem('silbom_theme', theme);
+    }
+
+    function toggleTheme() {
+      const next = AppState.theme === 'dark' ? 'light' : 'dark';
+      AppState.theme = next;
+      applyTheme(next);
+      showToast(`Cambiado a ${next === 'dark' ? 'Modo Oscuro' : 'Modo Claro'}`, '🎨');
+    }
+
+    function openInstallModal() {
+      const modal = document.getElementById('install-app-modal');
+      if (!modal) return;
+      const btnNative = document.getElementById('btn-native-pwa-install');
+      if (btnNative) {
+        btnNative.classList.toggle('hidden', !AppState.deferredInstallPrompt);
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeInstallModal() {
+      const modal = document.getElementById('install-app-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function triggerNativePwaInstall() {
+      if (!AppState.deferredInstallPrompt) {
+        showToast('Usa Menú ⋮ → "Instalar aplicación" en Google Chrome', '📲');
+        return;
+      }
+      AppState.deferredInstallPrompt.prompt();
+      await AppState.deferredInstallPrompt.userChoice;
+      AppState.deferredInstallPrompt = null;
+      closeInstallModal();
+    }
+
+    function downloadStandaloneTechnicianHtml() {
+      const serialized = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([serialized], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'SILBOM-Tecnico-App.html';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast('Descargando SILBOM-Tecnico-App.html para Android', '⬇️');
+    }
+
+    function showToast(msg, icon = '🔔') {
+      const toast = document.getElementById('app-toast');
+      document.getElementById('toast-message').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3400);
+    }
+
+    window.addEventListener('beforeinstallprompt', event => {
+      event.preventDefault();
+      AppState.deferredInstallPrompt = event;
+      const btnNative = document.getElementById('btn-native-pwa-install');
+      if (btnNative) btnNative.classList.remove('hidden');
+    });
+
+    if ('serviceWorker' in navigator && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      renderAuthUI();
+      selectInterventionType('correctiva');
+      populateMachineSelect();
+
+      await loadMachinesFromApi();
+      renderMobileHistorial();
+
+      const params = new URLSearchParams(window.location.search);
+      const maquinaUrl = params.get('maquina') || params.get('machine');
+      if (maquinaUrl) {
+        const normalized = maquinaUrl.trim().toUpperCase();
+        const matched = AppState.machines.find(m => m.id.toUpperCase() === normalized);
+        if (matched) {
+          simulateNfcTap(matched.id);
+        }
+      }
+    });
+
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeAuditDetailModal();
+        closeInstallModal();
+      }
+    });
+  </script>
+</body>
+</html>

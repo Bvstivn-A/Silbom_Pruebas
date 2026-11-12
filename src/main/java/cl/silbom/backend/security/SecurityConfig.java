@@ -53,6 +53,19 @@ public class SecurityConfig {
                         auth ->
                                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                                         .permitAll()
+                                        .requestMatchers(
+                                                HttpMethod.GET,
+                                                "/",
+                                                "/index.html",
+                                                "/Silbom1.html",
+                                                "/silbom-tecnico.html",
+                                                "/silbom-tecnico.apk",
+                                                "/app",
+                                                "/app/",
+                                                "/app/**",
+                                                "/docs/**",
+                                                "/favicon.ico")
+                                        .permitAll()
                                         .requestMatchers(HttpMethod.GET, "/api/v1/maquinas/**")
                                         .permitAll()
                                         .requestMatchers("/api/v1/tecnicos/**")
@@ -65,8 +78,14 @@ public class SecurityConfig {
                         basic ->
                                 basic.authenticationEntryPoint(
                                         (request, response, exception) -> {
-                                            response.setHeader(
-                                                    "WWW-Authenticate", "Basic realm=\"SILBOM\"");
+                                            if (!"XMLHttpRequest"
+                                                    .equalsIgnoreCase(
+                                                            request.getHeader(
+                                                                    "X-Requested-With"))) {
+                                                response.setHeader(
+                                                        "WWW-Authenticate",
+                                                        "Basic realm=\"SILBOM\"");
+                                            }
                                             response.setStatus(401);
                                             response.setContentType(
                                                     "application/json;charset=UTF-8");
@@ -103,18 +122,24 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOrigins(
+        config.setAllowedOriginPatterns(
                 List.of(
-                        "http://localhost:3000",
-                        "http://localhost:5173",
-                        "http://localhost:5500",
-                        "http://127.0.0.1:5500",
-                        "http://localhost:8080",
-                        "http://127.0.0.1:8080",
-                        "https://silbom.netlify.app"));
+                        "http://localhost:*",
+                        "http://127.0.0.1:*",
+                        "http://192.168.*.*:*",
+                        "http://10.*.*.*:*",
+                        "http://172.*.*.*:*",
+                        "https://silbom.netlify.app",
+                        "null"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         config.setAllowedHeaders(
-                List.of("Authorization", "Content-Type", "Accept", "Origin", "User-Agent"));
+                List.of(
+                        "Authorization",
+                        "Content-Type",
+                        "Accept",
+                        "Origin",
+                        "User-Agent",
+                        "X-Requested-With"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         var source = new UrlBasedCorsConfigurationSource();

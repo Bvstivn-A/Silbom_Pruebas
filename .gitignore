@@ -58,3 +58,6 @@ replay_pid*
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Android app build directory
+android-app/build/

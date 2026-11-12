@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SILBOM · Gemelo Digital de Bloqueo LOTO y Seguridad Industrial</title>
+  <title>SILBOM · Consola Central de Supervisión LOTO (PC)</title>
   <style>
     /* ==========================================================================
        SISTEMA DE DISEÑO OFICIAL SILBOM · PALETA DE COLORES
@@ -233,36 +233,6 @@
       gap: 10px;
     }
 
-    .view-switcher {
-      display: flex;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 3px;
-      gap: 2px;
-    }
-
-    .view-btn {
-      padding: 6px 12px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: transparent;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .view-btn:hover {
-      color: var(--text-main);
-    }
-
-    /* Nota de diseño: Botones con fondo azul industrial (#0CB7F2) llevan texto grafito (#17252D) */
-    .view-btn.active {
-      background-color: var(--azul-industrial);
-      color: var(--texto-grafito);
-    }
 
     .theme-toggle-btn {
       background-color: var(--bg-card);
@@ -297,334 +267,38 @@
     }
 
     /* ==========================================================================
-       CONTENEDOR PRINCIPAL Y MODOS DE VISTA
+       CONTENEDOR PRINCIPAL DE CONSOLA SUPERVISOR (EXCLUSIVA PC)
        ========================================================================== */
     .main-container {
       flex: 1;
       padding: 24px;
-      max-width: 1440px;
+      max-width: 1560px;
       margin: 0 auto;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 28px;
+      display: block;
     }
 
-    /* Modo Pantalla Dividida (Split): Ideal para Proyectar en la Presentación */
-    .main-container.mode-split {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      align-items: start;
-    }
+    @media (max-width: 900px) {
+      .top-navbar {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
 
-    @media (max-width: 1100px) {
-      .main-container.mode-split {
-        grid-template-columns: 1fr;
+      .nav-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .session-control-bar {
+        padding: 10px 14px;
+      }
+
+      .main-container {
+        padding: 16px 14px;
       }
     }
 
-    /* ==========================================================================
-       VISTA 1: TERMINAL MÓVIL DEL TÉCNICO (EXPERIENCIA EN TERRENO)
-       ========================================================================== */
-    .mobile-frame-wrapper {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    .mobile-device {
-      background-color: var(--bg-card);
-      border: 2px solid var(--border-color);
-      border-radius: 32px;
-      padding: 20px;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .mobile-status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      font-weight: 700;
-      margin-bottom: 14px;
-      padding: 0 4px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 8px;
-    }
-
-    /* Stepper Indicador de 3 Pantallas Encadenadas (Criterio A2) */
-    .screen-stepper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-      padding: 0 4px;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 12px;
-    }
-
-    .step-indicator {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-dim);
-      transition: var(--transition);
-    }
-
-    .step-indicator .step-badge {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-weight: 800;
-    }
-
-    /* Paso Activo: Azul Industrial con Texto Grafito */
-    .step-indicator.active {
-      color: var(--azul-industrial);
-    }
-
-    .step-indicator.active .step-badge {
-      background: var(--azul-industrial);
-      color: var(--texto-grafito);
-      border-color: var(--azul-industrial);
-    }
-
-    /* Paso Completado: Verde Seguridad */
-    .step-indicator.completed {
-      color: var(--verde-seguridad);
-    }
-
-    .step-indicator.completed .step-badge {
-      background: var(--verde-pale);
-      color: var(--verde-seguridad);
-      border-color: var(--verde-seguridad);
-    }
-
-    /* Paso en Bloqueo Crítico: Rojo Peligro */
-    .step-indicator.locked-active {
-      color: var(--rojo-peligro);
-    }
-
-    .step-indicator.locked-active .step-badge {
-      background: var(--rojo-peligro);
-      color: #FFFFFF;
-      border-color: var(--rojo-peligro);
-      animation: pulseAlert 1.5s infinite;
-    }
-
-    .step-connector-line {
-      flex: 1;
-      height: 2px;
-      background: var(--border-color);
-      margin: 0 8px;
-      transition: var(--transition);
-    }
-
-    .step-connector-line.active {
-      background: var(--azul-industrial);
-    }
-
-    .mobile-screen-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .mobile-subtitle {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 18px;
-    }
-
-    /* Paso 1: Identificación */
-    .nfc-tap-area {
-      background: var(--bg-input);
-      border: 2px dashed var(--azul-industrial);
-      border-radius: var(--radius-md);
-      padding: 24px 16px;
-      text-align: center;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      transition: var(--transition);
-      margin-bottom: 18px;
-    }
-
-    .nfc-tap-area:hover {
-      background: var(--azul-pale);
-      border-color: var(--azul-industrial);
-      transform: translateY(-2px);
-    }
-
-    .nfc-pulse-ring {
-      width: 64px;
-      height: 64px;
-      background: var(--azul-pale);
-      border: 2px solid var(--azul-industrial);
-      border-radius: 50%;
-      margin: 0 auto 12px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.7rem;
-      animation: pulseAnimation 2s infinite;
-    }
-
-    @keyframes pulseAnimation {
-      0% { box-shadow: 0 0 0 0 rgba(12, 183, 242, 0.4); }
-      70% { box-shadow: 0 0 0 16px rgba(12, 183, 242, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(12, 183, 242, 0); }
-    }
-
-    .nfc-tap-btn {
-      background: var(--azul-industrial);
-      color: var(--texto-grafito);
-      font-weight: 800;
-      padding: 10px 16px;
-      border-radius: var(--radius-sm);
-      font-size: 0.88rem;
-      margin-top: 10px;
-      display: inline-block;
-      transition: var(--transition);
-    }
-
-    .nfc-tap-btn:hover {
-      background: var(--azul-industrial-dark);
-    }
-
-    .or-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 0.75rem;
-      font-weight: 700;
-      margin: 14px 0;
-    }
-
-    .or-divider::before, .or-divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .or-divider span {
-      padding: 0 10px;
-    }
-
-    .machine-quick-select {
-      width: 100%;
-      padding: 11px 12px;
-      background-color: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .machine-quick-select:focus {
-      border-color: var(--azul-industrial);
-    }
-
-    /* Paso 2: Formulario de Bloqueo Ágil */
-    .target-machine-card {
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .target-machine-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--azul-pale);
-      border: 1px solid var(--azul-industrial);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-    }
-
-    .target-machine-info h3 {
-      font-size: 0.95rem;
-      color: var(--text-main);
-      font-weight: 800;
-    }
-
-    .target-machine-info p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .intervention-type-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .type-card {
-      background: var(--bg-input);
-      border: 2px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 12px 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .type-card:hover {
-      border-color: var(--text-muted);
-    }
-
-    .type-card.selected {
-      border-color: var(--azul-industrial);
-      background: var(--azul-pale);
-    }
-
-    .type-card .icon {
-      font-size: 1.5rem;
-      margin-bottom: 4px;
-      display: block;
-    }
-
-    .type-card .title {
-      font-size: 0.82rem;
-      font-weight: 800;
-      color: var(--text-main);
-      display: block;
-    }
-
-    .type-card .desc {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-      display: block;
-    }
 
     .field-group {
       margin-bottom: 14px;
@@ -652,150 +326,10 @@
       border-color: var(--azul-industrial);
     }
 
-    .legal-confirmation-box {
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      margin-bottom: 18px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .legal-confirmation-box input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--azul-industrial);
-      cursor: pointer;
-      margin-top: 2px;
-    }
-
-    .legal-confirmation-box label {
-      font-size: 0.76rem;
-      color: var(--text-main);
-      font-weight: 700;
-      line-height: 1.4;
-      cursor: pointer;
-    }
-
-    /* Botón de Peligro / Acción Crítica de Bloqueo LOTO */
-    .btn-action-primary {
-      width: 100%;
-      padding: 13px;
-      background: var(--rojo-peligro);
-      color: #FFFFFF;
-      font-size: 0.95rem;
-      font-weight: 800;
-      border-radius: var(--radius-md);
-      box-shadow: 0 4px 14px rgba(255, 115, 121, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      letter-spacing: 0.3px;
-    }
-
-    .btn-action-primary:hover:not(:disabled) {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-
-    .btn-action-primary:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    /* Paso 3: Bloqueo Activo y Desbloqueo */
-    .locked-state-banner {
-      background: var(--rojo-pale);
-      border: 2px solid var(--rojo-peligro);
-      border-radius: var(--radius-md);
-      padding: 18px 14px;
-      text-align: center;
-      margin-bottom: 16px;
-      animation: pulseBorder 2s infinite ease-in-out;
-    }
-
     @keyframes pulseBorder {
       0% { border-color: rgba(255, 115, 121, 0.4); }
       50% { border-color: rgba(255, 115, 121, 1); }
       100% { border-color: rgba(255, 115, 121, 0.4); }
-    }
-
-    .locked-state-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--rojo-peligro);
-      color: #FFFFFF;
-      font-weight: 800;
-      font-size: 0.78rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    .locked-machine-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--text-main);
-      margin-bottom: 4px;
-    }
-
-    .locked-timer-display {
-      font-size: 1.9rem;
-      font-weight: 900;
-      color: var(--rojo-peligro);
-      font-variant-numeric: tabular-nums;
-      margin: 6px 0;
-    }
-
-    .locked-details-table {
-      width: 100%;
-      margin: 14px 0;
-      font-size: 0.8rem;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    .locked-details-table td {
-      padding: 6px 4px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .locked-details-table td.label {
-      color: var(--text-muted);
-      font-weight: 600;
-      width: 40%;
-    }
-
-    .locked-details-table td.val {
-      color: var(--text-main);
-      font-weight: 700;
-    }
-
-    /* Botón de Seguridad / Restablecer Estado Seguro */
-    .btn-action-unlock {
-      width: 100%;
-      padding: 13px;
-      background: var(--verde-seguridad);
-      color: var(--texto-grafito);
-      font-size: 0.95rem;
-      font-weight: 800;
-      border-radius: var(--radius-md);
-      box-shadow: 0 4px 14px rgba(102, 221, 176, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .btn-action-unlock:hover {
-      filter: brightness(1.08);
-      transform: translateY(-1px);
     }
 
     /* ==========================================================================
@@ -1277,21 +811,329 @@
       box-shadow: none;
     }
 
-    .btn-step-secondary {
-      width: 100%;
-      background: transparent;
-      border: 1px dashed var(--border-color);
-      color: var(--text-muted);
-      margin-top: 10px;
-      padding: 8px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 0.78rem;
-      font-weight: 700;
+    /* ==========================================================================
+       CONSOLA DE SUPERVISIÓN WEB, MODALES DE AUDITORÍA Y TÉCNICOS
+       ========================================================================== */
+
+    .supervisor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 18px;
+      box-shadow: var(--shadow-sm);
     }
 
-    .btn-step-secondary:hover {
-      border-color: var(--azul-industrial);
+    .supervisor-toolbar-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sync-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      background: var(--azul-pale);
       color: var(--azul-industrial);
+      border: 1px solid var(--azul-industrial);
+    }
+
+    .sync-live-pill.idle {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border-color: var(--border-color);
+    }
+
+    .btn-supervisor-action {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      font-weight: 800;
+      font-size: 0.82rem;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-supervisor-action:hover {
+      background: var(--azul-industrial-dark);
+    }
+
+    .audit-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 16px 0 10px 0;
+    }
+
+    .audit-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .filter-chip {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      min-height: 32px;
+    }
+
+    .filter-chip:hover {
+      color: var(--text-main);
+      border-color: var(--azul-industrial);
+    }
+
+    .filter-chip.active {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+      border-color: var(--azul-industrial);
+    }
+
+    .audit-table-scroll {
+      max-height: 360px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    .audit-row-clickable {
+      cursor: pointer;
+    }
+
+    .audit-row-clickable:hover td {
+      background-color: var(--azul-pale);
+    }
+
+    .btn-audit-view {
+      background: var(--bg-input);
+      color: var(--azul-industrial);
+      border: 1px solid var(--azul-industrial);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .btn-audit-view:hover {
+      background: var(--azul-industrial);
+      color: var(--texto-grafito);
+    }
+
+    .mobile-card-panel {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Modales */
+    .silbom-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 16, 20, 0.78);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .silbom-modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 720px;
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .silbom-modal-header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .silbom-modal-title-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .silbom-modal-close {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: var(--radius-sm);
+      min-width: 38px;
+      min-height: 38px;
+      font-weight: 900;
+      font-size: 1rem;
+    }
+
+    .silbom-modal-close:hover {
+      border-color: var(--rojo-peligro);
+      color: var(--rojo-peligro);
+    }
+
+    .silbom-modal-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .audit-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .audit-meta-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+    }
+
+    .audit-meta-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 3px;
+    }
+
+    .audit-meta-value {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .audit-notes-box {
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+    }
+
+    .audit-notes-box.decrypted {
+      border-color: var(--verde-seguridad);
+      background: var(--verde-pale);
+    }
+
+    .audit-notes-box.locked {
+      border-color: var(--ambar-industrial);
+      background: var(--ambar-pale);
+    }
+
+    .audit-notes-box.empty {
+      border-color: var(--border-color);
+      background: var(--bg-input);
+    }
+
+    .audit-notes-text {
+      margin-top: 10px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      word-break: break-word;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    .event-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-left: 2px solid var(--azul-industrial);
+      padding-left: 14px;
+      margin-left: 6px;
+    }
+
+    .event-timeline-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+    }
+
+    .btn-danger-outline {
+      background: transparent;
+      border: 1px solid var(--rojo-peligro);
+      color: var(--rojo-peligro);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .btn-danger-outline:hover:not(:disabled) {
+      background: var(--rojo-peligro);
+      color: #FFFFFF;
+    }
+
+    .btn-danger-outline:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .kpi-card.alert-flash {
+      animation: pulseBorder 1.1s ease-in-out 3;
     }
   </style>
 </head>
@@ -1323,22 +1165,10 @@
           <span class="brand-subtitle">SEGURIDAD LOTO</span>
         </div>
       </div>
-      <span class="brand-badge">Hito 3 · Full-Stack</span>
+      <span class="brand-badge">Consola Supervisor · PC</span>
     </div>
 
     <div class="nav-controls">
-      <!-- Selector de Modo de Vista para la presentación -->
-      <div class="view-switcher" role="tablist">
-        <button class="view-btn active" id="btn-view-split" onclick="switchDisplayMode('split')" title="Ver Móvil y Consola al mismo tiempo (Ideal para proyectar)">
-          <span>⚡</span> Pantalla Dividida
-        </button>
-        <button class="view-btn" id="btn-view-tech" onclick="switchDisplayMode('tech')">
-          <span>📱</span> Técnico (Móvil)
-        </button>
-        <button class="view-btn" id="btn-view-supervisor" onclick="switchDisplayMode('supervisor')">
-          <span>🖥️</span> Consola Supervisión
-        </button>
-      </div>
 
       <!-- Toggle Modo Claro / Oscuro -->
       <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Alternar Modo Claro / Oscuro">
@@ -1346,7 +1176,7 @@
       </button>
 
       <!-- Reiniciar Demo -->
-      <button class="reset-demo-btn" onclick="resetPrototypeDemo()" title="Reiniciar datos de demostración">
+      <button class="reset-demo-btn" onclick="resetPrototypeDemo()" title="Resincronizar datos">
         🔄 Reiniciar
       </button>
     </div>
@@ -1388,207 +1218,31 @@
   <!-- ========================================================================
        CONTENEDOR PRINCIPAL
        ======================================================================== -->
-  <main class="main-container mode-split" id="main-layout-container">
+  <main class="main-container" id="main-layout-container">
 
     <!-- ======================================================================
-         VISTA 1: TERMINAL MÓVIL DEL TÉCNICO (EXPERIENCIA EN TERRENO)
-         ====================================================================== -->
-    <div class="mobile-frame-wrapper" id="view-tech-container">
-      <div class="mobile-device">
-        <div class="mobile-status-bar">
-          <span>SILBOM Mobile v1.0</span>
-          <span id="mobile-live-clock">12:00</span>
-          <span>📶 NFC Listo</span>
-        </div>
-
-        <!-- INDICADOR VISUAL DE 3 PANTALLAS ENCADENADAS (Criterio A2) -->
-        <div class="screen-stepper" aria-label="Flujo de 3 pantallas encadenadas">
-          <div class="step-indicator active" id="stepper-item-1">
-            <span class="step-badge">1</span>
-            <span>Identificar</span>
-          </div>
-          <div class="step-connector-line" id="stepper-line-1"></div>
-          <div class="step-indicator" id="stepper-item-2">
-            <span class="step-badge">2</span>
-            <span>Bloqueo</span>
-          </div>
-          <div class="step-connector-line" id="stepper-line-2"></div>
-          <div class="step-indicator" id="stepper-item-3">
-            <span class="step-badge">3</span>
-            <span>En Curso</span>
-          </div>
-        </div>
-
-        <!-- PASO 1: IDENTIFICACIÓN POR NFC O CÓDIGO -->
-        <div id="tech-step-1">
-          <h2 class="mobile-screen-title">🔒 Punto de Bloqueo</h2>
-          <p class="mobile-subtitle">Acerque su smartphone al tag NFC de la máquina o elija el equipo de la lista.</p>
-
-          <!-- Zona de Tap NFC -->
-          <div class="nfc-tap-area" role="button" tabindex="0" onclick="simulateNfcTap('EQ-ENV-01')" onkeydown="handleActivateKey(event, () => simulateNfcTap('EQ-ENV-01'))">
-            <div class="nfc-pulse-ring">📡</div>
-            <strong style="color: var(--text-main); display: block; font-size: 0.95rem;">Toque con el Teléfono (NFC)</strong>
-            <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 4px;">
-              Sticker pasivo NTAG213 adherido al chasis
-            </span>
-            <div class="nfc-tap-btn">▶ Simular Tap NFC (Envasadora)</div>
-          </div>
-
-          <div class="or-divider"><span>O SELECCIÓN RÁPIDA MANUAL</span></div>
-
-          <div class="field-group">
-            <label class="field-label" for="manual-machine-select">Activos de la Planta:</label>
-            <select class="machine-quick-select" id="manual-machine-select" onchange="simulateManualSelect(this.value)">
-              <option value="" disabled selected>-- Seleccione una máquina --</option>
-              <option value="EQ-ENV-01">EQ-ENV-01 · Envasadora Rotativa Automática</option>
-              <option value="EQ-PR-04">EQ-PR-04 · Prensa Hidráulica 200T</option>
-              <option value="EQ-EXT-02">EQ-EXT-02 · Extrusora de Polímeros</option>
-              <option value="EQ-MEZ-01">EQ-MEZ-01 · Mezclador Industrial de Cinta</option>
-              <option value="EQ-COM-03">EQ-COM-03 · Compresor de Tornillo</option>
-              <option value="EQ-TR-01">EQ-TR-01 · Cinta Transportadora Principal</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- PASO 2: FORMULARIO ÁGIL DE BLOQUEO LOTO -->
-        <div id="tech-step-2" class="hidden">
-          <div class="target-machine-card">
-            <div class="target-machine-icon" id="target-card-icon">📦</div>
-            <div class="target-machine-info">
-              <h3 id="form-machine-code">EQ-ENV-01</h3>
-              <p id="form-machine-name">Envasadora Rotativa Automática</p>
-              <p id="form-machine-status" style="color: var(--verde-seguridad); font-size: 0.72rem; font-weight: 800;">🟢 ESTADO: OPERATIVO</p>
-            </div>
-          </div>
-
-          <button type="button" class="btn-step-secondary hidden" id="btn-step2-view-active" style="margin-top: 0; margin-bottom: 12px;" onclick="openActiveLocksForSelectedMachine()">
-            🔓 Ver bloqueo(s) activo(s) de este equipo → Paso 3
-          </button>
-
-          <label class="field-label">1. Seleccione Tipo de Bloqueo:</label>
-          <div class="intervention-type-group">
-            <div class="type-card selected" id="card-type-corrective" role="button" tabindex="0" aria-pressed="true" onclick="selectInterventionType('correctiva')" onkeydown="handleActivateKey(event, () => selectInterventionType('correctiva'))">
-              <span class="icon">🛠️</span>
-              <span class="title">Falla Correctiva</span>
-              <span class="desc">Avería no programada</span>
-            </div>
-            <div class="type-card" id="card-type-preventive" role="button" tabindex="0" aria-pressed="false" onclick="selectInterventionType('preventiva')" onkeydown="handleActivateKey(event, () => selectInterventionType('preventiva'))">
-              <span class="icon">⚙️</span>
-              <span class="title">Mantención Prev.</span>
-              <span class="desc">Pauta programada</span>
-            </div>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label" for="field-reason">2. Motivo Específico:</label>
-            <select class="field-select" id="field-reason">
-              <!-- Se puebla dinámicamente según el tipo -->
-            </select>
-          </div>
-
-          <div class="field-group" id="group-referencia-falla">
-            <label class="field-label" for="field-referencia-falla">2b. Referencia de Falla (Obligatoria en Correctiva):</label>
-            <input type="text" id="field-referencia-falla" class="field-select" placeholder="Ej: FALLA-2026-001" value="FALLA-2026-001" maxlength="80">
-          </div>
-
-          <div class="field-group">
-            <label class="field-label" for="field-notas">3. Notas de Auditoría (Cifrado AES-256-GCM en BD):</label>
-            <textarea id="field-notas" class="field-select" rows="2" maxlength="2000" placeholder="Opcional: detalle técnico confidencial (máx. 2000 caracteres)..."></textarea>
-          </div>
-
-          <div class="legal-confirmation-box">
-            <input type="checkbox" id="check-padlock" onchange="toggleSubmitButton()">
-            <label for="check-padlock">
-              <strong>Cumplimiento Legal (DS 594):</strong> Aplicaré mi candado físico personal y tarjeta de advertencia en el desconectador principal antes de intervenir.
-            </label>
-          </div>
-
-          <button class="btn-action-primary" id="btn-submit-lock" disabled onclick="executeDigitalLock()">
-            🔒 ACTIVAR BLOQUEO DIGITAL LOTO
-          </button>
-
-          <button style="width: 100%; background: transparent; color: var(--text-dim); margin-top: 12px; font-size: 0.82rem;" onclick="cancelToStep1()">
-            ← Cancelar y volver
-          </button>
-        </div>
-
-        <!-- PASO 3: ESTADO BLOQUEADO Y DESBLOQUEO RÁPIDO -->
-        <div id="tech-step-3" class="hidden">
-          <div class="locked-state-banner">
-            <div class="locked-state-badge" id="locked-state-badge">🔴 BLOQUEO LOTO ACTIVO</div>
-            <div class="locked-machine-title" id="locked-banner-machine">EQ-ENV-01 · Envasadora Rotativa</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);" id="locked-banner-subtitle">Activo desenergizado y asegurado</div>
-            <div class="locked-timer-display" id="active-lock-timer">00:00:00</div>
-            <span style="font-size: 0.72rem; color: var(--text-dim);">Cronómetro en línea de fuego</span>
-          </div>
-
-          <div class="multi-loto-selector-box hidden" id="group-unlock-ticket">
-            <label class="field-label" for="unlock-ticket-select" style="color: var(--rojo-peligro);">
-              🔐 Multi-LOTO: Seleccione el ticket/candado a liberar
-            </label>
-            <select class="field-select" id="unlock-ticket-select" onchange="onSelectUnlockTicket(this.value)">
-              <!-- Poblado dinámicamente -->
-            </select>
-          </div>
-
-          <table class="locked-details-table">
-            <tr>
-              <td class="label">Ticket ID:</td>
-              <td class="val" id="locked-detail-ticket-id">—</td>
-            </tr>
-            <tr>
-              <td class="label">Técnico Resp.:</td>
-              <td class="val" id="locked-detail-tech">—</td>
-            </tr>
-            <tr>
-              <td class="label">Tipo de Orden:</td>
-              <td class="val" id="locked-detail-type">Falla Correctiva</td>
-            </tr>
-            <tr>
-              <td class="label">Motivo:</td>
-              <td class="val" id="locked-detail-reason">Atascamiento de cabezal</td>
-            </tr>
-            <tr id="locked-detail-notes-row" class="hidden">
-              <td class="label">Notas (AES-GCM):</td>
-              <td class="val" id="locked-detail-notes">—</td>
-            </tr>
-            <tr>
-              <td class="label">Inicio Bloqueo:</td>
-              <td class="val" id="locked-detail-time">Hoy, 12:04 hrs</td>
-            </tr>
-            <tr>
-              <td class="label">Consola Central:</td>
-              <td class="val" style="color: var(--rojo-peligro);">Sincronizada (Rojo Crítico)</td>
-            </tr>
-          </table>
-
-          <div style="background: var(--bg-input); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-muted); border-left: 3px solid var(--verde-seguridad);">
-            💡 <strong>Procedimiento de Desbloqueo:</strong> Verifique el área despejada y retire su candado físico antes de liberar el activo digitalmente.
-          </div>
-
-          <button class="btn-action-unlock" id="btn-unlock-lock" onclick="executeDigitalUnlock()">
-            🔓 RETIRAR CANDADO Y LIBERAR EQUIPO
-          </button>
-
-          <button type="button" class="btn-step-secondary" id="btn-step3-add-lock" onclick="openStep2ForCurrentMachine()">
-            ➕ Añadir otro bloqueo en este equipo (Multi-LOTO)
-          </button>
-          <button type="button" style="width: 100%; background: transparent; color: var(--text-dim); margin-top: 8px; font-size: 0.78rem;" onclick="cancelToStep1()">
-            ← Volver al inicio
-          </button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ======================================================================
-         VISTA 2: CONSOLA DE SUPERVISIÓN WEB (JEFATURA DE PLANTA)
+         CONSOLA DE SUPERVISIÓN WEB (JEFATURA DE PLANTA - EXCLUSIVA PC)
          ====================================================================== -->
     <div class="supervisor-dashboard" id="view-supervisor-container">
-      
+
+      <!-- Barra Ejecutiva de Supervisión -->
+      <div class="supervisor-toolbar">
+        <div class="supervisor-toolbar-left">
+          <strong style="font-size: 0.96rem; color: var(--text-main);">Consola Central de Supervisión · Planta San Joaquín</strong>
+          <span class="sync-live-pill idle" id="supervisor-sync-pill" aria-live="polite">
+            ⏱️ Sync 2.5s en espera
+          </span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+          <button type="button" class="btn-supervisor-action" onclick="openTechManagementModal()">
+            👷 Gestión de Técnicos
+          </button>
+        </div>
+      </div>
+
       <!-- KPIs Superiores de Planta -->
       <div class="kpi-grid">
-        <div class="kpi-card">
+        <div class="kpi-card" id="kpi-card-active">
           <div class="kpi-header">
             <span>SEGURIDAD EN PLANTA</span>
             <span>🏭</span>
@@ -1635,7 +1289,7 @@
 
       <!-- Layout Central Dividido -->
       <div class="dashboard-content-split">
-        
+
         <!-- Columna Izquierda: Grid de Activos en Planta -->
         <div class="dashboard-panel">
           <div class="panel-title-row">
@@ -1664,7 +1318,7 @@
             <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">
               <strong>Equipo seleccionado:</strong> <span id="mtbf-machine-name" style="color: var(--text-main); font-weight: 800;">EQ-ENV-01 · Envasadora Rotativa</span>
             </p>
-            
+
             <div class="formula-display">
               MTBF = Tiempo Operativo / N° Fallas Correctivas
             </div>
@@ -1693,12 +1347,20 @@
             </div>
           </div>
 
-          <!-- Historial de Auditoría Reciente -->
-          <h3 style="font-size: 0.9rem; font-weight: 800; margin: 16px 0 10px 0; color: var(--text-main);">
-            📋 Registro de Bloqueos LOTO (Últimos Eventos)
-          </h3>
+          <!-- Bitácora Completa de Auditoría LOTO (Activos y Cerrados) -->
+          <div class="audit-header-row">
+            <h3 style="font-size: 0.92rem; font-weight: 800; color: var(--text-main); margin: 0;">
+              📋 Bitácora de Bloqueos LOTO (Activos y Cerrados)
+            </h3>
+          </div>
 
-          <div class="audit-table-wrap">
+          <div class="audit-filter-bar" role="group" aria-label="Filtro de estado en consola">
+            <button type="button" class="filter-chip active" data-audit-filter="ALL" onclick="setAuditFilter('ALL')">Todos</button>
+            <button type="button" class="filter-chip" data-audit-filter="ACTIVO" onclick="setAuditFilter('ACTIVO')">🔴 Activos</button>
+            <button type="button" class="filter-chip" data-audit-filter="CERRADO" onclick="setAuditFilter('CERRADO')">🟢 Cerrados (Histórico)</button>
+          </div>
+
+          <div class="audit-table-wrap audit-table-scroll">
             <table class="audit-table">
               <thead>
                 <tr>
@@ -1707,6 +1369,7 @@
                   <th>Tipo</th>
                   <th>Técnico</th>
                   <th>Estado</th>
+                  <th>Auditoría / Nota</th>
                 </tr>
               </thead>
               <tbody id="audit-log-body">
@@ -1724,6 +1387,116 @@
   </main>
 
   <!-- ========================================================================
+       MODAL: FICHA DE AUDITORÍA CRIPTOGRÁFICA Y TRAZABILIDAD (AES-256-GCM)
+       ======================================================================== -->
+  <div class="silbom-modal-backdrop hidden" id="audit-detail-modal" role="dialog" aria-modal="true" aria-labelledby="audit-modal-title" onclick="if (event.target === this) closeAuditDetailModal();">
+    <div class="silbom-modal">
+      <div class="silbom-modal-header">
+        <div class="silbom-modal-title-group">
+          <h2 id="audit-modal-title" style="font-size: 1.05rem; font-weight: 900; color: var(--text-main);">Ticket LOTO #—</h2>
+          <span id="audit-modal-status-badge" class="kpi-status-tag tag-green" style="margin-top: 0;">🟢 CERRADO</span>
+        </div>
+        <button type="button" class="silbom-modal-close" onclick="closeAuditDetailModal()" aria-label="Cerrar ficha de auditoría">✕</button>
+      </div>
+      <div class="silbom-modal-body">
+        <div class="audit-meta-grid" id="audit-modal-meta"></div>
+
+        <div class="audit-notes-box empty" id="audit-modal-notes-box">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+            <strong style="font-size: 0.86rem; color: var(--text-main);">🔐 Notas Confidenciales de Auditoría (AES-256-GCM)</strong>
+            <span id="audit-modal-notes-badge" class="kpi-status-tag tag-blue" style="margin-top: 0;">Verificando...</span>
+          </div>
+          <div class="audit-notes-text" id="audit-modal-notes-text">—</div>
+        </div>
+
+        <div>
+          <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px;">
+            📜 Línea de Tiempo Inmutable (eventos_loto)
+          </h3>
+          <div class="event-timeline" id="audit-modal-events">
+            <div class="event-timeline-item">Cargando eventos...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: GESTIÓN DE TÉCNICOS (CONSOLA SUPERVISOR PC)
+       ======================================================================== -->
+  <div class="silbom-modal-backdrop hidden" id="tech-management-modal" role="dialog" aria-modal="true" aria-labelledby="tech-mgmt-title" onclick="if (event.target === this) closeTechManagementModal();">
+    <div class="silbom-modal" style="max-width: 780px;">
+      <div class="silbom-modal-header">
+        <div class="silbom-modal-title-group">
+          <h2 id="tech-mgmt-title" style="font-size: 1.05rem; font-weight: 900; color: var(--text-main);">👷 Gestión de Técnicos · PostgreSQL</h2>
+          <span class="kpi-status-tag tag-blue" style="margin-top: 0;">RBAC: ROLE_SUPERVISOR</span>
+        </div>
+        <button type="button" class="silbom-modal-close" onclick="closeTechManagementModal()" aria-label="Cerrar gestión de técnicos">✕</button>
+      </div>
+      <div class="silbom-modal-body">
+        <form id="supervisor-create-tech-form" onsubmit="event.preventDefault(); createTechnicianFromForm('supervisor');" class="mobile-card-panel" style="margin-bottom: 0;">
+          <div style="font-size: 0.82rem; font-weight: 800; color: var(--azul-industrial); margin-bottom: 10px;">
+            ➕ REGISTRAR NUEVA CUENTA INDIVIDUAL
+          </div>
+          <div class="form-grid-2col">
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="stech-nombre">Nombre completo</label>
+              <input type="text" id="stech-nombre" class="field-select" required minlength="3" maxlength="80" placeholder="Ej: Bastián Araya">
+            </div>
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="stech-username">Username</label>
+              <input type="text" id="stech-username" class="field-select" required pattern="[a-zA-Z0-9._-]{3,50}" placeholder="Ej: b.araya">
+            </div>
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="stech-password">Contraseña (mínimo 12 caracteres)</label>
+              <input type="password" id="stech-password" class="field-select" required minlength="12" maxlength="72" placeholder="Ej: Tecnico2026!">
+            </div>
+            <div class="field-group" style="margin-bottom: 0;">
+              <label class="field-label" for="stech-rol">Rol</label>
+              <select id="stech-rol" class="field-select">
+                <option value="TECNICO" selected>TECNICO</option>
+                <option value="SUPERVISOR">SUPERVISOR</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-supervisor-action" id="stech-submit-btn">
+              ✅ Crear Técnico en PostgreSQL
+            </button>
+          </div>
+        </form>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-size: 0.88rem; font-weight: 800; color: var(--text-main);">Cuentas Registradas</h3>
+            <button type="button" class="session-btn-secondary" onclick="loadTecnicosFromApi()">🔄 Actualizar lista</button>
+          </div>
+          <div class="audit-table-wrap audit-table-scroll" style="max-height: 260px;">
+            <table class="audit-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Username</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="supervisor-tech-table-body">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Inicie sesión como Supervisor para administrar técnicos.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
        TOAST DE NOTIFICACIÓN
        ======================================================================== -->
   <div class="toast-notification" id="app-toast">
@@ -1738,7 +1511,13 @@
     /* ==========================================================================
        CONFIGURACIÓN Y ESTADO CENTRAL DE LA APLICACIÓN (SOLO EN MEMORIA)
        ========================================================================== */
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
+    const API_BASE_URL = (() => {
+      const host = window.location.hostname || 'localhost';
+      if (window.location.port === '8080') {
+        return `${window.location.origin}/api/v1`;
+      }
+      return `http://${host}:8080/api/v1`;
+    })();
 
     const HTTP_STATUS_LABELS = {
       200: 'OK',
@@ -1824,56 +1603,93 @@
       }
     ];
 
-    const DEFAULT_DEMO_LOGS = [
+    const DEFAULT_DEMO_TICKETS = [
       {
-        time: 'Ayer, 16:30',
-        machineId: 'EQ-PR-04',
-        type: 'Preventiva',
-        technician: 'Carlos R.',
-        status: 'Cerrado (45 min)',
-        isActive: false
+        id: 3,
+        maquinaId: 'EQ-ENV-01',
+        tipoIntervencion: 'CORRECTIVA',
+        motivo: 'Atascamiento de cabezal móvil (Mecánico)',
+        nombreTecnico: 'Benjamín V.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 86400000).toISOString(),
+        horaFin: new Date(Date.now() - 84300000).toISOString(),
+        duracionMinutos: 35,
+        notasAuditoria: 'Se verifica desconexión total de variador y purga neumática antes de destrabar mordaza.',
+        fallaId: 103
       },
       {
-        time: 'Ayer, 09:15',
-        machineId: 'EQ-EXT-02',
-        type: 'Correctiva',
-        technician: 'Vicente M.',
-        status: 'Cerrado (1.2 hrs)',
-        isActive: false
+        id: 2,
+        maquinaId: 'EQ-EXT-02',
+        tipoIntervencion: 'CORRECTIVA',
+        motivo: 'Sobrecalentamiento en motor principal (Eléctrico)',
+        nombreTecnico: 'Vicente M.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 172800000).toISOString(),
+        horaFin: new Date(Date.now() - 168480000).toISOString(),
+        duracionMinutos: 72,
+        notasAuditoria: 'Ventilador auxiliar obstruido. Medición de tensión cero validada con multímetro calibrado.',
+        fallaId: 102
       },
       {
-        time: '23 Sep, 11:20',
-        machineId: 'EQ-ENV-01',
-        type: 'Correctiva',
-        technician: 'Benjamín V.',
-        status: 'Cerrado (35 min)',
-        isActive: false
+        id: 1,
+        maquinaId: 'EQ-PR-04',
+        tipoIntervencion: 'PREVENTIVA',
+        motivo: 'Inspección y lubricación semanal programada',
+        nombreTecnico: 'Carlos R.',
+        confirmacionCandadoDs594: true,
+        estado: 'CERRADO',
+        horaInicio: new Date(Date.now() - 259200000).toISOString(),
+        horaFin: new Date(Date.now() - 256500000).toISOString(),
+        duracionMinutos: 45,
+        notasAuditoria: null,
+        fallaId: null
       }
     ];
+
+    function buildAuditLogsFromTickets(tickets) {
+      return tickets.map(b => ({
+        id: b.id,
+        time: formatShortDateTime(b.horaInicio),
+        machineId: b.maquinaId,
+        type: b.tipoIntervencion === 'CORRECTIVA' ? 'Correctiva' : 'Preventiva',
+        technician: b.nombreTecnico || 'Operador',
+        status: b.estado === 'ACTIVO'
+          ? '🔴 Bloqueo Activo'
+          : `Cerrado (${formatDuration(b.duracionMinutos)})`,
+        isActive: b.estado === 'ACTIVO',
+        motivo: b.motivo,
+        notasAuditoria: b.notasAuditoria,
+        tecnicoId: b.tecnicoId ?? null,
+        fallaId: b.fallaId ?? null
+      }));
+    }
 
     function cloneDefaultMachines() {
       return DEFAULT_DEMO_MACHINES.map(m => ({ ...m }));
     }
 
+    function cloneDefaultTickets() {
+      return DEFAULT_DEMO_TICKETS.map(t => ({ ...t }));
+    }
+
     function cloneDefaultLogs() {
-      return DEFAULT_DEMO_LOGS.map(l => ({ ...l }));
+      return buildAuditLogsFromTickets(cloneDefaultTickets());
     }
 
     const AppState = {
       theme: 'dark',
-      displayMode: 'split',       // 'split' | 'tech' | 'supervisor'
-      currentStep: 1,             // 1: Scan, 2: Form, 3: Locked
+      auditFilter: 'ALL',         // 'ALL' | 'ACTIVO' | 'CERRADO'
       selectedMachineId: 'EQ-ENV-01',
-      selectedType: 'correctiva', // 'correctiva' | 'preventiva'
-      selectedTicketId: null,
       apiOnline: false,
-      isSubmitting: false,
-      auth: null,                 // SOLO EN MEMORIA: { username, password, header }
-      timerInterval: null,
-      timerSeconds: 0,
-      localTicketSeq: 100,
+      auth: null,                 // SOLO EN MEMORIA: { username, password, header, rol, id, nombre }
+      tecnicosList: [],
+      pollInterval: null,
+      pollPauseUntil: 0,
+      lastMachineSnapshot: null,
       machines: cloneDefaultMachines(),
-      tickets: [],
+      tickets: cloneDefaultTickets(),
       auditLogs: cloneDefaultLogs()
     };
 
@@ -1920,6 +1736,22 @@
         badge.className = 'connection-pill offline';
         badge.textContent = '🟡 Modo Demo Local (Offline)';
       }
+      updateSyncPillUI();
+    }
+
+    function updateSyncPillUI() {
+      const pill = document.getElementById('supervisor-sync-pill');
+      if (!pill) return;
+      if (AppState.apiOnline && AppState.pollInterval) {
+        pill.className = 'sync-live-pill';
+        pill.textContent = '⚡ Sync tiempo real (2.5s)';
+      } else if (AppState.apiOnline) {
+        pill.className = 'sync-live-pill idle';
+        pill.textContent = '🟢 Conectado a PostgreSQL';
+      } else {
+        pill.className = 'sync-live-pill idle';
+        pill.textContent = '🟡 Modo Demo Local (Offline)';
+      }
     }
 
     function updateHttpMonitor(method, endpoint, status, customText) {
@@ -1947,35 +1779,51 @@
 
     async function apiFetch(endpoint, options = {}) {
       const method = (options.method || 'GET').toUpperCase();
+      const silentMonitor = Boolean(options.silentMonitor);
+      const authHeaderOverride = options.authHeaderOverride || null;
+      const fetchOptions = { ...options };
+      delete fetchOptions.silentMonitor;
+      delete fetchOptions.authHeaderOverride;
+
       const headers = {
         'Accept': 'application/json',
-        ...(options.headers || {})
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(fetchOptions.headers || {})
       };
 
-      if (options.body !== undefined && options.body !== null && !headers['Content-Type']) {
+      if (fetchOptions.body !== undefined && fetchOptions.body !== null && !headers['Content-Type']) {
         headers['Content-Type'] = 'application/json';
       }
 
-      if (AppState.auth && AppState.auth.header) {
+      if (authHeaderOverride) {
+        headers['Authorization'] = authHeaderOverride;
+      } else if (AppState.auth && AppState.auth.header) {
         headers['Authorization'] = AppState.auth.header;
       }
 
       let response;
       try {
         response = await fetch(`${API_BASE_URL}${endpoint}`, {
-          ...options,
+          ...fetchOptions,
           method,
           headers
         });
       } catch (networkErr) {
         updateConnectionBadge(false);
-        updateHttpMonitor(method, endpoint, 0, 'OFFLINE (Sin conexión)');
+        if (!silentMonitor) {
+          updateHttpMonitor(method, endpoint, 0, 'OFFLINE (Sin conexión)');
+        }
         const err = new Error('Servidor backend no disponible');
         err.isNetworkError = true;
         throw err;
       }
 
       updateConnectionBadge(true);
+
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get('Retry-After')) || 10;
+        AppState.pollPauseUntil = Date.now() + retryAfter * 1000;
+      }
 
       let data = null;
       const rawText = await response.text();
@@ -1987,7 +1835,9 @@
         }
       }
 
-      updateHttpMonitor(method, endpoint, response.status, response.statusText || HTTP_STATUS_LABELS[response.status]);
+      if (!silentMonitor) {
+        updateHttpMonitor(method, endpoint, response.status, response.statusText || HTTP_STATUS_LABELS[response.status]);
+      }
 
       return {
         ok: response.ok,
@@ -2005,39 +1855,59 @@
     }
 
     /* ==========================================================================
-       AUTENTICACIÓN HTTP BASIC EN MEMORIA
+       AUTENTICACIÓN HTTP BASIC EN MEMORIA Y DETECCIÓN DE ROL
        ========================================================================== */
     function renderAuthUI() {
       const badge = document.getElementById('auth-active-badge');
       const logoutBtn = document.getElementById('btn-auth-logout');
-      if (!badge || !logoutBtn) return;
 
       if (AppState.auth && AppState.auth.username) {
-        badge.textContent = `👷 Operador activo: ${AppState.auth.username}`;
-        logoutBtn.classList.remove('hidden');
+        const roleTag = AppState.auth.rol ? ` (${AppState.auth.rol})` : '';
+        if (badge) badge.textContent = `👷 Operador activo: ${AppState.auth.username}${roleTag}`;
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
       } else {
-        badge.textContent = '👤 Sin sesión activa (Solo catálogo público)';
-        logoutBtn.classList.add('hidden');
+        if (badge) badge.textContent = '👤 Sin sesión activa (Solo catálogo público)';
+        if (logoutBtn) logoutBtn.classList.add('hidden');
       }
     }
 
-    async function loginOperator() {
-      const userInput = document.getElementById('auth-username');
-      const passInput = document.getElementById('auth-password');
-      const username = userInput.value.trim();
-      const password = passInput.value;
+    async function probeAuthenticatedRole() {
+      if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) return;
+      try {
+        const res = await apiFetch('/tecnicos', { silentMonitor: true });
+        if (res.ok && Array.isArray(res.data)) {
+          AppState.auth.rol = 'SUPERVISOR';
+          AppState.tecnicosList = res.data;
+          const match = res.data.find(t => t.username === AppState.auth.username);
+          if (match) {
+            AppState.auth.id = match.id;
+            AppState.auth.nombre = match.nombre;
+          }
+          renderSupervisorTecnicos();
+        } else if (res.status === 403) {
+          AppState.auth.rol = 'TECNICO';
+          AppState.tecnicosList = [];
+          renderSupervisorTecnicos();
+        }
+      } catch (err) {
+        // Ignorar error de red en probe de rol
+      }
+    }
 
+    async function performLogin(username, password) {
       if (!username || !password) {
         showToast('Ingrese usuario y contraseña para autenticar', '⚠️');
-        return;
+        return false;
       }
 
       AppState.auth = {
         username,
         password,
-        header: encodeBasicAuth(username, password)
+        header: encodeBasicAuth(username, password),
+        rol: null,
+        id: null,
+        nombre: null
       };
-      passInput.value = '';
       renderAuthUI();
 
       await loadMachinesFromApi();
@@ -2047,34 +1917,48 @@
         if (res && res.status === 401) {
           AppState.auth = null;
           AppState.tickets = [];
+          AppState.tecnicosList = [];
           renderAuthUI();
+          renderAuditLogs();
           showToast('Credenciales inválidas (401 Unauthorized)', '🚫');
-          return;
+          return false;
         }
-        showToast(`Operador autenticado: ${username}`, '👷');
-        if (AppState.currentStep === 3) {
-          const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-          if (m) updateLockedDisplay(m);
-        }
+        await probeAuthenticatedRole();
+        renderAuthUI();
+
+        const roleLabel = AppState.auth.rol || 'OPERADOR';
+        showToast(`Sesión iniciada: ${username} (${roleLabel})`, '👷');
       } else {
+        AppState.auth.rol = username.toLowerCase().includes('supervisor') ? 'SUPERVISOR' : 'TECNICO';
+        renderAuthUI();
         showToast(`Operador cargado en modo offline: ${username}`, '🟡');
       }
 
       renderSupervisorDashboard();
+      syncSupervisorPollingState();
+      return true;
+    }
+
+    async function loginOperator() {
+      const userInput = document.getElementById('auth-username');
+      const passInput = document.getElementById('auth-password');
+      const username = userInput.value.trim();
+      const password = passInput.value;
+      passInput.value = '';
+      await performLogin(username, password);
     }
 
     function logoutOperator() {
       AppState.auth = null;
+      AppState.tecnicosList = [];
       renderAuthUI();
+      renderSupervisorTecnicos();
 
       if (AppState.apiOnline) {
         AppState.tickets = [];
         AppState.auditLogs = [];
-        if (AppState.currentStep === 3) {
-          clearInterval(AppState.timerInterval);
-          showTechStep(1);
-        }
       } else {
+        AppState.tickets = cloneDefaultTickets();
         AppState.auditLogs = cloneDefaultLogs();
       }
 
@@ -2085,34 +1969,9 @@
     /* ==========================================================================
        SINCRONIZACIÓN CON API REST (MAQUINAS Y BLOQUEOS)
        ========================================================================== */
-    function populateMachineSelect() {
-      const select = document.getElementById('manual-machine-select');
-      if (!select) return;
-      const previous = select.value;
-      select.innerHTML = '';
-
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      placeholder.textContent = '-- Seleccione una máquina --';
-      select.appendChild(placeholder);
-
-      AppState.machines.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m.id;
-        opt.textContent = `${m.id} · ${m.name}`;
-        select.appendChild(opt);
-      });
-
-      if (previous && AppState.machines.some(m => m.id === previous)) {
-        select.value = previous;
-      }
-    }
-
-    async function loadMachinesFromApi() {
+    async function loadMachinesFromApi(silentMonitor = false) {
       try {
-        const { ok, data } = await apiFetch('/maquinas');
+        const { ok, data } = await apiFetch('/maquinas', { silentMonitor });
         if (ok && Array.isArray(data)) {
           AppState.machines = data.map(m => ({
             id: m.id,
@@ -2130,12 +1989,10 @@
           if (!AppState.machines.some(m => m.id === AppState.selectedMachineId) && AppState.machines.length > 0) {
             AppState.selectedMachineId = AppState.machines[0].id;
           }
-          populateMachineSelect();
           return true;
         }
       } catch (err) {
-        // Modo fallback offline automático
-        populateMachineSelect();
+        // Fallback offline conserva máquinas locales
       }
       return false;
     }
@@ -2158,28 +2015,16 @@
       return `${(mins / 60).toFixed(1)} hrs`;
     }
 
-    async function loadBloqueosFromApi() {
+    async function loadBloqueosFromApi(silentMonitor = false) {
       if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) {
         return null;
       }
 
       try {
-        const res = await apiFetch('/bloqueos');
+        const res = await apiFetch('/bloqueos', { silentMonitor });
         if (res.ok && Array.isArray(res.data)) {
           AppState.tickets = res.data;
-          AppState.auditLogs = res.data.map(b => ({
-            id: b.id,
-            time: formatShortDateTime(b.horaInicio),
-            machineId: b.maquinaId,
-            type: b.tipoIntervencion === 'CORRECTIVA' ? 'Correctiva' : 'Preventiva',
-            technician: b.nombreTecnico || 'Operador',
-            status: b.estado === 'ACTIVO'
-              ? '🔴 Bloqueo Activo'
-              : `Cerrado (${formatDuration(b.duracionMinutos)})`,
-            isActive: b.estado === 'ACTIVO',
-            motivo: b.motivo,
-            notasAuditoria: b.notasAuditoria
-          }));
+          AppState.auditLogs = buildAuditLogsFromTickets(res.data);
           renderAuditLogs();
         }
         return res;
@@ -2261,546 +2106,6 @@
       AppState.theme = next;
       applyTheme(next);
       showToast(`Cambiado a ${next === 'dark' ? 'Modo Oscuro' : 'Modo Claro'}`, '🎨');
-    }
-
-    /* ==========================================================================
-       MODOS DE VISUALIZACIÓN (Pantalla Dividida vs Móvil vs Consola)
-       ========================================================================== */
-    function switchDisplayMode(mode) {
-      AppState.displayMode = mode;
-      const splitBtn = document.getElementById('btn-view-split');
-      const techBtn = document.getElementById('btn-view-tech');
-      const supBtn = document.getElementById('btn-view-supervisor');
-      const container = document.getElementById('main-layout-container');
-      const techView = document.getElementById('view-tech-container');
-      const supView = document.getElementById('view-supervisor-container');
-
-      [splitBtn, techBtn, supBtn].forEach(b => b.classList.remove('active'));
-
-      if (mode === 'split') {
-        splitBtn.classList.add('active');
-        container.className = 'main-container mode-split';
-        techView.classList.remove('hidden');
-        supView.classList.remove('hidden');
-      } else if (mode === 'tech') {
-        techBtn.classList.add('active');
-        container.className = 'main-container';
-        techView.classList.remove('hidden');
-        supView.classList.add('hidden');
-      } else if (mode === 'supervisor') {
-        supBtn.classList.add('active');
-        container.className = 'main-container';
-        supView.classList.remove('hidden');
-        techView.classList.add('hidden');
-      }
-
-      renderSupervisorDashboard();
-    }
-
-    /* ==========================================================================
-       FLUJO MÓVIL DEL TÉCNICO (3 Pantallas Encadenadas + Multi-LOTO)
-       ========================================================================== */
-    function getActiveTicketsForMachine(machineId) {
-      return AppState.tickets.filter(t => t.maquinaId === machineId && t.estado === 'ACTIVO');
-    }
-
-    function simulateNfcTap(machineId) {
-      playBeep('nfc');
-      showToast(`¡Tag NFC detectado! Activo: ${machineId}`, '📡');
-      loadMachineIntoForm(machineId);
-    }
-
-    function simulateManualSelect(machineId) {
-      if (!machineId) return;
-      playBeep('nfc');
-      showToast(`Equipo seleccionado: ${machineId}`, '🔍');
-      loadMachineIntoForm(machineId);
-    }
-
-    function openStep2ForCurrentMachine() {
-      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      if (!m) return;
-      populateStep2Form(m);
-      showTechStep(2);
-    }
-
-    function openActiveLocksForSelectedMachine() {
-      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      if (!m) return;
-      showTechStep(3);
-      updateLockedDisplay(m);
-    }
-
-    function populateStep2Form(m) {
-      document.getElementById('form-machine-code').textContent = m.id;
-      document.getElementById('form-machine-name').textContent = m.name;
-      document.getElementById('target-card-icon').textContent = m.icon;
-
-      const statusEl = document.getElementById('form-machine-status');
-      const viewActiveBtn = document.getElementById('btn-step2-view-active');
-      const activeCount = Math.max(m.activeLocks || 0, getActiveTicketsForMachine(m.id).length);
-
-      if (m.isLocked || activeCount > 0) {
-        statusEl.textContent = `🔴 BLOQUEADA (${activeCount || 1} bloqueo(s) activo(s) · Multi-LOTO)`;
-        statusEl.style.color = 'var(--rojo-peligro)';
-        if (viewActiveBtn) viewActiveBtn.classList.remove('hidden');
-      } else {
-        statusEl.textContent = '🟢 ESTADO: OPERATIVO';
-        statusEl.style.color = 'var(--verde-seguridad)';
-        if (viewActiveBtn) viewActiveBtn.classList.add('hidden');
-      }
-
-      document.getElementById('check-padlock').checked = false;
-      document.getElementById('btn-submit-lock').disabled = true;
-      const notesInput = document.getElementById('field-notas');
-      if (notesInput) notesInput.value = '';
-      const refInput = document.getElementById('field-referencia-falla');
-      if (refInput && !refInput.value.trim()) refInput.value = 'FALLA-2026-001';
-
-      selectInterventionType(AppState.selectedType);
-    }
-
-    function loadMachineIntoForm(machineId) {
-      AppState.selectedMachineId = machineId;
-      const m = AppState.machines.find(x => x.id === machineId);
-      if (!m) return;
-
-      populateStep2Form(m);
-      showTechStep(2);
-      focusMachineMTBF(machineId);
-      renderSupervisorDashboard();
-    }
-
-    function selectInterventionType(type) {
-      AppState.selectedType = type;
-      const cardCorr = document.getElementById('card-type-corrective');
-      const cardPrev = document.getElementById('card-type-preventive');
-      const refGroup = document.getElementById('group-referencia-falla');
-
-      if (type === 'correctiva') {
-        cardCorr.classList.add('selected');
-        cardCorr.setAttribute('aria-pressed', 'true');
-        cardPrev.classList.remove('selected');
-        cardPrev.setAttribute('aria-pressed', 'false');
-        if (refGroup) refGroup.classList.remove('hidden');
-      } else {
-        cardPrev.classList.add('selected');
-        cardPrev.setAttribute('aria-pressed', 'true');
-        cardCorr.classList.remove('selected');
-        cardCorr.setAttribute('aria-pressed', 'false');
-        if (refGroup) refGroup.classList.add('hidden');
-      }
-
-      populateReasons(type);
-    }
-
-    function populateReasons(type) {
-      const select = document.getElementById('field-reason');
-      select.innerHTML = '';
-
-      const correctiveReasons = [
-        'Atascamiento de cabezal móvil (Mecánico)',
-        'Sobrecalentamiento en motor principal (Eléctrico)',
-        'Fuga de presión en electroválvulas (Neumático)',
-        'Falla de sensor inductivo de posición (Control)',
-        'Desalineación y vibración anómala en cinta'
-      ];
-
-      const preventiveReasons = [
-        'Inspección y lubricación semanal programada',
-        'Cambio de rodamientos y sellos de desgaste',
-        'Ajuste y calibración de torque en mordazas',
-        'Limpieza técnica profunda y despeje de tolva',
-        'Revisión semestral de conexiones de potencia'
-      ];
-
-      const list = type === 'correctiva' ? correctiveReasons : preventiveReasons;
-      list.forEach(r => {
-        const opt = document.createElement('option');
-        opt.value = r;
-        opt.textContent = r;
-        select.appendChild(opt);
-      });
-    }
-
-    function toggleSubmitButton() {
-      if (AppState.isSubmitting) return;
-      const check = document.getElementById('check-padlock').checked;
-      document.getElementById('btn-submit-lock').disabled = !check;
-    }
-
-    function cancelToStep1() {
-      showTechStep(1);
-      document.getElementById('manual-machine-select').value = '';
-    }
-
-    async function executeDigitalLock() {
-      if (AppState.isSubmitting) return;
-      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      if (!machine) return;
-
-      const submitBtn = document.getElementById('btn-submit-lock');
-      const originalBtnText = submitBtn.textContent;
-      const reason = document.getElementById('field-reason').value;
-      const confirmPadlock = document.getElementById('check-padlock').checked;
-      const refInput = document.getElementById('field-referencia-falla');
-      const notesInput = document.getElementById('field-notas');
-
-      const rawNotas = notesInput ? notesInput.value.trim() : '';
-      const rawRef = refInput ? refInput.value.trim() : '';
-      const tipoIntervencion = AppState.selectedType === 'correctiva' ? 'CORRECTIVA' : 'PREVENTIVA';
-
-      const payload = {
-        maquinaId: machine.id,
-        tipoIntervencion,
-        motivo: reason,
-        confirmacionCandadoDs594: confirmPadlock,
-        notasConfidenciales: rawNotas.length > 0 ? rawNotas : null,
-        referenciaFalla: tipoIntervencion === 'CORRECTIVA' ? (rawRef.length > 0 ? rawRef : null) : null
-      };
-
-      AppState.isSubmitting = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Procesando...';
-
-      try {
-        if (AppState.apiOnline) {
-          try {
-            const { ok, status, data } = await apiFetch('/bloqueos', {
-              method: 'POST',
-              body: JSON.stringify(payload)
-            });
-
-            if (ok && status === 201 && data) {
-              AppState.selectedTicketId = data.id;
-              playBeep('lock');
-              showToast(`¡BLOQUEO LOTO #${data.id} REGISTRADO! Activo: ${machine.id}`, '🔒');
-
-              await loadMachinesFromApi();
-              await loadBloqueosFromApi();
-
-              const updatedMachine = AppState.machines.find(x => x.id === machine.id) || machine;
-              showTechStep(3);
-              updateLockedDisplay(updatedMachine);
-              renderSupervisorDashboard();
-              focusMachineMTBF(updatedMachine.id);
-              return;
-            }
-
-            const errMsg = extractApiError(data, status);
-            showToast(`Rechazo (${status}): ${errMsg}`, '🚫');
-            return;
-          } catch (err) {
-            if (!err.isNetworkError) {
-              showToast('Error inesperado al registrar bloqueo', '🚫');
-              return;
-            }
-            // Si el backend se desconectó, continuar a fallback local
-          }
-        }
-
-        // Modo Fallback Local (Offline)
-        if (tipoIntervencion === 'CORRECTIVA' && !payload.referenciaFalla) {
-          showToast('Ingrese referencia de falla para intervención correctiva', '⚠️');
-          return;
-        }
-
-        const nowIso = new Date().toISOString();
-        const localId = ++AppState.localTicketSeq;
-        const operador = (AppState.auth && AppState.auth.username) ? AppState.auth.username : 'Operador Demo';
-
-        const localTicket = {
-          id: localId,
-          maquinaId: machine.id,
-          tipoIntervencion,
-          motivo: reason,
-          nombreTecnico: operador,
-          confirmacionCandadoDs594: true,
-          estado: 'ACTIVO',
-          horaInicio: nowIso,
-          horaFin: null,
-          duracionMinutos: null,
-          notasAuditoria: payload.notasConfidenciales,
-          fallaId: tipoIntervencion === 'CORRECTIVA' ? 1 : null
-        };
-
-        AppState.tickets.unshift(localTicket);
-        AppState.selectedTicketId = localId;
-        machine.isLocked = true;
-        machine.activeLocks = (machine.activeLocks || 0) + 1;
-
-        if (tipoIntervencion === 'CORRECTIVA') {
-          machine.correctiveFailures += 1;
-          machine.mtbf = parseFloat((machine.operatingHours / machine.correctiveFailures).toFixed(1));
-        }
-
-        AppState.auditLogs.unshift({
-          id: localId,
-          time: 'En curso (Ahora)',
-          machineId: machine.id,
-          type: tipoIntervencion === 'CORRECTIVA' ? 'Correctiva' : 'Preventiva',
-          technician: operador,
-          status: '🔴 Bloqueo Activo',
-          isActive: true
-        });
-
-        playBeep('lock');
-        showToast(`¡BLOQUEO LOTO LOCAL REGISTRADO! Activo: ${machine.id}`, '🔒');
-        showTechStep(3);
-        updateLockedDisplay(machine);
-        renderSupervisorDashboard();
-        focusMachineMTBF(machine.id);
-      } finally {
-        AppState.isSubmitting = false;
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = !document.getElementById('check-padlock').checked;
-      }
-    }
-
-    function onSelectUnlockTicket(ticketIdStr) {
-      const id = Number(ticketIdStr);
-      AppState.selectedTicketId = Number.isNaN(id) ? null : id;
-      const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      if (m) updateLockedDisplay(m);
-    }
-
-    function updateLockedDisplay(machine) {
-      document.getElementById('locked-banner-machine').textContent = `${machine.id} · ${machine.name}`;
-
-      const activeTickets = getActiveTicketsForMachine(machine.id);
-      const activeCount = Math.max(machine.activeLocks || 0, activeTickets.length);
-      const badgeEl = document.getElementById('locked-state-badge');
-      const subtitleEl = document.getElementById('locked-banner-subtitle');
-
-      if (activeCount > 1) {
-        badgeEl.textContent = `🔴 BLOQUEO MULTI-LOTO ACTIVO (${activeCount} Técnicos)`;
-        if (subtitleEl) subtitleEl.textContent = `${activeCount} candados personales instalados simultáneamente`;
-      } else {
-        badgeEl.textContent = '🔴 BLOQUEO LOTO ACTIVO';
-        if (subtitleEl) subtitleEl.textContent = 'Activo desenergizado y asegurado';
-      }
-
-      const selectorBox = document.getElementById('group-unlock-ticket');
-      const selector = document.getElementById('unlock-ticket-select');
-
-      let currentTicket = activeTickets.find(t => t.id === AppState.selectedTicketId);
-      if (!currentTicket && activeTickets.length > 0) {
-        currentTicket = activeTickets[0];
-        AppState.selectedTicketId = currentTicket.id;
-      }
-
-      if (selector && selectorBox) {
-        selector.innerHTML = '';
-        if (activeTickets.length > 1) {
-          activeTickets.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = String(t.id);
-            opt.textContent = `Ticket #${t.id} · ${t.nombreTecnico} (${t.tipoIntervencion})`;
-            selector.appendChild(opt);
-          });
-          selector.value = String(currentTicket.id);
-          selectorBox.classList.remove('hidden');
-        } else {
-          selectorBox.classList.add('hidden');
-        }
-      }
-
-      const ticketIdEl = document.getElementById('locked-detail-ticket-id');
-      const techEl = document.getElementById('locked-detail-tech');
-      const typeEl = document.getElementById('locked-detail-type');
-      const reasonEl = document.getElementById('locked-detail-reason');
-      const timeEl = document.getElementById('locked-detail-time');
-      const notesRow = document.getElementById('locked-detail-notes-row');
-      const notesEl = document.getElementById('locked-detail-notes');
-
-      if (currentTicket) {
-        ticketIdEl.textContent = `#${currentTicket.id}`;
-        techEl.textContent = currentTicket.nombreTecnico || 'Operador';
-        typeEl.textContent = currentTicket.tipoIntervencion === 'CORRECTIVA' ? 'Falla Correctiva' : 'Mantención Preventiva';
-        reasonEl.textContent = currentTicket.motivo || '—';
-        timeEl.textContent = formatShortDateTime(currentTicket.horaInicio);
-
-        if (currentTicket.notasAuditoria) {
-          notesEl.textContent = currentTicket.notasAuditoria;
-          notesRow.classList.remove('hidden');
-        } else {
-          notesEl.textContent = '—';
-          notesRow.classList.add('hidden');
-        }
-        startLockTimer(currentTicket.horaInicio);
-      } else {
-        ticketIdEl.textContent = '—';
-        techEl.textContent = (AppState.auth && AppState.auth.username) ? AppState.auth.username : 'Inicie sesión para ver tickets';
-        typeEl.textContent = '—';
-        reasonEl.textContent = '—';
-        timeEl.textContent = '—';
-        notesRow.classList.add('hidden');
-        startLockTimer(null);
-      }
-    }
-
-    function startLockTimer(startIso) {
-      clearInterval(AppState.timerInterval);
-      let initialSeconds = 0;
-      if (startIso) {
-        const parsed = new Date(startIso).getTime();
-        if (!Number.isNaN(parsed)) {
-          initialSeconds = Math.max(0, Math.floor((Date.now() - parsed) / 1000));
-        }
-      }
-      AppState.timerSeconds = initialSeconds;
-      updateTimerText();
-
-      AppState.timerInterval = setInterval(() => {
-        AppState.timerSeconds++;
-        updateTimerText();
-      }, 1000);
-    }
-
-    function updateTimerText() {
-      const h = Math.floor(AppState.timerSeconds / 3600).toString().padStart(2, '0');
-      const m = Math.floor((AppState.timerSeconds % 3600) / 60).toString().padStart(2, '0');
-      const s = (AppState.timerSeconds % 60).toString().padStart(2, '0');
-      const el = document.getElementById('active-lock-timer');
-      if (el) el.textContent = `${h}:${m}:${s}`;
-    }
-
-    async function executeDigitalUnlock() {
-      if (AppState.isSubmitting) return;
-      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      const activeTickets = machine ? getActiveTicketsForMachine(machine.id) : [];
-      const ticketId = AppState.selectedTicketId || (activeTickets[0] ? activeTickets[0].id : null);
-
-      if (!ticketId) {
-        showToast('No hay un ticket activo seleccionado para liberar (inicie sesión)', '⚠️');
-        return;
-      }
-
-      const unlockBtn = document.getElementById('btn-unlock-lock');
-      const originalBtnText = unlockBtn.textContent;
-      AppState.isSubmitting = true;
-      unlockBtn.disabled = true;
-      unlockBtn.textContent = '⏳ Procesando...';
-
-      try {
-        if (AppState.apiOnline) {
-          try {
-            const { ok, status, data } = await apiFetch(`/bloqueos/${ticketId}/liberar`, {
-              method: 'PUT'
-            });
-
-            if (ok && status === 200) {
-              playBeep('unlock');
-              await loadMachinesFromApi();
-              await loadBloqueosFromApi();
-
-              const updatedMachine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-              const remaining = updatedMachine ? getActiveTicketsForMachine(updatedMachine.id) : [];
-
-              if (updatedMachine && (updatedMachine.isLocked || updatedMachine.activeLocks > 0 || remaining.length > 0)) {
-                AppState.selectedTicketId = remaining[0] ? remaining[0].id : null;
-                showToast(`Ticket #${ticketId} liberado. ${updatedMachine.id} sigue bloqueado (${updatedMachine.activeLocks} activo(s))`, '🟡');
-                showTechStep(3);
-                updateLockedDisplay(updatedMachine);
-              } else {
-                clearInterval(AppState.timerInterval);
-                AppState.selectedTicketId = null;
-                showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
-                showTechStep(1);
-                document.getElementById('manual-machine-select').value = '';
-              }
-
-              renderSupervisorDashboard();
-              if (updatedMachine) focusMachineMTBF(updatedMachine.id);
-              return;
-            }
-
-            const errMsg = extractApiError(data, status);
-            showToast(`Rechazo (${status}): ${errMsg}`, '🚫');
-            return;
-          } catch (err) {
-            if (!err.isNetworkError) {
-              showToast('Error inesperado al liberar el bloqueo', '🚫');
-              return;
-            }
-          }
-        }
-
-        // Modo Fallback Local (Offline)
-        const targetTicket = AppState.tickets.find(t => t.id === ticketId);
-        if (targetTicket) {
-          targetTicket.estado = 'CERRADO';
-          targetTicket.horaFin = new Date().toISOString();
-        }
-
-        if (machine) {
-          machine.activeLocks = Math.max(0, (machine.activeLocks || 1) - 1);
-          machine.isLocked = machine.activeLocks > 0;
-        }
-
-        const logEntry = AppState.auditLogs.find(l => l.id === ticketId);
-        if (logEntry) {
-          const secs = AppState.timerSeconds;
-          const durationText = secs < 60 ? `${secs} seg` : `${Math.round(secs / 60)} min`;
-          logEntry.status = `Cerrado (${durationText})`;
-          logEntry.isActive = false;
-          logEntry.time = `Hoy, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        }
-
-        playBeep('unlock');
-        const remainingOffline = machine ? getActiveTicketsForMachine(machine.id) : [];
-
-        if (machine && machine.isLocked && remainingOffline.length > 0) {
-          AppState.selectedTicketId = remainingOffline[0].id;
-          showToast(`Candado #${ticketId} liberado. ${machine.id} sigue con ${machine.activeLocks} bloqueo(s)`, '🟡');
-          updateLockedDisplay(machine);
-        } else {
-          clearInterval(AppState.timerInterval);
-          AppState.selectedTicketId = null;
-          showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
-          showTechStep(1);
-          document.getElementById('manual-machine-select').value = '';
-        }
-
-        renderSupervisorDashboard();
-        if (machine) focusMachineMTBF(machine.id);
-      } finally {
-        AppState.isSubmitting = false;
-        unlockBtn.disabled = false;
-        unlockBtn.textContent = originalBtnText;
-      }
-    }
-
-    function showTechStep(step) {
-      AppState.currentStep = step;
-      document.getElementById('tech-step-1').classList.toggle('hidden', step !== 1);
-      document.getElementById('tech-step-2').classList.toggle('hidden', step !== 2);
-      document.getElementById('tech-step-3').classList.toggle('hidden', step !== 3);
-
-      const s1 = document.getElementById('stepper-item-1');
-      const s2 = document.getElementById('stepper-item-2');
-      const s3 = document.getElementById('stepper-item-3');
-      const l1 = document.getElementById('stepper-line-1');
-      const l2 = document.getElementById('stepper-line-2');
-
-      if (s1 && s2 && s3 && l1 && l2) {
-        [s1, s2, s3].forEach(s => s.className = 'step-indicator');
-        [l1, l2].forEach(l => l.className = 'step-connector-line');
-
-        if (step === 1) {
-          s1.classList.add('active');
-        } else if (step === 2) {
-          s1.classList.add('completed');
-          l1.classList.add('active');
-          s2.classList.add('active');
-        } else if (step === 3) {
-          s1.classList.add('completed');
-          l1.classList.add('active');
-          s2.classList.add('completed');
-          l2.classList.add('active');
-          s3.classList.add('locked-active');
-        }
-      }
     }
 
     /* ==========================================================================
@@ -2906,21 +2211,56 @@
       renderAuditLogs();
     }
 
+    function setAuditFilter(filter) {
+      AppState.auditFilter = filter;
+      document.querySelectorAll('[data-audit-filter]').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-audit-filter') === filter);
+      });
+      renderAuditLogs();
+    }
+
+    function getFilteredAuditLogs() {
+      if (AppState.auditFilter === 'ACTIVO') {
+        return AppState.auditLogs.filter(l => l.isActive);
+      }
+      if (AppState.auditFilter === 'CERRADO') {
+        return AppState.auditLogs.filter(l => !l.isActive);
+      }
+      return AppState.auditLogs;
+    }
+
     function renderAuditLogs() {
       const tbody = document.getElementById('audit-log-body');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      if (AppState.auditLogs.length === 0) {
+      if (AppState.apiOnline && (!AppState.auth || !AppState.auth.header)) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="5" style="color: var(--text-muted); text-align: center;">Inicie sesión para consultar el historial de bloqueos LOTO.</td>';
+        tr.innerHTML = '<td colspan="6" style="color: var(--text-muted); text-align: center;">Inicie sesión para consultar el historial de bloqueos LOTO y notas descifradas.</td>';
         tbody.appendChild(tr);
         return;
       }
 
-      AppState.auditLogs.slice(0, 8).forEach(log => {
+      const filtered = getFilteredAuditLogs();
+      if (filtered.length === 0) {
         const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" style="color: var(--text-muted); text-align: center;">No hay bloqueos registrados para este filtro.</td>';
+        tbody.appendChild(tr);
+        return;
+      }
+
+      filtered.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.className = 'audit-row-clickable';
+        tr.setAttribute('tabindex', '0');
+        tr.setAttribute('role', 'button');
+        tr.onclick = () => openAuditDetailModal(log.id);
+        tr.onkeydown = event => handleActivateKey(event, () => openAuditDetailModal(log.id));
+
         const isCurrentActive = Boolean(log.isActive) || (log.status && log.status.includes('Bloqueo Activo'));
+        const hasNote = Boolean(log.notasAuditoria);
+        const noteBtnLabel = hasNote ? '📝 Ver Nota' : '🔍 Auditoría';
+
         tr.innerHTML = `
           <td style="font-weight: 600;">${escapeHtml(log.time)}</td>
           <td><code>${escapeHtml(log.machineId)}</code></td>
@@ -2929,9 +2269,411 @@
           <td style="color: ${isCurrentActive ? 'var(--rojo-peligro)' : 'var(--verde-seguridad)'}; font-weight: 800;">
             ${escapeHtml(log.status)}
           </td>
+          <td>
+            <button type="button" class="btn-audit-view" onclick="event.stopPropagation(); openAuditDetailModal(${Number(log.id)})">
+              ${escapeHtml(noteBtnLabel)}
+            </button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    async function openAuditDetailModal(ticketId) {
+      const modal = document.getElementById('audit-detail-modal');
+      if (!modal) return;
+
+      let ticket = AppState.tickets.find(t => Number(t.id) === Number(ticketId));
+      if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+        try {
+          const detailRes = await apiFetch(`/bloqueos/${ticketId}`, { silentMonitor: true });
+          if (detailRes.ok && detailRes.data) {
+            ticket = detailRes.data;
+          }
+        } catch (err) {
+          // Usar ticket en cache si falla red
+        }
+      }
+
+      if (!ticket) {
+        const logFallback = AppState.auditLogs.find(l => Number(l.id) === Number(ticketId));
+        if (!logFallback) return;
+        ticket = {
+          id: logFallback.id,
+          maquinaId: logFallback.machineId,
+          tipoIntervencion: logFallback.type === 'Correctiva' ? 'CORRECTIVA' : 'PREVENTIVA',
+          motivo: logFallback.motivo || 'Intervención LOTO',
+          nombreTecnico: logFallback.technician,
+          estado: logFallback.isActive ? 'ACTIVO' : 'CERRADO',
+          horaInicio: logFallback.time,
+          horaFin: null,
+          duracionMinutos: null,
+          notasAuditoria: logFallback.notasAuditoria ?? null,
+          tecnicoId: logFallback.tecnicoId ?? null,
+          fallaId: logFallback.fallaId ?? null
+        };
+      }
+
+      const machineObj = AppState.machines.find(m => m.id === ticket.maquinaId);
+      const machineLabel = machineObj ? `${ticket.maquinaId} — ${machineObj.name}` : ticket.maquinaId;
+      const isActive = ticket.estado === 'ACTIVO';
+
+      document.getElementById('audit-modal-title').textContent = `Ticket LOTO #${ticket.id}`;
+      const statusBadge = document.getElementById('audit-modal-status-badge');
+      statusBadge.className = `kpi-status-tag ${isActive ? 'tag-red' : 'tag-green'}`;
+      statusBadge.textContent = isActive
+        ? '🔴 ACTIVO'
+        : `🟢 CERRADO — Duración: ${ticket.duracionMinutos !== null && ticket.duracionMinutos !== undefined ? ticket.duracionMinutos + ' min' : 'N/A'}`;
+
+      const refFallaLabel = ticket.referenciaFalla
+        ? ticket.referenciaFalla
+        : (ticket.fallaId ? `Falla ID #${ticket.fallaId}` : 'N/A');
+
+      const metaContainer = document.getElementById('audit-modal-meta');
+      metaContainer.innerHTML = `
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Máquina</span>
+          <span class="audit-meta-value">${escapeHtml(machineLabel)}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Técnico Titular</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.nombreTecnico || 'Operador')}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Tipo</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.tipoIntervencion || '—')}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Referencia de Falla</span>
+          <span class="audit-meta-value">${escapeHtml(refFallaLabel)}</span>
+        </div>
+        <div class="audit-meta-item" style="grid-column: 1 / -1;">
+          <span class="audit-meta-label">Motivo</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.motivo || '—')}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Hora de Inicio</span>
+          <span class="audit-meta-value">${escapeHtml(formatShortDateTime(ticket.horaInicio))}</span>
+        </div>
+        <div class="audit-meta-item">
+          <span class="audit-meta-label">Hora de Término</span>
+          <span class="audit-meta-value">${escapeHtml(ticket.horaFin ? formatShortDateTime(ticket.horaFin) : 'En curso')}</span>
+        </div>
+      `;
+
+      const notesBox = document.getElementById('audit-modal-notes-box');
+      const notesBadge = document.getElementById('audit-modal-notes-badge');
+      const notesText = document.getElementById('audit-modal-notes-text');
+
+      if (ticket.notasAuditoria) {
+        notesBox.className = 'audit-notes-box decrypted';
+        notesBadge.className = 'kpi-status-tag tag-green';
+        notesBadge.textContent = '🔓 Descifrado autorizado en memoria (AES-256-GCM)';
+        notesText.textContent = ticket.notasAuditoria;
+      } else {
+        const isSupervisorOrAuthor = !AppState.apiOnline
+          || (AppState.auth && AppState.auth.rol === 'SUPERVISOR')
+          || (AppState.auth && AppState.auth.id && ticket.tecnicoId === AppState.auth.id);
+
+        if (isSupervisorOrAuthor) {
+          notesBox.className = 'audit-notes-box empty';
+          notesBadge.className = 'kpi-status-tag tag-blue';
+          notesBadge.textContent = 'ℹ️ Sin notas adicionales';
+          notesText.textContent = 'ℹ️ Este bloqueo fue registrado sin notas adicionales de auditoría';
+        } else {
+          notesBox.className = 'audit-notes-box locked';
+          notesBadge.className = 'kpi-status-tag tag-amber';
+          notesBadge.textContent = '🔒 Acceso restringido AES-256-GCM';
+          notesText.textContent = '🔒 Nota protegida por cifrado AES-256-GCM (Solo visible para el técnico autor del bloqueo o para un Supervisor)';
+        }
+      }
+
+      const eventsBox = document.getElementById('audit-modal-events');
+      eventsBox.innerHTML = '<div class="event-timeline-item">Consultando eventos inmutables...</div>';
+      modal.classList.remove('hidden');
+
+      if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+        try {
+          const evRes = await apiFetch(`/bloqueos/${ticket.id}/eventos`);
+          if (evRes.ok && Array.isArray(evRes.data) && evRes.data.length > 0) {
+            eventsBox.innerHTML = '';
+            evRes.data.forEach(ev => {
+              const row = document.createElement('div');
+              row.className = 'event-timeline-item';
+              const actionColor = ev.accion === 'LIBERADO'
+                ? 'var(--verde-seguridad)'
+                : (ev.accion === 'CREADO' ? 'var(--rojo-peligro)' : 'var(--azul-industrial)');
+              row.innerHTML = `
+                <div>
+                  <strong style="color: ${actionColor};">${escapeHtml(ev.accion)}</strong>
+                  <span style="color: var(--text-muted); margin-left: 8px;">Técnico ID #${escapeHtml(ev.tecnicoId ?? 'Legado')}</span>
+                </div>
+                <span style="color: var(--text-dim); font-weight: 700;">${escapeHtml(formatShortDateTime(ev.fecha))}</span>
+              `;
+              eventsBox.appendChild(row);
+            });
+            return;
+          }
+        } catch (err) {
+          // Fallback a eventos locales si falla consulta
+        }
+      }
+
+      // Fallback offline o sin eventos remotos
+      eventsBox.innerHTML = `
+        <div class="event-timeline-item">
+          <div><strong style="color: var(--rojo-peligro);">CREADO</strong> <span style="color: var(--text-muted); margin-left: 8px;">${escapeHtml(ticket.nombreTecnico || 'Operador')}</span></div>
+          <span style="color: var(--text-dim); font-weight: 700;">${escapeHtml(formatShortDateTime(ticket.horaInicio))}</span>
+        </div>
+        ${ticket.horaFin ? `
+          <div class="event-timeline-item">
+            <div><strong style="color: var(--verde-seguridad);">LIBERADO</strong> <span style="color: var(--text-muted); margin-left: 8px;">${escapeHtml(ticket.nombreTecnico || 'Operador')}</span></div>
+            <span style="color: var(--text-dim); font-weight: 700;">${escapeHtml(formatShortDateTime(ticket.horaFin))}</span>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function closeAuditDetailModal() {
+      const modal = document.getElementById('audit-detail-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    /* ==========================================================================
+       GESTIÓN DE TÉCNICOS (SUPERVISOR PC Y ALTA EN CELULAR)
+       ========================================================================== */
+    function openTechManagementModal() {
+      const modal = document.getElementById('tech-management-modal');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
+        loadTecnicosFromApi();
+      } else {
+        renderSupervisorTecnicos();
+      }
+    }
+
+    function closeTechManagementModal() {
+      const modal = document.getElementById('tech-management-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function loadTecnicosFromApi() {
+      if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) {
+        renderSupervisorTecnicos();
+        return;
+      }
+
+      try {
+        const res = await apiFetch('/tecnicos');
+        if (res.ok && Array.isArray(res.data)) {
+          AppState.tecnicosList = res.data;
+          if (AppState.auth) AppState.auth.rol = 'SUPERVISOR';
+        } else if (res.status === 403) {
+          AppState.tecnicosList = [];
+          showToast('Solo un SUPERVISOR puede listar/gestionar cuentas (403)', '🚫');
+        }
+      } catch (err) {
+        // Ignorar en modo offline
+      }
+      renderSupervisorTecnicos();
+    }
+
+    function renderSupervisorTecnicos() {
+      const tbody = document.getElementById('supervisor-tech-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!AppState.apiOnline) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Backend offline: conéctese a PostgreSQL para administrar cuentas reales.</td></tr>';
+        return;
+      }
+
+      if (!AppState.auth || AppState.auth.rol !== 'SUPERVISOR') {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Inicie sesión con rol SUPERVISOR para administrar técnicos.</td></tr>';
+        return;
+      }
+
+      if (AppState.tecnicosList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No hay técnicos activos registrados.</td></tr>';
+        return;
+      }
+
+      AppState.tecnicosList.forEach(t => {
+        const isSelf = AppState.auth && (t.id === AppState.auth.id || t.username === AppState.auth.username);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${escapeHtml(t.id)}</td>
+          <td style="font-weight: 700;">${escapeHtml(t.nombre)}</td>
+          <td><code>${escapeHtml(t.username)}</code></td>
+          <td><span class="kpi-status-tag ${t.rol === 'SUPERVISOR' ? 'tag-blue' : 'tag-green'}" style="margin-top: 0;">${escapeHtml(t.rol)}</span></td>
+          <td>${t.activo ? '🟢 Activo' : '⚪ Inactivo'}</td>
+          <td>
+            <button type="button" class="btn-danger-outline" ${isSelf ? 'disabled title="No puedes desactivar tu propia cuenta"' : ''} onclick="deactivateTechnician(${Number(t.id)}, '${escapeHtml(t.username)}')">
+              ${isSelf ? 'Tu cuenta' : 'Desactivar'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deactivateTechnician(id, username) {
+      if (!AppState.apiOnline || !AppState.auth || AppState.auth.rol !== 'SUPERVISOR') return;
+      try {
+        const { ok, status, data } = await apiFetch(`/tecnicos/${id}`, { method: 'DELETE' });
+        if (ok || status === 204) {
+          showToast(`Cuenta '${username}' desactivada (204 No Content)`, '🗑️');
+          await loadTecnicosFromApi();
+          return;
+        }
+        showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
+      } catch (err) {
+        showToast('No fue posible desactivar la cuenta', '🚫');
+      }
+    }
+
+    async function createTechnicianFromForm() {
+      const nombreEl = document.getElementById('stech-nombre');
+      const usernameEl = document.getElementById('stech-username');
+      const passwordEl = document.getElementById('stech-password');
+      const rolEl = document.getElementById('stech-rol');
+      const submitBtn = document.getElementById('stech-submit-btn');
+
+      const nombre = nombreEl ? nombreEl.value.trim() : '';
+      const username = usernameEl ? usernameEl.value.trim() : '';
+      const password = passwordEl ? passwordEl.value : '';
+      const rol = rolEl ? rolEl.value : 'TECNICO';
+
+      if (nombre.length < 3 || nombre.length > 80) {
+        showToast('El nombre debe tener entre 3 y 80 caracteres', '⚠️');
+        return;
+      }
+      if (!/^[a-zA-Z0-9._-]{3,50}$/.test(username)) {
+        showToast('Username inválido: use 3-50 caracteres [a-zA-Z0-9._-]', '⚠️');
+        return;
+      }
+      if (password.length < 12 || password.length > 72) {
+        showToast('La contraseña debe tener entre 12 y 72 caracteres', '⚠️');
+        return;
+      }
+
+      if (!AppState.auth || AppState.auth.rol !== 'SUPERVISOR') {
+        showToast('Inicie sesión con rol SUPERVISOR para administrar técnicos', '🔐');
+        return;
+      }
+
+      if (!AppState.apiOnline) {
+        showToast('Encienda el backend PostgreSQL para registrar cuentas reales', '🟡');
+        return;
+      }
+
+      const originalBtnText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Creando...';
+      }
+
+      try {
+        const { ok, status, data } = await apiFetch('/tecnicos', {
+          method: 'POST',
+          body: JSON.stringify({ username, nombre, password, rol })
+        });
+
+        if (ok && status === 201 && data) {
+          showToast(`✅ Técnico '${data.username}' creado con hash BCrypt`, '👷');
+          if (nombreEl) nombreEl.value = '';
+          if (usernameEl) usernameEl.value = '';
+          if (passwordEl) passwordEl.value = '';
+          await loadTecnicosFromApi();
+          return;
+        }
+
+        showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
+      } catch (err) {
+        showToast('No fue posible conectar con /api/v1/tecnicos', '🚫');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+        }
+      }
+    }
+
+    /* ==========================================================================
+       POLLING EN TIEMPO REAL PARA CONSOLA SUPERVISOR (CADA 2.5 SEGUNDOS)
+       ========================================================================== */
+    function snapshotMachinesState(machines) {
+      const map = new Map();
+      machines.forEach(m => {
+        map.set(m.id, { isLocked: Boolean(m.isLocked), activeLocks: Number(m.activeLocks || 0) });
+      });
+      return map;
+    }
+
+    function syncSupervisorPollingState() {
+      startSupervisorPolling();
+    }
+
+    function startSupervisorPolling() {
+      if (AppState.pollInterval) return;
+      if (!AppState.lastMachineSnapshot) {
+        AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
+      }
+      AppState.pollInterval = setInterval(runSupervisorPollTick, 2500);
+      updateSyncPillUI();
+    }
+
+    function stopSupervisorPolling() {
+      if (AppState.pollInterval) {
+        clearInterval(AppState.pollInterval);
+        AppState.pollInterval = null;
+      }
+      updateSyncPillUI();
+    }
+
+    async function runSupervisorPollTick() {
+      if (document.hidden || Date.now() < AppState.pollPauseUntil) return;
+
+      const prevSnap = AppState.lastMachineSnapshot || snapshotMachinesState(AppState.machines);
+      const okMachines = await loadMachinesFromApi(true);
+      if (!okMachines) return;
+
+      let newLockDetected = null;
+      let unlockDetected = null;
+
+      AppState.machines.forEach(curr => {
+        const prev = prevSnap.get(curr.id);
+        if (!prev) return;
+        if ((!prev.isLocked && curr.isLocked) || curr.activeLocks > prev.activeLocks) {
+          newLockDetected = curr;
+        } else if ((prev.isLocked && !curr.isLocked) || curr.activeLocks < prev.activeLocks) {
+          unlockDetected = curr;
+        }
+      });
+
+      AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
+
+      if (AppState.auth && AppState.auth.header) {
+        await loadBloqueosFromApi(true);
+      }
+
+      renderSupervisorDashboard();
+      focusMachineMTBF(AppState.selectedMachineId);
+
+      if (newLockDetected) {
+        playBeep('lock');
+        const activeCard = document.getElementById('kpi-card-active');
+        if (activeCard) {
+          activeCard.classList.remove('alert-flash');
+          void activeCard.offsetWidth;
+          activeCard.classList.add('alert-flash');
+        }
+        showToast(`🚨 Bloqueo LOTO en vivo detectado: ${newLockDetected.id} (${newLockDetected.activeLocks} activo(s))`, '🔒');
+      } else if (unlockDetected) {
+        playBeep('unlock');
+        showToast(`🟢 Liberación sincronizada: ${unlockDetected.id}`, '🔓');
+      }
     }
 
     function focusMachineMTBF(machineId) {
@@ -2957,20 +2699,7 @@
       }, 3400);
     }
 
-    function updateLiveClock() {
-      const clock = document.getElementById('mobile-live-clock');
-      if (clock) {
-        const d = new Date();
-        clock.textContent = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-      }
-    }
-
     async function resetPrototypeDemo() {
-      clearInterval(AppState.timerInterval);
-      AppState.selectedTicketId = null;
-      AppState.selectedType = 'correctiva';
-      AppState.currentStep = 1;
-
       const loaded = await loadMachinesFromApi();
       if (loaded) {
         if (AppState.auth && AppState.auth.header) {
@@ -2979,44 +2708,38 @@
         showToast('Vista resincronizada con PostgreSQL', '🔄');
       } else {
         AppState.machines = cloneDefaultMachines();
-        AppState.tickets = [];
+        AppState.tickets = cloneDefaultTickets();
         AppState.auditLogs = cloneDefaultLogs();
         AppState.selectedMachineId = 'EQ-ENV-01';
-        populateMachineSelect();
         showToast('Demostración local reiniciada a valores iniciales', '🔄');
       }
 
-      showTechStep(1);
-      document.getElementById('manual-machine-select').value = '';
+      AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
       renderSupervisorDashboard();
       focusMachineMTBF(AppState.selectedMachineId);
     }
 
-    // Inicialización al cargar la página
+    // Inicialización al cargar la Consola Central de Supervisión (PC)
     window.addEventListener('DOMContentLoaded', async () => {
       initTheme();
       renderAuthUI();
-      updateLiveClock();
-      setInterval(updateLiveClock, 30000);
-      selectInterventionType('correctiva');
 
       await loadMachinesFromApi();
+      AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
+
       if (AppState.apiOnline && AppState.auth && AppState.auth.header) {
         await loadBloqueosFromApi();
       }
 
       renderSupervisorDashboard();
       focusMachineMTBF(AppState.selectedMachineId);
+      syncSupervisorPollingState();
+    });
 
-      // Soporte de escaneo físico NFC / QR mediante parámetro URL (?maquina=EQ-...)
-      const params = new URLSearchParams(window.location.search);
-      const maquinaUrl = params.get('maquina') || params.get('machine');
-      if (maquinaUrl) {
-        const normalized = maquinaUrl.trim().toUpperCase();
-        const matched = AppState.machines.find(m => m.id.toUpperCase() === normalized);
-        if (matched) {
-          simulateNfcTap(matched.id);
-        }
+    window.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeAuditDetailModal();
+        closeTechManagementModal();
       }
     });
   </script>
