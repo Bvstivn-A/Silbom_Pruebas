@@ -17,6 +17,10 @@ import cl.silbom.backend.security.ActorActual;
 import cl.silbom.backend.security.CryptoUtils;
 import cl.silbom.backend.security.InputSanitizer;
 import java.util.List;
+import java.util.UUID;
+import java.util.HexFormat;
+import java.security.MessageDigest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,12 +130,46 @@ public class BloqueoService {
      */
     @Transactional
     public BloqueoResponseDTO crearBloqueo(BloqueoCreateDTO dto) {
+        return crearBloqueo(dto, null);
+    }
+
+    /** Reintentos de una misma solicitud no agregan candados, fallas ni eventos. */
+    @Transactional
+    public BloqueoResponseDTO crearBloqueo(BloqueoCreateDTO dto, String operacionId) {
+        String huella = null;
+        if (operacionId != null) {
+            if (operacionId.length() != 36
+                    || !UUID.fromString(operacionId).toString().equalsIgnoreCase(operacionId)) {
+                throw new IllegalArgumentException("Idempotency-Key debe ser un UUID");
+            }
+            operacionId = operacionId.toLowerCase(java.util.Locale.ROOT);
+            try {
+                huella = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                        .digest(new ObjectMapper().writeValueAsBytes(dto)));
+            } catch (java.security.NoSuchAlgorithmException
+                    | com.fasterxml.jackson.core.JsonProcessingException e) {
+                throw new IllegalStateException("No se pudo identificar la solicitud", e);
+            }
+        }
         var responsable =
                 tecnicos.findForUpdate(actor.obtener().id(), plantaId)
                         .orElseThrow(
                                 () ->
                                         new cl.silbom.backend.exception.ForbiddenOperationException(
                                                 "Técnico inactivo o de otra planta"));
+        // El lock del técnico serializa también dos reintentos simultáneos con la misma clave.
+        if (operacionId != null) {
+            var anterior = bloqueoLotoRepository.findByPlantaIdAndTecnicoIdAndOperacionId(
+                    plantaId, responsable.getId(), operacionId);
+            if (anterior.isPresent()) {
+                var bloqueo = anterior.get();
+                if (!huella.equals(bloqueo.getOperacionHash())) {
+                    throw new BusinessConflictException(
+                            "Idempotency-Key ya se utilizó con otro contenido");
+                }
+                return BloqueoResponseDTO.fromEntity(bloqueo, notasVisibles(bloqueo, true));
+            }
+        }
         if (!dto.isReferenciaCoherente()) {
             throw new IllegalArgumentException(
                     "CORRECTIVA requiere referenciaFalla; PREVENTIVA no la admite");
@@ -196,6 +234,9 @@ public class BloqueoService {
             nuevoBloqueo.setNotasAuditoriaCifradas(cryptoUtils.encrypt(notasSanitizadas));
         }
         nuevoBloqueo.asignarResponsable(responsable.getId(), fallaId);
+        if (operacionId != null) {
+            nuevoBloqueo.identificarOperacion(operacionId, huella);
+        }
         // Aplicar regla de dominio sobre la máquina (Multi-LOTO y MTBF)
         maquina.registrarEntradaBloqueo(nuevaFalla);
         maquinaRepository.save(maquina);

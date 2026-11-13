@@ -30,6 +30,9 @@ public interface BloqueoLotoRepository extends JpaRepository<BloqueoLoto, Long> 
      */
     Optional<BloqueoLoto> findByIdAndPlantaId(Long id, String plantaId);
 
+    Optional<BloqueoLoto> findByPlantaIdAndTecnicoIdAndOperacionId(
+            String plantaId, Long tecnicoId, String operacionId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from BloqueoLoto b where b.id=:id and b.plantaId=:planta")
     Optional<BloqueoLoto> findForUpdate(@Param("id") Long id, @Param("planta") String planta);
