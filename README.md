@@ -1,4 +1,4 @@
-# SILBOM — Backend Hito 2
+# SILBOM — Backend y aplicación móvil Hito 3
 
 API REST universitaria para maquinaria e intervenciones LOTO. Java 21, Spring
 Boot 3.5.16, Maven, JPA, Spring Security y PostgreSQL 15–17 (probado con 17).
@@ -6,6 +6,12 @@ Boot 3.5.16, Maven, JPA, Spring Security y PostgreSQL 15–17 (probado con 17).
 El estado `bloqueada` es un **registro digital**. SILBOM no instala candados,
 no aísla energía, no verifica energía cero ni certifica cumplimiento legal.
 La confirmación del candado es una declaración del técnico autenticado.
+
+Panel supervisor en `/`; PWA de técnicos en `/app/`. Ver el
+[diagnóstico del Hito 3](docs/DIAGNOSTICO_PWA_HITO3.md) y la
+[guía de pruebas desde teléfonos con HTTPS, NFC y QR](docs/PRUEBAS_MOVILES.md).
+La app no confirma operaciones offline: un reintento de alta conserva la clave
+de solicitud y solo una respuesta válida del backend confirma el resultado.
 
 ## Arquitectura
 
@@ -39,7 +45,7 @@ incluyen la planta mediante claves foráneas compuestas. El ID de máquina es
    psql -h localhost -U silbom_owner -d silbom_db -v ON_ERROR_STOP=1 -f db/schema.sql
    ```
 
-   El script y `db/migrations/V2__integridad_loto.sql` son transaccionales y
+   El script y sus migraciones V2/V3 son transaccionales y
    repetibles, sin DROP TABLE. Conceden a silbom_app permisos sin DDL ni DELETE
    físico. Otro rol se selecciona con `-v app_role=nombre_del_rol`.
    La API no debe ser propietaria ni usar superusuario o BYPASSRLS.
@@ -72,8 +78,8 @@ incluyen la planta mediante claves foráneas compuestas. El ID de máquina es
    Alternativa: `mvn spring-boot:run`. Puerto predeterminado 8080. Si la planta
    no tiene máquinas se cargan seis equipos y tres tickets históricos de demo.
    Las variables de bootstrap crean la primera cuenta supervisora sin contraseña
-   predeterminada; retíralas después. En la nube de esta sesión usa activate.sh
-   y los ajustes Maven/proxy guardados bajo /workspace/.silbom-cloud.
+   predeterminada; retíralas después. Antes de iniciar el JAR actualizado sobre
+   una base existente, aplicar también V3 mediante el comando del paso 3.
 
 ## Variables
 
@@ -84,6 +90,7 @@ incluyen la planta mediante claves foráneas compuestas. El ID de máquina es
 | ENCRYPTION_SECRET | Base64 de 32 bytes para AES-256-GCM |
 | PLANTA_ID | Planta definida por el servidor, no por el cliente |
 | SERVER_PORT | Puerto, por defecto 8080 |
+| SILBOM_CORS_ORIGINS | Orígenes explícitos de frontends separados; mismo origen no lo necesita |
 | SILBOM_BOOTSTRAP_USERNAME | Supervisor inicial, solo primera instalación |
 | SILBOM_BOOTSTRAP_PASSWORD | Mínimo 12 caracteres, máximo 72 bytes UTF-8 |
 
@@ -113,13 +120,19 @@ Cambios de contrato aprobados: Basic individual, GET de tickets autenticado,
 referenciaFalla obligatoria para CORRECTIVA, MTBF nullable y ningún DELETE de
 historial. nombreTecnico es un campo legado opcional ignorado para identificar
 al responsable. El cliente debe mostrar MTBF null como «no calculable».
-El HTML docs/Silbom1.html sigue siendo un prototipo offline, sin llamadas API.
+Las fuentes web están conectadas a la API. El script `scripts/sync-web-assets.py`
+mantiene sus copias de compatibilidad y Android. El APK binario anterior es
+legado y no se presenta como corregido o validado por este cambio.
 
 ## API
 
 Base `/api/v1`; User-Agent obligatorio. Configura Basic Auth en Postman con
 credenciales locales, sin guardarlas en colecciones compartidas ni incrustar
 credenciales de integración en el navegador.
+
+POST `/bloqueos` acepta opcionalmente `Idempotency-Key` (UUID). Repetir la clave
+con el mismo usuario/planta y contenido devuelve el ticket existente; otro
+contenido recibe 409. Aplicar el esquema V3 antes de desplegar esta versión.
 
 | Recurso | Rutas |
 |---|---|
@@ -198,7 +211,8 @@ limitaciones y evaluación de la rúbrica. Boot pasó de 3.3.5 a 3.5.16 desde Ma
 Central, conservando Java 21 y la línea principal 3.x. La consulta externa de
 CVE/soporte puede estar bloqueada: no se afirma ausencia de vulnerabilidades.
 
-Hito 3: frontend conectado, QR/NFC real, período de medición explícito,
+Pendientes: validación física de teléfonos, instalación HTTPS y etiquetas NDEF/QR
+de prueba antes de escribir etiquetas definitivas, período de medición explícito,
 recuperación/rotación de credenciales, paginación, observabilidad y procedimiento
 para tickets legados sin identidad. No se implementa una liberación privilegiada
 que evite el permiso del responsable.
