@@ -152,10 +152,13 @@ class MobileTests(unittest.TestCase):
         cls.thread.start()
         cls.origin = f'http://127.0.0.1:{cls.server.server_port}'
         cls.pw = sync_playwright().start()
-        launch = {'args': ['--no-sandbox', '--disable-dev-shm-usage']}
-        if os.environ.get('CHROMIUM_PATH'):
-            launch['executable_path'] = os.environ['CHROMIUM_PATH']
-        cls.browser = cls.pw.chromium.launch(**launch)
+        cls.engine = os.environ.get('SILBOM_BROWSER', 'chromium')
+        launch = {}
+        if cls.engine == 'chromium':
+            launch['args'] = ['--no-sandbox', '--disable-dev-shm-usage']
+            if os.environ.get('CHROMIUM_PATH'):
+                launch['executable_path'] = os.environ['CHROMIUM_PATH']
+        cls.browser = getattr(cls.pw, cls.engine).launch(**launch)
 
     @classmethod
     def tearDownClass(cls):
@@ -167,9 +170,10 @@ class MobileTests(unittest.TestCase):
     def setUp(self):
         self.state = Scenario()
         self.server.scenario = self.state
-        self.context = self.browser.new_context(viewport={'width': 390, 'height': 844},
-                                               is_mobile=True, has_touch=True,
-                                               service_workers='allow' if self._testMethodName.startswith('test_pwa_') else 'block')
+        device = dict(self.pw.devices['iPhone 13']) if self.engine == 'webkit' else dict(viewport={'width':390,'height':844}, is_mobile=True, has_touch=True)
+        device.pop('default_browser_type', None)
+        self.context = self.browser.new_context(**device,
+            service_workers='allow' if self._testMethodName.startswith('test_pwa_') else 'block')
         self.page = self.context.new_page()
         self.page.set_default_timeout(5000)
         self.errors = []
@@ -205,7 +209,7 @@ class MobileTests(unittest.TestCase):
 
     def test_offline_creation_has_no_local_success(self):
         self.prepare()
-        self.context.set_offline(True)
+        self.state.post_fault = {'drop_before': True}
         self.page.locator('#btn-submit-lock').click()
         expect(self.page.locator('#operation-status')).to_contain_text('Alta sin confirmar')
         self.assertEqual([], self.state.tickets)
@@ -215,7 +219,7 @@ class MobileTests(unittest.TestCase):
 
     def test_offline_release_preserves_active_ticket(self):
         self.create()
-        self.context.set_offline(True)
+        self.state.put_fault = {'drop_before': True}
         self.page.locator('#btn-unlock-lock').click()
         expect(self.page.locator('#operation-status')).to_contain_text('Liberación sin confirmar')
         self.assert_client_active()
@@ -364,6 +368,44 @@ class MobileTests(unittest.TestCase):
                 self.page.set_viewport_size({'width': width, 'height': 640})
                 self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'), width)
                 expect(self.page.locator('#btn-submit-lock')).to_be_visible()
+
+    def test_ios_manual_install_and_apple_icon(self):
+        self.page.evaluate("() => Object.defineProperty(navigator, 'userAgent', {value:'iPhone Safari', configurable:true})")
+        self.page.locator('#btn-open-install-modal').click()
+        expect(self.page.locator('#install-app-modal')).to_contain_text('Compartir → Añadir a pantalla de inicio')
+        expect(self.page.locator('#btn-native-pwa-install')).to_be_hidden()
+        self.assertEqual('SILBOM', self.page.locator('meta[name="apple-mobile-web-app-title"]').get_attribute('content'))
+        icon = self.page.locator('link[rel="apple-touch-icon"]').get_attribute('href')
+        response = self.page.request.get(self.origin + '/app/' + icon.removeprefix('./'))
+        self.assertEqual((180, 180), struct.unpack('>II', response.body()[16:24]))
+        self.page.evaluate("() => Object.defineProperty(navigator, 'standalone', {value:true, configurable:true})")
+        self.page.evaluate('() => openInstallModal()')
+        expect(self.page.locator('#pwa-install-status')).to_contain_text('ya está abierta')
+
+    def test_online_event_requires_api_verification(self):
+        self.prepare()
+        self.page.evaluate("() => window.dispatchEvent(new Event('offline'))")
+        expect(self.page.locator('#btn-submit-lock')).to_be_disabled()
+        self.state.reads_fail = True
+        self.page.evaluate("() => window.dispatchEvent(new Event('online'))")
+        expect(self.page.locator('#operation-status')).to_contain_text('No se pudo actualizar')
+        self.assertFalse(self.page.evaluate('AppState.apiOnline'))
+        self.state.reads_fail = False
+        self.page.evaluate("() => window.dispatchEvent(new Event('online'))")
+        self.page.wait_for_function('() => AppState.apiOnline && !AppState.refreshing')
+        self.assertFalse(any(r['method'] != 'GET' for r in self.state.requests))
+
+    def test_ios_restore_does_not_resend_pending_operation(self):
+        self.prepare()
+        self.state.post_fault = {'drop_after': True}
+        self.page.locator('#btn-submit-lock').click()
+        expect(self.page.locator('#operation-status')).to_contain_text('Alta sin confirmar')
+        key = self.page.evaluate('AppState.pendingOperation.key')
+        self.page.evaluate("() => window.dispatchEvent(new PageTransitionEvent('pageshow', {persisted:true}))")
+        self.page.wait_for_function('() => !AppState.refreshing && AppState.apiOnline')
+        self.assertEqual(key, self.page.evaluate('AppState.pendingOperation.key'))
+        self.assertEqual(1, sum(r['method'] == 'POST' for r in self.state.requests))
+        expect(self.page.locator('#btn-retry-operation')).to_be_visible()
 
     def test_pwa_manifest_icons_and_offline_deep_link_shell(self):
         self.page.evaluate('() => navigator.serviceWorker.ready')

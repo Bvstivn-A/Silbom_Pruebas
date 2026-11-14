@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0CB7F2">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SILBOM">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>SILBOM Técnico · App LOTO en Terreno</title>
@@ -1122,12 +1123,12 @@
 <body>
 
   <!-- ========================================================================
-       HEADER MÓVIL DE LA APP ANDROID
+       HEADER MÓVIL DE LA PWA
        ======================================================================== -->
   <header class="app-header">
     <div class="app-header-row">
       <div class="brand-compact">
-        <div class="brand-emblem" title="SILBOM · App Técnico Android">
+        <div class="brand-emblem" title="SILBOM · PWA para técnicos">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7 10V7.5C7 4.74 9.24 2.5 12 2.5C14.76 2.5 17 4.74 17 7.5V10" stroke="#0CB7F2" stroke-width="2.4" stroke-linecap="round"/>
             <rect x="4" y="9.5" width="16" height="12" rx="3" fill="#0CB7F2"/>
@@ -1237,9 +1238,9 @@
             <div class="nfc-pulse-ring">📡</div>
             <strong style="color: var(--text-main); display: block; font-size: 0.98rem;">Identificar con etiqueta NFC o QR</strong>
             <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 4px;">
-              Soporta etiquetas físicas ?maquina=EQ-...
+              NFC NDEF y QR abren enlaces HTTPS con ?maquina=EQ-...
             </span>
-            <div class="nfc-tap-btn">Usa la lectura NFC del teléfono o su cámara para abrir el enlace</div>
+            <div class="nfc-tap-btn">En iPhone: acerca la parte superior a la etiqueta y toca la notificación, o usa la cámara con el QR</div>
           </div>
 
           <div class="or-divider"><span>O SELECCIÓN MANUAL EN PLANTA</span></div>
@@ -1525,7 +1526,7 @@
       <div class="silbom-modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
           <h2 id="install-modal-title" style="font-size: 1rem; font-weight: 900; color: var(--text-main);">📲 Instalar SILBOM</h2>
-          <span class="kpi-status-tag tag-blue">Android</span>
+          <span class="kpi-status-tag tag-blue">iPhone · Safari</span>
         </div>
         <button type="button" class="silbom-modal-close" onclick="closeInstallModal()" aria-label="Cerrar diálogo de instalación">✕</button>
       </div>
@@ -1536,12 +1537,14 @@
 
         <div class="tech-card" style="background: var(--bg-input); margin-bottom: 0;">
           <strong style="font-size: 0.84rem; color: var(--azul-industrial); display: block; margin-bottom: 6px;">
-            📲 Instalar como App en Android (Chrome)
+            📲 Instalar en iPhone desde Safari
           </strong>
           <p id="pwa-install-status" role="status" style="margin-bottom: 10px; font-size: .85rem;"></p>
           <ol style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: var(--text-main); line-height: 1.5;">
-            <li>Abre <code>https://&lt;IP_PC&gt;:8443/app/</code> con un certificado de confianza en Google Chrome del teléfono conectado al Wi-Fi.</li>
-            <li>Android/Chrome: menú <strong>⋮ → Instalar aplicación</strong>. iPhone/Safari: <strong>Compartir → Añadir a pantalla de inicio</strong>.</li>
+            <li>Abre <code>https://&lt;IP_PC&gt;:8443/app/</code> con un certificado de confianza en Safari del iPhone conectado al Wi-Fi.</li>
+            <li>En Safari, abre <strong>Compartir → Añadir a pantalla de inicio</strong>, activa <strong>Abrir como app web</strong> si aparece y pulsa <strong>Añadir</strong>.</li>
+            <li>Abre SILBOM desde su ícono e inicia sesión. No necesitas una APK ni un botón automático de instalación.</li>
+            <li>En Android/Chrome sigue disponible el menú <strong>⋮ → Instalar aplicación</strong>.</li>
             <li>La interfaz puede abrirse sin red; crear y liberar bloqueos siempre requiere el servidor.</li>
           </ol>
         </div>
@@ -1620,6 +1623,8 @@
       timerSeconds: 0,
       deferredInstallPrompt: null,
       pendingOperation: null,
+      refreshing: false,
+      needsRevalidation: false,
       machinesConfirmed: false,
       pendingMachineLink: null,
       machines: [],
@@ -2046,13 +2051,6 @@
       return AppState.tickets.filter(t => t.maquinaId === machineId && t.estado === 'ACTIVO');
     }
 
-    function simulateNfcTap(machineId) {
-      switchMobileTab('operar');
-      playBeep('nfc');
-      showToast(`¡Tag NFC detectado! Equipo: ${machineId}`, '📡');
-      loadMachineIntoForm(machineId);
-    }
-
     function simulateManualSelect(machineId) {
       if (!machineId) return;
       playBeep('nfc');
@@ -2190,6 +2188,9 @@
     }
 
     async function refreshConnection() {
+      if (AppState.isSubmitting || AppState.refreshing) return false;
+      AppState.refreshing = true;
+      try {
       const machines = await loadMachinesFromApi();
       const tickets = AppState.auth ? await loadBloqueosFromApi() : null;
       if (!machines || (AppState.auth && !tickets?.ok)) {
@@ -2203,6 +2204,29 @@
       }
       if (!AppState.pendingOperation) setOperationStatus('Estado actualizado desde el servidor.', 'success');
       return true;
+      } finally {
+        AppState.refreshing = false;
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
+      }
+    }
+
+    function isIOSDevice() {
+      return /iPhone|iPad|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function isInstalledPwa() {
+      return navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    }
+
+    async function revalidateConnection() {
+      AppState.needsRevalidation = true;
+      updateConnectionBadge(false);
+      setOperationStatus('Verificando conexión y estado con el servidor.'
+        + (AppState.pendingOperation ? ' Hay una solicitud pendiente; no se reenvía automáticamente.' : ''), 'warning');
+      if (AppState.isSubmitting || AppState.refreshing) return;
+      AppState.needsRevalidation = false;
+      await refreshConnection(); // Solo GET: volver a la app nunca confirma ni reenvía escrituras.
     }
 
     function validTicket(ticket, machineId, id = null) {
@@ -2313,6 +2337,7 @@
       } finally {
         AppState.isSubmitting = false;
         syncOperationControls();
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
       }
     }
 
@@ -2476,6 +2501,7 @@
       } finally {
         AppState.isSubmitting = false;
         syncOperationControls();
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
       }
     }
 
@@ -2843,13 +2869,14 @@
       if (!modal) return;
       const btnNative = document.getElementById('btn-native-pwa-install');
       if (btnNative) {
-        btnNative.classList.toggle('hidden', !AppState.deferredInstallPrompt);
+        btnNative.classList.toggle('hidden', isIOSDevice() || !AppState.deferredInstallPrompt || isInstalledPwa());
       }
       document.getElementById('pwa-install-status').textContent = !window.isSecureContext
         ? 'La instalación requiere HTTPS y un certificado confiable en este teléfono.'
-        : window.matchMedia('(display-mode: standalone)').matches
+        : isInstalledPwa()
           ? 'SILBOM ya está abierta como aplicación instalada.'
-          : 'Si no aparece el botón de instalación, usa el menú de tu navegador.';
+          : isIOSDevice() ? 'En Safari: Compartir → Añadir a pantalla de inicio. iOS no muestra un botón automático de instalación.'
+            : 'Usa el menú de tu navegador para instalar la PWA.';
       modal.classList.remove('hidden');
     }
 
@@ -2859,8 +2886,8 @@
     }
 
     async function triggerNativePwaInstall() {
-      if (!AppState.deferredInstallPrompt) {
-        showToast('Usa Menú ⋮ → "Instalar aplicación" en Google Chrome', '📲');
+      if (isIOSDevice() || !AppState.deferredInstallPrompt) {
+        showToast(isIOSDevice() ? 'En Safari: Compartir → Añadir a pantalla de inicio' : 'Usa el menú de instalación de tu navegador', '📲');
         return;
       }
       AppState.deferredInstallPrompt.prompt();
@@ -2903,7 +2930,7 @@
       event.preventDefault();
       AppState.deferredInstallPrompt = event;
       const btnNative = document.getElementById('btn-native-pwa-install');
-      if (btnNative) btnNative.classList.remove('hidden');
+      if (btnNative && !isIOSDevice() && !isInstalledPwa()) btnNative.classList.remove('hidden');
     });
 
     if ('serviceWorker' in navigator && window.isSecureContext && window.location.pathname.startsWith('/app/')) {
@@ -2927,6 +2954,20 @@
       renderMobileHistorial();
 
       applyMachineLink();
+    });
+
+    window.addEventListener('offline', () => {
+      updateConnectionBadge(false);
+      setOperationStatus('Sin conexión. El estado actual no se pudo verificar.'
+        + (AppState.pendingOperation ? ' La solicitud sigue pendiente de confirmación.' : ''), 'warning');
+    });
+    window.addEventListener('online', revalidateConnection);
+    window.addEventListener('pageshow', event => { if (event.persisted) revalidateConnection(); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        AppState.needsRevalidation = true;
+        updateConnectionBadge(false);
+      } else revalidateConnection();
     });
 
     window.addEventListener('beforeunload', event => {

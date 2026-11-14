@@ -8,6 +8,7 @@ no aísla energía, no verifica energía cero ni certifica cumplimiento legal.
 La confirmación del candado es una declaración del técnico autenticado.
 
 Panel supervisor en `/`; PWA de técnicos en `/app/`. Ver el
+[paso a paso para iPhone y Safari](docs/IPHONE_SAFARI.md), el
 [diagnóstico del Hito 3](docs/DIAGNOSTICO_PWA_HITO3.md) y la
 [guía de pruebas desde teléfonos con HTTPS, NFC y QR](docs/PRUEBAS_MOVILES.md).
 La app no confirma operaciones offline: un reintento de alta conserva la clave

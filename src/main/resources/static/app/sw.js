@@ -1,4 +1,4 @@
-const CACHE_NAME = 'silbom-tech-shell-v2';
+const CACHE_NAME = 'silbom-tech-shell-v3';
 const APP_ENTRY = '/app/index.html';
 const APP_SHELL_URLS = [
   APP_ENTRY, '/app/api-client.js', '/app/manifest.webmanifest',
@@ -7,7 +7,7 @@ const APP_SHELL_URLS = [
 
 self.addEventListener('install', event => {
   // Una actualización espera a que se cierren las vistas; no interrumpe una operación pendiente.
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL_URLS)));
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL_URLS.map(url => new Request(url, { credentials: 'omit', redirect: 'error' })))));
 });
 
 self.addEventListener('activate', event => {
@@ -25,7 +25,7 @@ self.addEventListener('fetch', event => {
   const isEntry = req.mode === 'navigate' && ['/app/', APP_ENTRY].includes(url.pathname);
   if (!isEntry && !APP_SHELL_URLS.includes(url.pathname)) return;
   const cacheKey = isEntry ? APP_ENTRY : url.pathname;
-  event.respondWith(fetch(req).then(async res => {
+  event.respondWith(fetch(req, { credentials: 'omit', redirect: 'error' }).then(async res => {
     if (res.ok) {
       const cache = await caches.open(CACHE_NAME);
       await cache.put(cacheKey, res.clone());

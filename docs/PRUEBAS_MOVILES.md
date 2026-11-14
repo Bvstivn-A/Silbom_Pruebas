@@ -1,5 +1,9 @@
 # SILBOM móvil: PWA, Wi-Fi, HTTPS y etiquetas
 
+El dispositivo principal del Hito 3 es iPhone. La instalación y aceptación en
+Safari están detalladas en [IPHONE_SAFARI.md](IPHONE_SAFARI.md). La PWA no
+depende de una APK ni de Web NFC.
+
 La aplicación de técnicos está en `/app/`; el panel de supervisión continúa en
 `/`. Ambos se sirven desde Spring Boot. No hace falta otro framework ni un
 servidor frontend separado. La interfaz es instalable como PWA cuando el
@@ -177,11 +181,14 @@ python -m venv .venv
 .venv/bin/python -m pip install -r tests/browser/requirements.txt
 .venv/bin/python -m playwright install chromium
 .venv/bin/python -m unittest discover -s tests/browser -v
+SILBOM_BROWSER=webkit .venv/bin/python -m unittest discover -s tests/browser -v
 python scripts/sync-web-assets.py --check
 ```
 
 En Windows usar `.venv\Scripts\python`. En Linux pueden requerirse las
 dependencias de Chromium (`python -m playwright install --with-deps chromium`).
+Para WebKit instalar también `python -m playwright install webkit`. En PowerShell
+definir `$env:SILBOM_BROWSER='webkit'` antes del comando de unittest.
 Para utilizar un Chromium del sistema, definir CHROMIUM_PATH con su ruta.
 Las pruebas de navegador usan una API HTTP controlada y no acceden a una base
 real. La suite Java/PostgreSQL cubre persistencia, permisos, concurrencia y
