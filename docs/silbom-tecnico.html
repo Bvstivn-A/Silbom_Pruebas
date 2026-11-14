@@ -2191,19 +2191,19 @@
       if (AppState.isSubmitting || AppState.refreshing) return false;
       AppState.refreshing = true;
       try {
-      const machines = await loadMachinesFromApi();
-      const tickets = AppState.auth ? await loadBloqueosFromApi() : null;
-      if (!machines || (AppState.auth && !tickets?.ok)) {
-        setOperationStatus('No se pudo actualizar el estado. No hay operaciones confirmadas nuevas.', 'warning');
-        return false;
-      }
-      renderMobileHistorial();
-      if (AppState.currentStep === 2 && AppState.selectedMachineId) {
-        const machine = AppState.machines.find(m => m.id === AppState.selectedMachineId);
-        if (machine) populateStep2Form(machine);
-      }
-      if (!AppState.pendingOperation) setOperationStatus('Estado actualizado desde el servidor.', 'success');
-      return true;
+        const machines = await loadMachinesFromApi();
+        const tickets = AppState.auth ? await loadBloqueosFromApi() : null;
+        if (!machines || (AppState.auth && !tickets?.ok)) {
+          setOperationStatus('No se pudo actualizar el estado. No hay operaciones confirmadas nuevas.', 'warning');
+          return false;
+        }
+        renderMobileHistorial();
+        if (AppState.currentStep === 2 && AppState.selectedMachineId) {
+          const machine = AppState.machines.find(m => m.id === AppState.selectedMachineId);
+          if (machine) populateStep2Form(machine);
+        }
+        if (!AppState.pendingOperation) setOperationStatus('Estado actualizado desde el servidor.', 'success');
+        return true;
       } finally {
         AppState.refreshing = false;
         if (AppState.needsRevalidation && !document.hidden) revalidateConnection();

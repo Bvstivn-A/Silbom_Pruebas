@@ -28,6 +28,7 @@ class Scenario:
         self.post_fault = None
         self.put_fault = None
         self.reads_fail = False
+        self.network_down = False
         self.lock = threading.Lock()
 
 
@@ -132,6 +133,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.reply(fault.get('status', status), ticket)
 
     def do_GET(self):
+        if self.server.scenario.network_down:
+            return self.drop()
         if self.path.startswith('/api/v1/'):
             return self.api()
         return super().do_GET()
@@ -418,7 +421,9 @@ class MobileTests(unittest.TestCase):
             self.assertEqual(200, response.status)
             width, height = struct.unpack('>II', response.body()[16:24])
             self.assertEqual(icon['sizes'], f'{width}x{height}')
-        self.context.set_offline(True)
+        # Un corte HTTP real permite comprobar el SW también en WebKit; el modo
+        # offline del protocolo de automatización puede impedir la navegación antes del SW.
+        self.state.network_down = True
         self.page.goto(self.origin + '/app/?maquina=EQ-ENV-01', wait_until='networkidle')
         expect(self.page.locator('#api-connection-badge')).to_contain_text('estado sin verificar')
         self.assertEqual([], self.page.evaluate('AppState.machines'))
@@ -426,7 +431,7 @@ class MobileTests(unittest.TestCase):
         keys = self.page.evaluate('''async () => (await Promise.all((await caches.keys()).map(async key =>
           (await (await caches.open(key)).keys()).map(req => ({url:req.url, auth:req.headers.has('Authorization')}))))).flat()''')
         self.assertFalse(any('/api/' in k['url'] or k['auth'] for k in keys))
-        self.context.set_offline(False)
+        self.state.network_down = False
         self.page.locator('button[onclick="refreshConnection()"]' ).click()
         expect(self.page.locator('#tech-step-2')).to_be_visible()
         self.assertFalse(any(r['method'] != 'GET' for r in self.state.requests))
