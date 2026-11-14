@@ -58,8 +58,10 @@ public class BloqueoController {
      * POST /api/v1/bloqueos: Abre un nuevo bloqueo LOTO (Energía Cero y Multi-LOTO).
      */
     @PostMapping
-    public ResponseEntity<BloqueoResponseDTO> crear(@Valid @RequestBody BloqueoCreateDTO dto) {
-        BloqueoResponseDTO creado = bloqueoService.crearBloqueo(dto);
+    public ResponseEntity<BloqueoResponseDTO> crear(
+            @Valid @RequestBody BloqueoCreateDTO dto,
+            @RequestHeader(value = "Idempotency-Key", required = false) String operacionId) {
+        BloqueoResponseDTO creado = bloqueoService.crearBloqueo(dto, operacionId);
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
     }
 

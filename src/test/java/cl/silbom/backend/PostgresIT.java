@@ -141,6 +141,26 @@ class PostgresIT {
             assertEquals(0,scalar(c,"select count(*) from bloqueos_loto where maquina_id='"+id+"'"));c.rollback();
         }
     }
+    @Test void reintentosSimultaneosNoDuplicanCandadoNiEvento() throws Exception {
+        String maquina = nuevaMaquina();
+        var responsable = tecnico();
+        String key = UUID.randomUUID().toString();
+        var tickets = simultaneas(responsable, responsable,
+                () -> bloqueos.crearBloqueo(dto(maquina), key),
+                () -> bloqueos.crearBloqueo(dto(maquina), key));
+        assertEquals(tickets.get(0).id(), tickets.get(1).id());
+        assertEquals(1, maquinas.obtenerPorId(maquina).bloqueosActivos());
+        try (var c = conexion("PLANTA-SAN-JOAQUIN")) {
+            assertEquals(1, scalar(c, "select count(*) from eventos_loto where bloqueo_id=" + tickets.get(0).id()));
+            c.rollback();
+        }
+        // Otra identidad puede aportar su propio candado aunque reutilice esa clave.
+        as(supervisor);
+        var otro = bloqueos.crearBloqueo(dto(maquina), key);
+        assertNotEquals(otro.id(), tickets.get(0).id());
+        assertEquals(2, maquinas.obtenerPorId(maquina).bloqueosActivos());
+    }
+
     @Test void restriccionesFisicasYReferenciasSeVerificanEnPostgres() throws Exception {
         try(var c=conexion("PLANTA-SAN-JOAQUIN")) {
             var ex=assertThrows(SQLException.class,()->c.createStatement().executeUpdate("insert into bloqueos_loto(maquina_id,tipo_intervencion,motivo,nombre_tecnico,confirmacion_candado_ds594,tecnico_id) values('EQ-PR-04','PREVENTIVA','Motivo prueba','Prueba',true,9223372036854775807)"));

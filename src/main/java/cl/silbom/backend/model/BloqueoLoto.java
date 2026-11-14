@@ -64,6 +64,22 @@ public class BloqueoLoto {
     @Column(name = "falla_id", updatable = false)
     private Long fallaId;
 
+    @Column(name = "operacion_id", length = 36, updatable = false)
+    private String operacionId;
+
+    @Column(name = "operacion_hash", length = 64, updatable = false)
+    private String operacionHash;
+
+    public void identificarOperacion(String id, String hash) {
+        if (operacionId != null || id == null || hash == null) {
+            throw new IllegalStateException("La identidad de la solicitud es inmutable");
+        }
+        operacionId = id;
+        operacionHash = hash;
+    }
+
+    public String getOperacionHash() { return operacionHash; }
+
     /**
      * Constructor por defecto requerido obligatoriamente por la especificación de JPA.
      * Se declara 'protected' para impedir instanciaciones vacías e incompletas.

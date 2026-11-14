@@ -54,6 +54,31 @@ class SilbomApplicationTests {
         tecnicos.crear(new TecnicoCreateDTO(username,"Técnico de prueba","test-only-password-123",Rol.TECNICO));
         return new TecnicoPrincipal(tecnicoRepository.findByUsernameAndPlantaId(username,"PLANTA-SAN-JOAQUIN").orElseThrow());
     }
+    @Test void reintentoHttpNoDuplicaTicketYRechazaCambiosDeContenido() throws Exception {
+        var payload = bloqueo("EQ-PR-04", TipoIntervencion.PREVENTIVA);
+        String key = java.util.UUID.randomUUID().toString();
+        var first = mvc.perform(post("/api/v1/bloqueos").header("Idempotency-Key", key)
+                .contentType(MediaType.APPLICATION_JSON).content(json(payload)))
+                .andExpect(status().isCreated()).andReturn();
+        long id = mapper.readTree(first.getResponse().getContentAsString()).get("id").asLong();
+        mvc.perform(post("/api/v1/bloqueos").header("Idempotency-Key", key)
+                .contentType(MediaType.APPLICATION_JSON).content(json(payload)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.id", is((int) id)));
+        assertEquals(1, maquinas.obtenerPorId("EQ-PR-04").bloqueosActivos());
+        var changed = bloqueo("EQ-ENV-01", TipoIntervencion.PREVENTIVA);
+        mvc.perform(post("/api/v1/bloqueos").header("Idempotency-Key", key)
+                .contentType(MediaType.APPLICATION_JSON).content(json(changed)))
+                .andExpect(status().isConflict());
+        mvc.perform(post("/api/v1/bloqueos").header("Idempotency-Key", "not-a-uuid")
+                .contentType(MediaType.APPLICATION_JSON).content(json(payload)))
+                .andExpect(status().isBadRequest());
+        bloquesCerrar(id);
+        mvc.perform(post("/api/v1/bloqueos").header("Idempotency-Key", key)
+                .contentType(MediaType.APPLICATION_JSON).content(json(payload)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.estado", is("CERRADO")));
+        assertEquals(0, maquinas.obtenerPorId("EQ-PR-04").bloqueosActivos());
+    }
+
     @Test void cargaInicial() throws Exception {
         mvc.perform(get("/api/v1/maquinas").with(anonymous())).andExpect(status().isOk())
             .andExpect(jsonPath("$",hasSize(6)))
@@ -181,6 +206,25 @@ class SilbomApplicationTests {
             .andExpect(status().isOk()).andExpect(header().string("Access-Control-Allow-Origin","http://localhost:5173"));
         mvc.perform(options("/api/v1/maquinas").header("Origin","https://no-autorizado.example").header("Access-Control-Request-Method","GET"))
             .andExpect(status().isForbidden());
+    }
+
+    @Test void rutasPwaYCorsMovilNoPermitenOrigenesArbitrarios() throws Exception {
+        mvc.perform(get("/app").queryParam("maquina", "EQ-ENV-01").with(anonymous()))
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location", "/app/?maquina=EQ-ENV-01"));
+        mvc.perform(get("/app/manifest.webmanifest").with(anonymous())).andExpect(status().isOk());
+        mvc.perform(get("/app/icons/icon-192.png").with(anonymous())).andExpect(status().isOk());
+        mvc.perform(options("/api/v1/bloqueos").with(anonymous())
+                .header("Origin", "https://localhost:8443")
+                .header("Access-Control-Request-Method", "POST")
+                .header("Access-Control-Request-Headers", "Authorization,Idempotency-Key,Content-Type"))
+                .andExpect(status().isOk())
+                .andExpect(header().doesNotExist("Access-Control-Allow-Credentials"));
+        for (String origin : java.util.List.of("null", "http://192.168.1.50:8080", "http://172.80.1.1:8080")) {
+            mvc.perform(options("/api/v1/bloqueos").with(anonymous())
+                    .header("Origin", origin).header("Access-Control-Request-Method", "POST"))
+                    .andExpect(status().isForbidden());
+        }
     }
     @Test void rateLimitRealSinDeshabilitarFiltro() throws Exception {
         for(int i=0;i<60;i++) mvc.perform(get("/api/v1/maquinas")).andExpect(status().isOk());

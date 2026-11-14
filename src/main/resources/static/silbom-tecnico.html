@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0CB7F2">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SILBOM">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>SILBOM Técnico · App LOTO en Terreno</title>
+  <link rel="manifest" href="./app/manifest.webmanifest">
+  <link rel="icon" href="./app/icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./app/icons/apple-touch-icon.png">
   <style>
     /* ==========================================================================
        SISTEMA DE DISEÑO OFICIAL SILBOM · PALETA DE COLORES
@@ -1099,17 +1103,32 @@
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
+    .operation-panel { padding: 12px; margin-bottom: 14px; border: 1px solid var(--gris-metalico); border-radius: 12px; }
+    #operation-status { overflow-wrap: anywhere; font-size: .88rem; margin-bottom: 10px; }
+    #operation-status[data-kind="warning"], #operation-status[data-kind="error"] { color: var(--text-main); font-weight: 700; }
+    .field-control, .field-select { font-size: 16px; min-height: 44px; }
+    button, .icon-pill-btn, .chip-btn { min-height: 44px; }
+    .target-machine-info, .brand-compact, .operator-pill { min-width: 0; overflow-wrap: anywhere; }
+    .tech-shell { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+    @media (max-width: 420px) {
+      .app-header-row, .app-status-inner { flex-wrap: wrap; }
+      .header-actions { flex-wrap: wrap; }
+      .screen-stepper { gap: 4px; }
+      .step-indicator { font-size: .75rem; }
+      .tech-card { padding: 14px; }
+      .toast-notification { max-width: calc(100vw - 24px); white-space: normal; }
+    }
   </style>
 </head>
 <body>
 
   <!-- ========================================================================
-       HEADER MÓVIL DE LA APP ANDROID
+       HEADER MÓVIL DE LA PWA
        ======================================================================== -->
   <header class="app-header">
     <div class="app-header-row">
       <div class="brand-compact">
-        <div class="brand-emblem" title="SILBOM · App Técnico Android">
+        <div class="brand-emblem" title="SILBOM · PWA para técnicos">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M7 10V7.5C7 4.74 9.24 2.5 12 2.5C14.76 2.5 17 4.74 17 7.5V10" stroke="#0CB7F2" stroke-width="2.4" stroke-linecap="round"/>
             <rect x="4" y="9.5" width="16" height="12" rx="3" fill="#0CB7F2"/>
@@ -1125,10 +1144,10 @@
       </div>
 
       <div class="header-actions">
-        <button type="button" class="icon-pill-btn" id="btn-toggle-server-cfg" onclick="toggleServerConfigDrawer()" title="Configurar IP del servidor backend">
-          ⚙️ IP
+        <button type="button" class="icon-pill-btn" id="btn-toggle-server-cfg" onclick="toggleServerConfigDrawer()" title="Configurar servidor HTTPS">
+          ⚙️ Servidor
         </button>
-        <button type="button" class="icon-pill-btn primary" id="btn-open-install-modal" onclick="openInstallModal()" title="Instalar PWA o descargar archivo HTML">
+        <button type="button" class="icon-pill-btn primary" id="btn-open-install-modal" onclick="openInstallModal()" title="Instalar PWA o descargar la interfaz">
           ⬇️ Instalar
         </button>
         <button type="button" class="icon-pill-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro">
@@ -1142,7 +1161,7 @@
   <div class="app-status-strip">
     <div class="app-status-inner">
       <span class="connection-pill offline" id="api-connection-badge" aria-live="polite">
-        🟡 Modo Demo Local (Offline)
+        🟡 Conectando · estado sin verificar
       </span>
       <span class="operator-pill" id="mobile-operator-pill" aria-live="polite">
         👤 Sin sesión activa
@@ -1159,11 +1178,11 @@
       </div>
       <div class="field-group" style="margin-bottom: 0;">
         <label class="field-label" for="server-url-input">URL base del backend Spring Boot (sin /api/v1):</label>
-        <input type="url" id="server-url-input" class="field-control" placeholder="http://10.50.56.241:8080">
+        <input type="url" id="server-url-input" class="field-control" placeholder="https://192.168.1.50:8443">
       </div>
       <div class="preset-chips">
-        <button type="button" class="chip-btn" onclick="setServerUrlPreset('http://10.50.56.241:8080')">📶 Red Planta (10.50.56.241)</button>
-        <button type="button" class="chip-btn" onclick="setServerUrlPreset('http://localhost:8080')">💻 Localhost (8080)</button>
+        <button type="button" class="chip-btn" onclick="setServerUrlPreset(window.location.origin)">Usar este servidor</button>
+        <button type="button" class="chip-btn" onclick="setServerUrlPreset('https://localhost:8443')">HTTPS local</button>
       </div>
       <button type="button" class="btn-primary-blue" onclick="applyAndTestServerConnection()">
         🔌 Guardar IP y Probar Conexión
@@ -1178,6 +1197,11 @@
 
     <!-- PESTAÑA 1: OPERAR LOTO (3 PASOS + NFC/QR + MULTI-LOTO) -->
     <section id="tech-tab-operar" aria-label="Operación LOTO en terreno">
+      <div class="operation-panel" aria-label="Estado de comunicación">
+        <p id="operation-status" role="status" aria-live="polite">Conectando al servidor. Las operaciones requieren confirmación.</p>
+        <button type="button" class="chip-btn" onclick="refreshConnection()">Actualizar estado</button>
+        <button type="button" class="chip-btn hidden" id="btn-retry-operation" onclick="retryPendingOperation()">Reintentar misma solicitud</button>
+      </div>
       <div class="tech-card">
         <div class="screen-stepper" aria-label="Flujo de 3 pantallas encadenadas">
           <div class="step-indicator active" id="stepper-item-1">
@@ -1199,7 +1223,7 @@
         <!-- PASO 1: IDENTIFICACIÓN NFC/QR O MANUAL -->
         <div id="tech-step-1">
           <h1 class="mobile-screen-title">🔒 Punto de Bloqueo LOTO</h1>
-          <p class="mobile-subtitle">Acerca el celular al tag NFC/QR adherido al chasis de la máquina o selecciona el equipo manualmente.</p>
+          <p class="mobile-subtitle">Abre el enlace HTTPS de la etiqueta NFC o del QR, o selecciona el equipo manualmente. Identificar un equipo no registra un bloqueo.</p>
 
           <div id="guest-login-nudge" class="tech-card" style="background: var(--azul-pale); border-color: var(--azul-industrial); padding: 12px; margin-bottom: 14px;">
             <p style="font-size: 0.78rem; color: var(--text-main); font-weight: 700; margin-bottom: 8px;">
@@ -1210,13 +1234,13 @@
             </button>
           </div>
 
-          <div class="nfc-tap-area" role="button" tabindex="0" onclick="simulateNfcTap('EQ-ENV-01')" onkeydown="handleActivateKey(event, () => simulateNfcTap('EQ-ENV-01'))">
+          <div class="nfc-tap-area" aria-label="Identificación mediante enlaces NFC o QR">
             <div class="nfc-pulse-ring">📡</div>
-            <strong style="color: var(--text-main); display: block; font-size: 0.98rem;">Tocar Tag NFC / Escanear QR</strong>
+            <strong style="color: var(--text-main); display: block; font-size: 0.98rem;">Identificar con etiqueta NFC o QR</strong>
             <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 4px;">
-              Soporta etiquetas físicas ?maquina=EQ-...
+              NFC NDEF y QR abren enlaces HTTPS con ?maquina=EQ-...
             </span>
-            <div class="nfc-tap-btn">▶ Simular Tap NFC (EQ-ENV-01)</div>
+            <div class="nfc-tap-btn">En iPhone: acerca la parte superior a la etiqueta y toca la notificación, o usa la cámara con el QR</div>
           </div>
 
           <div class="or-divider"><span>O SELECCIÓN MANUAL EN PLANTA</span></div>
@@ -1265,7 +1289,7 @@
 
           <div class="field-group" id="group-referencia-falla">
             <label class="field-label" for="field-referencia-falla">2b. Referencia de Falla (Obligatoria en Correctiva):</label>
-            <input type="text" id="field-referencia-falla" class="field-control" placeholder="Ej: FALLA-2026-001" value="FALLA-2026-001" maxlength="80">
+            <input type="text" id="field-referencia-falla" class="field-control" placeholder="Ej: FALLA-2026-001" maxlength="80">
           </div>
 
           <div class="field-group">
@@ -1501,8 +1525,8 @@
     <div class="silbom-modal">
       <div class="silbom-modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
-          <h2 id="install-modal-title" style="font-size: 1rem; font-weight: 900; color: var(--text-main);">📲 Instalar / Descargar App</h2>
-          <span class="kpi-status-tag tag-blue">Android</span>
+          <h2 id="install-modal-title" style="font-size: 1rem; font-weight: 900; color: var(--text-main);">📲 Instalar SILBOM</h2>
+          <span class="kpi-status-tag tag-blue">iPhone · Safari</span>
         </div>
         <button type="button" class="silbom-modal-close" onclick="closeInstallModal()" aria-label="Cerrar diálogo de instalación">✕</button>
       </div>
@@ -1513,16 +1537,20 @@
 
         <div class="tech-card" style="background: var(--bg-input); margin-bottom: 0;">
           <strong style="font-size: 0.84rem; color: var(--azul-industrial); display: block; margin-bottom: 6px;">
-            📲 Instalar como App en Android (Chrome)
+            📲 Instalar en iPhone desde Safari
           </strong>
+          <p id="pwa-install-status" role="status" style="margin-bottom: 10px; font-size: .85rem;"></p>
           <ol style="margin: 0; padding-left: 18px; font-size: 0.8rem; color: var(--text-main); line-height: 1.5;">
-            <li>Abre <code>http://&lt;IP_PC&gt;:8080/app/</code> en Google Chrome del teléfono conectado al Wi-Fi.</li>
-            <li>Toca el menú <strong>⋮</strong> y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Añadir a pantalla de inicio"</strong>.</li>
+            <li>Abre <code>https://&lt;IP_PC&gt;:8443/app/</code> con un certificado de confianza en Safari del iPhone conectado al Wi-Fi.</li>
+            <li>En Safari, abre <strong>Compartir → Añadir a pantalla de inicio</strong>, activa <strong>Abrir como app web</strong> si aparece y pulsa <strong>Añadir</strong>.</li>
+            <li>Abre SILBOM desde su ícono e inicia sesión. No necesitas una APK ni un botón automático de instalación.</li>
+            <li>En Android/Chrome sigue disponible el menú <strong>⋮ → Instalar aplicación</strong>.</li>
+            <li>La interfaz puede abrirse sin red; crear y liberar bloqueos siempre requiere el servidor.</li>
           </ol>
         </div>
 
         <button type="button" class="btn-action-unlock" onclick="downloadStandaloneTechnicianHtml()">
-          ⬇️ Descargar Copia Autónoma (SILBOM-Tecnico-App.html)
+          ⬇️ Descargar interfaz (requiere backend HTTPS)
         </button>
       </div>
     </div>
@@ -1534,25 +1562,17 @@
     <span id="toast-message">Mensaje del sistema</span>
   </div>
 
+  <script src="./app/api-client.js"></script>
   <script>
     /* ==========================================================================
        CONFIGURACIÓN DE SERVIDOR Y ESTADO EN MEMORIA (ZERO CREDENCIALES EN STORAGE)
        ========================================================================== */
     function resolveInitialServerOrigin() {
-      const params = new URLSearchParams(window.location.search);
-      const apiParam = (params.get('api') || '').trim();
-      if (apiParam) {
-        return apiParam.replace(/\/api\/v1\/?$/i, '').replace(/\/+$/, '');
-      }
-      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-        if (window.location.port === '8080') {
-          return window.location.origin;
-        }
-        const host = window.location.hostname || 'localhost';
-        return `http://${host}:8080`;
-      }
-      return 'http://10.50.56.241:8080';
+      // Los enlaces de etiquetas solo identifican máquinas; nunca cambian el servidor.
+      return ['http:', 'https:'].includes(window.location.protocol) ? window.location.origin : '';
     }
+
+
 
     const HTTP_STATUS_LABELS = {
       200: 'OK',
@@ -1568,60 +1588,6 @@
       429: 'Too Many Requests',
       500: 'Internal Server Error'
     };
-
-    const DEFAULT_DEMO_MACHINES = [
-      { id: 'EQ-ENV-01', name: 'Envasadora Rotativa Automática', area: 'Línea de Envasado 1', icon: '📦', isLocked: false, activeLocks: 0 },
-      { id: 'EQ-PR-04', name: 'Prensa Hidráulica 200T', area: 'Área de Estampado', icon: '⚙️', isLocked: false, activeLocks: 0 },
-      { id: 'EQ-EXT-02', name: 'Extrusora de Polímeros', area: 'Área de Moldeo', icon: '🔄', isLocked: false, activeLocks: 0 },
-      { id: 'EQ-MEZ-01', name: 'Mezclador Industrial de Cinta', area: 'Área de Preparación', icon: '🥣', isLocked: false, activeLocks: 0 },
-      { id: 'EQ-COM-03', name: 'Compresor de Tornillo', area: 'Sala de Máquinas', icon: '💨', isLocked: false, activeLocks: 0 },
-      { id: 'EQ-TR-01', name: 'Cinta Transportadora Principal', area: 'Logística y Despacho', icon: '🏗️', isLocked: false, activeLocks: 0 }
-    ];
-
-    const DEFAULT_DEMO_TICKETS = [
-      {
-        id: 3,
-        maquinaId: 'EQ-ENV-01',
-        tipoIntervencion: 'CORRECTIVA',
-        motivo: 'Atascamiento de cabezal móvil (Mecánico)',
-        nombreTecnico: 'Benjamín V.',
-        confirmacionCandadoDs594: true,
-        estado: 'CERRADO',
-        horaInicio: new Date(Date.now() - 86400000).toISOString(),
-        horaFin: new Date(Date.now() - 84300000).toISOString(),
-        duracionMinutos: 35,
-        notasAuditoria: 'Se verifica desconexión total de variador y purga neumática antes de destrabar mordaza.',
-        fallaId: 103
-      },
-      {
-        id: 2,
-        maquinaId: 'EQ-EXT-02',
-        tipoIntervencion: 'CORRECTIVA',
-        motivo: 'Sobrecalentamiento en motor principal (Eléctrico)',
-        nombreTecnico: 'Vicente M.',
-        confirmacionCandadoDs594: true,
-        estado: 'CERRADO',
-        horaInicio: new Date(Date.now() - 172800000).toISOString(),
-        horaFin: new Date(Date.now() - 168480000).toISOString(),
-        duracionMinutos: 72,
-        notasAuditoria: 'Ventilador auxiliar obstruido. Medición de tensión cero validada con multímetro calibrado.',
-        fallaId: 102
-      },
-      {
-        id: 1,
-        maquinaId: 'EQ-PR-04',
-        tipoIntervencion: 'PREVENTIVA',
-        motivo: 'Inspección y lubricación semanal programada',
-        nombreTecnico: 'Carlos R.',
-        confirmacionCandadoDs594: true,
-        estado: 'CERRADO',
-        horaInicio: new Date(Date.now() - 259200000).toISOString(),
-        horaFin: new Date(Date.now() - 256500000).toISOString(),
-        duracionMinutos: 45,
-        notasAuditoria: null,
-        fallaId: null
-      }
-    ];
 
     function buildAuditLogsFromTickets(tickets) {
       return tickets.map(b => ({
@@ -1647,19 +1613,23 @@
       mobileTab: 'operar',
       auditFilter: 'ALL',
       currentStep: 1,
-      selectedMachineId: 'EQ-ENV-01',
+      selectedMachineId: null,
       selectedType: 'correctiva',
       selectedTicketId: null,
       apiOnline: false,
       isSubmitting: false,
-      auth: null, // SOLO EN MEMORIA: { username, password, header, rol, id, nombre }
+      auth: null, // SOLO EN MEMORIA: { username, header, rol, id, nombre }
       timerInterval: null,
       timerSeconds: 0,
       deferredInstallPrompt: null,
-      localTicketSeq: 100,
-      machines: DEFAULT_DEMO_MACHINES.map(m => ({ ...m })),
-      tickets: DEFAULT_DEMO_TICKETS.map(t => ({ ...t })),
-      auditLogs: buildAuditLogsFromTickets(DEFAULT_DEMO_TICKETS)
+      pendingOperation: null,
+      refreshing: false,
+      needsRevalidation: false,
+      machinesConfirmed: false,
+      pendingMachineLink: null,
+      machines: [],
+      tickets: [],
+      auditLogs: []
     };
 
     /* ==========================================================================
@@ -1692,21 +1662,23 @@
     }
 
     function getApiBaseUrl() {
-      return `${AppState.serverOrigin}/api/v1`;
+      return SilbomHttp.baseUrl(AppState.serverOrigin);
     }
+
+
 
     function updateConnectionBadge(isOnline) {
       AppState.apiOnline = isOnline;
       const badge = document.getElementById('api-connection-badge');
-      if (!badge) return;
-      if (isOnline) {
-        badge.className = 'connection-pill online';
-        badge.textContent = `🟢 API Conectada (${AppState.serverOrigin.replace(/^https?:\/\//, '')})`;
-      } else {
-        badge.className = 'connection-pill offline';
-        badge.textContent = '🟡 Modo Demo Local (Offline)';
+      if (badge) {
+        badge.className = `connection-pill ${isOnline ? 'online' : 'offline'}`;
+        badge.textContent = isOnline ? '🟢 API conectada' : '🟡 Sin conexión · estado sin verificar';
       }
+      if (!isOnline) AppState.machinesConfirmed = false;
+      syncOperationControls();
     }
+
+
 
     function updateHttpMonitor(method, endpoint, status, customText) {
       const monitor = document.getElementById('http-status-monitor');
@@ -1732,68 +1704,26 @@
     }
 
     async function apiFetch(endpoint, options = {}) {
+      const { silentMonitor, authHeaderOverride, ...requestOptions } = options;
       const method = (options.method || 'GET').toUpperCase();
-      const silentMonitor = Boolean(options.silentMonitor);
-      const authHeaderOverride = options.authHeaderOverride || null;
-      const fetchOptions = { ...options };
-      delete fetchOptions.silentMonitor;
-      delete fetchOptions.authHeaderOverride;
-
-      const headers = {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        ...(fetchOptions.headers || {})
-      };
-
-      if (fetchOptions.body !== undefined && fetchOptions.body !== null && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
-      }
-
-      if (authHeaderOverride) {
-        headers['Authorization'] = authHeaderOverride;
-      } else if (AppState.auth && AppState.auth.header) {
-        headers['Authorization'] = AppState.auth.header;
-      }
-
-      let response;
+      const headers = { ...requestOptions.headers };
+      const auth = authHeaderOverride || AppState.auth?.header;
+      if (auth) headers.Authorization = auth;
       try {
-        response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
-          ...fetchOptions,
-          method,
-          headers
+        const result = await SilbomHttp.request(endpoint, {
+          ...requestOptions, headers, origin: AppState.serverOrigin
         });
-      } catch (networkErr) {
+        updateConnectionBadge(true);
+        if (!silentMonitor) updateHttpMonitor(method, endpoint, result.status, HTTP_STATUS_LABELS[result.status]);
+        return result;
+      } catch (err) {
         updateConnectionBadge(false);
-        if (!silentMonitor) {
-          updateHttpMonitor(method, endpoint, 0, 'OFFLINE (Sin conexión)');
-        }
-        const err = new Error('Servidor backend no disponible');
-        err.isNetworkError = true;
+        if (!silentMonitor) updateHttpMonitor(method, endpoint, 0, 'Sin confirmación del servidor');
         throw err;
       }
-
-      updateConnectionBadge(true);
-
-      let data = null;
-      const rawText = await response.text();
-      if (rawText) {
-        try {
-          data = JSON.parse(rawText);
-        } catch (parseErr) {
-          data = { mensaje: rawText };
-        }
-      }
-
-      if (!silentMonitor) {
-        updateHttpMonitor(method, endpoint, response.status, response.statusText || HTTP_STATUS_LABELS[response.status]);
-      }
-
-      return {
-        ok: response.ok,
-        status: response.status,
-        data
-      };
     }
+
+
 
     function extractApiError(data, status) {
       if (data && typeof data === 'object') {
@@ -1820,25 +1750,29 @@
     }
 
     async function applyAndTestServerConnection() {
-      const input = document.getElementById('server-url-input');
-      const raw = input ? input.value.trim() : '';
-      if (!/^https?:\/\/[^/\s]+/i.test(raw)) {
-        showToast('Ingresa una URL válida (ej: http://10.50.56.241:8080)', '⚠️');
+      if (AppState.isSubmitting || AppState.pendingOperation) {
+        setOperationStatus('Resuelve la solicitud pendiente antes de cambiar de servidor.', 'warning');
         return;
       }
-
-      AppState.serverOrigin = raw.replace(/\/api\/v1\/?$/i, '').replace(/\/+$/, '');
-      const ok = await loadMachinesFromApi();
-      if (ok) {
-        if (AppState.auth && AppState.auth.header) {
-          await loadBloqueosFromApi();
+      try {
+        const origin = SilbomHttp.serverOrigin(document.getElementById('server-url-input').value.trim());
+        if (!SilbomHttp.allowsCredentials(origin)) throw new Error('Usa HTTPS para conectar desde el teléfono.');
+        // Nunca transferir una credencial ya introducida a otro origen.
+        if (origin !== AppState.serverOrigin) {
+          logoutOperator();
+          AppState.machines = [];
+          AppState.selectedMachineId = null;
+          AppState.serverOrigin = origin;
         }
-        showToast(`Conectado a ${AppState.serverOrigin}`, '🟢');
+        if (!await refreshConnection()) return;
+        showToast('Conexión comprobada. Inicia sesión si corresponde.', '🟢');
         toggleServerConfigDrawer(false);
-      } else {
-        showToast(`No responde ${AppState.serverOrigin}. Verifica Wi-Fi y puerto 8080`, '🚫');
+      } catch (err) {
+        setOperationStatus(err.message, 'error');
       }
     }
+
+
 
     /* ==========================================================================
        AUTENTICACIÓN EN MEMORIA Y SESIÓN
@@ -1888,52 +1822,39 @@
     }
 
     async function performLogin(username, password) {
+      if (AppState.isSubmitting || (AppState.pendingOperation && AppState.pendingOperation.username !== username)) {
+        setOperationStatus('Resuelve la operación pendiente con su usuario antes de cambiar de sesión.', 'warning');
+        return false;
+      }
       if (!username || !password) {
         showToast('Ingresa usuario y contraseña para iniciar sesión', '⚠️');
         return false;
       }
-
-      AppState.auth = {
-        username,
-        password,
-        header: encodeBasicAuth(username, password),
-        rol: null,
-        id: null,
-        nombre: null
-      };
-      renderAuthUI();
-
-      await loadMachinesFromApi();
-
-      if (AppState.apiOnline) {
-        const res = await loadBloqueosFromApi();
-        if (res && res.status === 401) {
-          AppState.auth = null;
-          AppState.tickets = [];
-          AppState.auditLogs = [];
-          renderAuthUI();
-          renderMobileHistorial();
-          showToast('Credenciales inválidas (401 Unauthorized)', '🚫');
-          return false;
-        }
+      AppState.auth = { username, header: encodeBasicAuth(username, password), rol: null, id: null, nombre: null };
+      try {
+        const res = await apiFetch('/bloqueos');
+        if (!res.ok || !Array.isArray(res.data)) throw new Error(extractApiError(res.data, res.status));
+        AppState.tickets = res.data;
+        AppState.auditLogs = buildAuditLogsFromTickets(res.data);
         await probeAuthenticatedRole();
+        await loadMachinesFromApi();
         renderAuthUI();
-
-        const roleLabel = AppState.auth.rol || 'OPERADOR';
-        showToast(`Sesión iniciada: ${username} (${roleLabel})`, '👷');
-        if (AppState.currentStep === 3) {
-          const m = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-          if (m) updateLockedDisplay(m);
-        }
-      } else {
-        AppState.auth.rol = username.toLowerCase().includes('supervisor') ? 'SUPERVISOR' : 'TECNICO';
+        renderMobileHistorial();
+        syncOperationControls();
+        showToast(`Sesión verificada: ${username}`, '👷');
+        return true;
+      } catch (err) {
+        AppState.auth = null;
+        AppState.tickets = [];
+        AppState.auditLogs = [];
         renderAuthUI();
-        showToast(`Operador cargado en modo offline: ${username}`, '🟡');
+        renderMobileHistorial();
+        setOperationStatus(`No se pudo verificar la sesión: ${err.message}`, 'error');
+        return false;
       }
-
-      renderMobileHistorial();
-      return true;
     }
+
+
 
     async function loginFromMobilePanel() {
       const userInput = document.getElementById('mobile-auth-user');
@@ -1945,24 +1866,22 @@
     }
 
     function logoutOperator() {
-      AppState.auth = null;
-      renderAuthUI();
-
-      if (AppState.apiOnline) {
-        AppState.tickets = [];
-        AppState.auditLogs = [];
-        if (AppState.currentStep === 3) {
-          clearInterval(AppState.timerInterval);
-          showTechStep(1);
-        }
-      } else {
-        AppState.tickets = DEFAULT_DEMO_TICKETS.map(t => ({ ...t }));
-        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
+      if (AppState.isSubmitting || AppState.pendingOperation) {
+        setOperationStatus('Hay una solicitud sin resolver. Verifica su resultado antes de cerrar sesión.', 'warning');
+        return;
       }
-
+      AppState.auth = null;
+      AppState.tickets = [];
+      AppState.auditLogs = [];
+      clearInterval(AppState.timerInterval);
+      renderAuthUI();
       renderMobileHistorial();
+      showTechStep(1);
+      syncOperationControls();
       showToast('Sesión cerrada de memoria', '🔒');
     }
+
+
 
     /* ==========================================================================
        SINCRONIZACIÓN API REST Y NAVEGACIÓN DE PESTAÑAS
@@ -1995,27 +1914,27 @@
     async function loadMachinesFromApi(silentMonitor = false) {
       try {
         const { ok, data } = await apiFetch('/maquinas', { silentMonitor });
-        if (ok && Array.isArray(data)) {
-          AppState.machines = data.map(m => ({
-            id: m.id,
-            name: m.nombre,
-            area: m.area,
-            icon: m.icono || '⚙️',
-            isLocked: Boolean(m.bloqueada),
-            activeLocks: Number(m.bloqueosActivos ?? 0)
-          }));
-
-          if (!AppState.machines.some(m => m.id === AppState.selectedMachineId) && AppState.machines.length > 0) {
-            AppState.selectedMachineId = AppState.machines[0].id;
-          }
-          populateMachineSelect();
-          return true;
-        }
-      } catch (err) {
+        if (!ok || !Array.isArray(data) || !data.every(m => typeof m.nombre === 'string'
+          && /^EQ-[A-Z]{2,4}-[0-9]{2}$/.test(m.id) && typeof m.bloqueada === 'boolean'
+          && Number.isSafeInteger(m.bloqueosActivos) && m.bloqueosActivos >= 0
+          && m.bloqueada === (m.bloqueosActivos > 0))) throw new Error('Catálogo no disponible');
+        AppState.machines = data.map(m => ({
+          id: m.id, name: m.nombre, area: m.area, icon: m.icono || '⚙️',
+          isLocked: Boolean(m.bloqueada), activeLocks: Number(m.bloqueosActivos ?? 0)
+        }));
+        AppState.machinesConfirmed = true;
         populateMachineSelect();
+        applyMachineLink();
+        syncOperationControls();
+        return true;
+      } catch (err) {
+        updateConnectionBadge(false);
+        populateMachineSelect();
+        return false;
       }
-      return false;
     }
+
+
 
     async function loadBloqueosFromApi(silentMonitor = false) {
       if (!AppState.apiOnline || !AppState.auth || !AppState.auth.header) {
@@ -2024,7 +1943,11 @@
 
       try {
         const res = await apiFetch('/bloqueos', { silentMonitor });
-        if (res.ok && Array.isArray(res.data)) {
+        if (!res.ok || !Array.isArray(res.data) || !res.data.every(t => validTicket(t, t.maquinaId))) {
+          updateConnectionBadge(false);
+          return { ...res, ok: false };
+        }
+        if (res.ok) {
           AppState.tickets = res.data;
           AppState.auditLogs = buildAuditLogsFromTickets(res.data);
           renderMobileHistorial();
@@ -2128,13 +2051,6 @@
       return AppState.tickets.filter(t => t.maquinaId === machineId && t.estado === 'ACTIVO');
     }
 
-    function simulateNfcTap(machineId) {
-      switchMobileTab('operar');
-      playBeep('nfc');
-      showToast(`¡Tag NFC detectado! Equipo: ${machineId}`, '📡');
-      loadMachineIntoForm(machineId);
-    }
-
     function simulateManualSelect(machineId) {
       if (!machineId) return;
       playBeep('nfc');
@@ -2170,7 +2086,7 @@
         statusEl.style.color = 'var(--rojo-peligro)';
         if (viewActiveBtn) viewActiveBtn.classList.remove('hidden');
       } else {
-        statusEl.textContent = '🟢 ESTADO: OPERATIVO';
+        statusEl.textContent = AppState.machinesConfirmed ? 'Sin bloqueos digitales registrados' : 'Estado sin verificar';
         statusEl.style.color = 'var(--verde-seguridad)';
         if (viewActiveBtn) viewActiveBtn.classList.add('hidden');
       }
@@ -2180,7 +2096,7 @@
       const notesInput = document.getElementById('field-notas');
       if (notesInput) notesInput.value = '';
       const refInput = document.getElementById('field-referencia-falla');
-      if (refInput && !refInput.value.trim()) refInput.value = 'FALLA-2026-001';
+      // La referencia es una decisión del técnico: nueva avería o referencia compartida existente.
 
       selectInterventionType(AppState.selectedType);
     }
@@ -2246,10 +2162,120 @@
     }
 
     function toggleSubmitButton() {
-      if (AppState.isSubmitting) return;
-      const check = document.getElementById('check-padlock').checked;
-      document.getElementById('btn-submit-lock').disabled = !check;
+      syncOperationControls();
     }
+
+    function syncOperationControls() {
+      const submit = document.getElementById('btn-submit-lock');
+      if (submit) submit.disabled = AppState.isSubmitting || !AppState.apiOnline || !AppState.auth
+        || !document.getElementById('check-padlock').checked || Boolean(AppState.pendingOperation);
+      const unlock = document.getElementById('btn-unlock-lock');
+      if (unlock) unlock.disabled = AppState.isSubmitting || !AppState.apiOnline || !AppState.auth
+        || Boolean(AppState.pendingOperation);
+      const retry = document.getElementById('btn-retry-operation');
+      if (retry) {
+        retry.classList.toggle('hidden', !AppState.pendingOperation);
+        retry.disabled = AppState.isSubmitting;
+      }
+    }
+
+    function setOperationStatus(message, kind = 'warning') {
+      const el = document.getElementById('operation-status');
+      el.textContent = message;
+      el.dataset.kind = kind;
+      el.classList.remove('hidden');
+      syncOperationControls();
+    }
+
+    async function refreshConnection() {
+      if (AppState.isSubmitting || AppState.refreshing) return false;
+      AppState.refreshing = true;
+      try {
+        const machines = await loadMachinesFromApi();
+        const tickets = AppState.auth ? await loadBloqueosFromApi() : null;
+        if (!machines || (AppState.auth && !tickets?.ok)) {
+          setOperationStatus('No se pudo actualizar el estado. No hay operaciones confirmadas nuevas.', 'warning');
+          return false;
+        }
+        renderMobileHistorial();
+        if (AppState.currentStep === 2 && AppState.selectedMachineId) {
+          const machine = AppState.machines.find(m => m.id === AppState.selectedMachineId);
+          if (machine) populateStep2Form(machine);
+        }
+        if (!AppState.pendingOperation) setOperationStatus('Estado actualizado desde el servidor.', 'success');
+        return true;
+      } finally {
+        AppState.refreshing = false;
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
+      }
+    }
+
+    function isIOSDevice() {
+      return /iPhone|iPad|iPod/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
+    function isInstalledPwa() {
+      return navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    }
+
+    async function revalidateConnection() {
+      AppState.needsRevalidation = true;
+      updateConnectionBadge(false);
+      setOperationStatus('Verificando conexión y estado con el servidor.'
+        + (AppState.pendingOperation ? ' Hay una solicitud pendiente; no se reenvía automáticamente.' : ''), 'warning');
+      if (AppState.isSubmitting || AppState.refreshing) return;
+      AppState.needsRevalidation = false;
+      await refreshConnection(); // Solo GET: volver a la app nunca confirma ni reenvía escrituras.
+    }
+
+    function validTicket(ticket, machineId, id = null) {
+      return ticket && Number.isSafeInteger(ticket.id) && ticket.id > 0 && ticket.maquinaId === machineId
+        && ['ACTIVO', 'CERRADO'].includes(ticket.estado) && (id === null || ticket.id === id);
+    }
+
+    function rememberConfirmedTicket(ticket) {
+      AppState.tickets = [ticket, ...AppState.tickets.filter(t => t.id !== ticket.id)];
+      AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
+    }
+
+    function requireSession() {
+      if (!AppState.auth?.header || !AppState.apiOnline) {
+        setOperationStatus('Conecta y verifica tu sesión antes de operar. No se registran cambios offline.', 'warning');
+        return false;
+      }
+      return true;
+    }
+
+    async function retryPendingOperation() {
+      if (AppState.isSubmitting || !AppState.pendingOperation) return;
+      if (!await loadMachinesFromApi()) {
+        setOperationStatus('Sin conexión. La solicitud sigue sin confirmar.', 'warning');
+        return;
+      }
+      if (AppState.pendingOperation.method === 'POST') await executeDigitalLock();
+      else await executeDigitalUnlock();
+    }
+
+    function applyMachineLink() {
+      const id = AppState.pendingMachineLink;
+      if (id === null) return;
+      if (!/^EQ-[A-Z]{2,4}-[0-9]{2}$/.test(id)) {
+        AppState.pendingMachineLink = null;
+        setOperationStatus('El enlace contiene un identificador de máquina inválido.', 'error');
+        return;
+      }
+      if (!AppState.machinesConfirmed) return;
+      AppState.pendingMachineLink = null;
+      if (!AppState.machines.some(m => m.id === id)) {
+        setOperationStatus(`La máquina ${id} no está disponible en esta planta.`, 'error');
+        return;
+      }
+      loadMachineIntoForm(id); // Identificar no crea ni libera tickets.
+      showToast(`Equipo identificado: ${id}. Revisa sus datos antes de operar.`, '🔎');
+    }
+
+
 
     function cancelToStep1() {
       showTechStep(1);
@@ -2258,116 +2284,64 @@
     }
 
     async function executeDigitalLock() {
-      if (AppState.isSubmitting) return;
-      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      if (!machine) return;
-
-      const submitBtn = document.getElementById('btn-submit-lock');
-      const originalBtnText = submitBtn.textContent;
-      const reason = document.getElementById('field-reason').value;
-      const confirmPadlock = document.getElementById('check-padlock').checked;
-      const refInput = document.getElementById('field-referencia-falla');
-      const notesInput = document.getElementById('field-notas');
-
-      const rawNotas = notesInput ? notesInput.value.trim() : '';
-      const rawRef = refInput ? refInput.value.trim() : '';
-      const tipoIntervencion = AppState.selectedType === 'correctiva' ? 'CORRECTIVA' : 'PREVENTIVA';
-
-      const payload = {
-        maquinaId: machine.id,
-        tipoIntervencion,
-        motivo: reason,
-        confirmacionCandadoDs594: confirmPadlock,
-        notasConfidenciales: rawNotas.length > 0 ? rawNotas : null,
-        referenciaFalla: tipoIntervencion === 'CORRECTIVA' ? (rawRef.length > 0 ? rawRef : null) : null
-      };
-
-      AppState.isSubmitting = true;
-      submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Procesando...';
-
-      try {
-        if (AppState.apiOnline) {
-          try {
-            const { ok, status, data } = await apiFetch('/bloqueos', {
-              method: 'POST',
-              body: JSON.stringify(payload)
-            });
-
-            if (ok && status === 201 && data) {
-              AppState.selectedTicketId = data.id;
-              if (AppState.auth && data.tecnicoId) {
-                AppState.auth.id = data.tecnicoId;
-              }
-              playBeep('lock');
-              showToast(`¡BLOQUEO LOTO #${data.id} REGISTRADO! Activo: ${machine.id}`, '🔒');
-
-              await loadMachinesFromApi();
-              await loadBloqueosFromApi();
-
-              const updatedMachine = AppState.machines.find(x => x.id === machine.id) || machine;
-              showTechStep(3);
-              updateLockedDisplay(updatedMachine);
-              renderMobileHistorial();
-              return;
-            }
-
-            if (status === 401) {
-              showToast('Inicia sesión primero en la pestaña "Técnicos / Sesión" (401)', '🔐');
-            } else {
-              showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
-            }
-            return;
-          } catch (err) {
-            if (!err.isNetworkError) {
-              showToast('Error inesperado al registrar bloqueo', '🚫');
-              return;
-            }
-          }
-        }
-
-        // Fallback Offline
-        if (tipoIntervencion === 'CORRECTIVA' && !payload.referenciaFalla) {
-          showToast('Ingrese referencia de falla para intervención correctiva', '⚠️');
+      if (AppState.isSubmitting || !requireSession()) return;
+      if (AppState.pendingOperation && AppState.pendingOperation.method !== 'POST') return;
+      let operation = AppState.pendingOperation;
+      if (!operation) {
+        const machine = AppState.machines.find(m => m.id === AppState.selectedMachineId);
+        if (!machine) return;
+        const confirm = document.getElementById('check-padlock').checked;
+        const reference = document.getElementById('field-referencia-falla').value.trim();
+        const type = AppState.selectedType === 'correctiva' ? 'CORRECTIVA' : 'PREVENTIVA';
+        if (!confirm || (type === 'CORRECTIVA' && !/^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/.test(reference))) {
+          setOperationStatus('Declara el candado físico y completa una referencia válida para la falla correctiva.', 'warning');
           return;
         }
-
-        const localId = ++AppState.localTicketSeq;
-        const operador = (AppState.auth && AppState.auth.username) ? AppState.auth.username : 'Operador Demo';
-
-        const localTicket = {
-          id: localId,
-          maquinaId: machine.id,
-          tipoIntervencion,
-          motivo: reason,
-          nombreTecnico: operador,
-          confirmacionCandadoDs594: true,
-          estado: 'ACTIVO',
-          horaInicio: new Date().toISOString(),
-          horaFin: null,
-          duracionMinutos: null,
-          notasAuditoria: payload.notasConfidenciales,
-          referenciaFalla: payload.referenciaFalla,
-          fallaId: tipoIntervencion === 'CORRECTIVA' ? 1 : null
-        };
-
-        AppState.tickets.unshift(localTicket);
-        AppState.selectedTicketId = localId;
-        machine.isLocked = true;
-        machine.activeLocks = (machine.activeLocks || 0) + 1;
-        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
-
-        playBeep('lock');
-        showToast(`¡BLOQUEO LOTO LOCAL REGISTRADO! Activo: ${machine.id}`, '🔒');
-        showTechStep(3);
-        updateLockedDisplay(machine);
+        operation = { method: 'POST', key: SilbomHttp.operationId(), username: AppState.auth.username,
+          payload: { maquinaId: machine.id, tipoIntervencion: type,
+            motivo: document.getElementById('field-reason').value, confirmacionCandadoDs594: true,
+            notasConfidenciales: document.getElementById('field-notas').value.trim() || null,
+            referenciaFalla: type === 'CORRECTIVA' ? reference : null } };
+      }
+      if (operation.username !== AppState.auth.username) return;
+      AppState.pendingOperation = operation;
+      AppState.isSubmitting = true;
+      syncOperationControls();
+      try {
+        const res = await apiFetch('/bloqueos', { method: 'POST',
+          headers: { 'Idempotency-Key': operation.key }, body: JSON.stringify(operation.payload) });
+        if (!res.ok) {
+          if (res.status >= 400 && res.status < 500) AppState.pendingOperation = null;
+          throw new Error(`El servidor respondió ${res.status}: ${extractApiError(res.data, res.status)}`);
+        }
+        if (res.status !== 201 || !validTicket(res.data, operation.payload.maquinaId)) {
+          throw new Error('La respuesta no confirma un ticket válido.');
+        }
+        AppState.pendingOperation = null;
+        AppState.selectedMachineId = res.data.maquinaId;
+        AppState.selectedTicketId = res.data.id;
+        AppState.auth.id = res.data.tecnicoId;
+        rememberConfirmedTicket(res.data);
+        const fresh = await loadMachinesFromApi();
+        if (fresh) await loadBloqueosFromApi();
+        const machine = AppState.machines.find(m => m.id === res.data.maquinaId);
+        showTechStep(res.data.estado === 'ACTIVO' ? 3 : 1);
+        if (machine && res.data.estado === 'ACTIVO') updateLockedDisplay(machine);
+        setOperationStatus(`Ticket #${res.data.id} confirmado por el servidor (${res.data.estado}).`
+          + (fresh ? '' : ' El estado actual del equipo no se pudo actualizar.'), fresh ? 'success' : 'warning');
+        if (res.data.estado === 'ACTIVO') playBeep('lock');
         renderMobileHistorial();
+      } catch (err) {
+        setOperationStatus('Alta sin confirmar. ' + err.message
+          + (AppState.pendingOperation ? ' Reintenta la misma solicitud para consultar o completar su resultado; no crees otra.' : ''), 'warning');
       } finally {
         AppState.isSubmitting = false;
-        submitBtn.textContent = originalBtnText;
-        submitBtn.disabled = !document.getElementById('check-padlock').checked;
+        syncOperationControls();
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
       }
     }
+
+
 
     function onSelectUnlockTicket(ticketIdStr) {
       const id = Number(ticketIdStr);
@@ -2389,7 +2363,7 @@
         if (subtitleEl) subtitleEl.textContent = `${activeCount} candados personales instalados simultáneamente`;
       } else {
         badgeEl.textContent = '🔴 BLOQUEO LOTO ACTIVO';
-        if (subtitleEl) subtitleEl.textContent = 'Activo desenergizado y asegurado';
+        if (subtitleEl) subtitleEl.textContent = 'Registro digital; verifica el aislamiento físico según el procedimiento';
       }
 
       const selectorBox = document.getElementById('group-unlock-ticket');
@@ -2478,106 +2452,60 @@
     }
 
     async function executeDigitalUnlock() {
-      if (AppState.isSubmitting) return;
-      const machine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-      const activeTickets = machine ? getActiveTicketsForMachine(machine.id) : [];
-      const ticketId = AppState.selectedTicketId || (activeTickets[0] ? activeTickets[0].id : null);
-
-      if (!ticketId) {
-        showToast('No hay un ticket activo seleccionado para liberar (inicie sesión)', '⚠️');
+      if (AppState.isSubmitting || !requireSession()) return;
+      if (AppState.pendingOperation && AppState.pendingOperation.method !== 'PUT') return;
+      const machineId = AppState.pendingOperation?.machineId || AppState.selectedMachineId;
+      const ticketId = AppState.pendingOperation?.ticketId || AppState.selectedTicketId;
+      if (!ticketId || !machineId) {
+        setOperationStatus('Selecciona tu ticket activo antes de liberar.', 'warning');
         return;
       }
-
-      const unlockBtn = document.getElementById('btn-unlock-lock');
-      const originalBtnText = unlockBtn.textContent;
+      AppState.pendingOperation = { method: 'PUT', machineId, ticketId, username: AppState.auth.username };
       AppState.isSubmitting = true;
-      unlockBtn.disabled = true;
-      unlockBtn.textContent = '⏳ Procesando...';
-
+      syncOperationControls();
       try {
-        if (AppState.apiOnline) {
-          try {
-            const { ok, status, data } = await apiFetch(`/bloqueos/${ticketId}/liberar`, {
-              method: 'PUT'
-            });
-
-            if (ok && status === 200) {
-              if (AppState.auth && data && data.tecnicoId) {
-                AppState.auth.id = data.tecnicoId;
-              }
-              playBeep('unlock');
-              await loadMachinesFromApi();
-              await loadBloqueosFromApi();
-
-              const updatedMachine = AppState.machines.find(x => x.id === AppState.selectedMachineId);
-              const remaining = updatedMachine ? getActiveTicketsForMachine(updatedMachine.id) : [];
-
-              if (updatedMachine && (updatedMachine.isLocked || updatedMachine.activeLocks > 0 || remaining.length > 0)) {
-                AppState.selectedTicketId = remaining[0] ? remaining[0].id : null;
-                showToast(`Ticket #${ticketId} liberado. ${updatedMachine.id} sigue bloqueado (${updatedMachine.activeLocks} activo(s))`, '🟡');
-                showTechStep(3);
-                updateLockedDisplay(updatedMachine);
-              } else {
-                clearInterval(AppState.timerInterval);
-                AppState.selectedTicketId = null;
-                showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
-                showTechStep(1);
-                const sel = document.getElementById('manual-machine-select');
-                if (sel) sel.value = '';
-              }
-
-              renderMobileHistorial();
-              return;
-            }
-
-            showToast(`Rechazo (${status}): ${extractApiError(data, status)}`, '🚫');
-            return;
-          } catch (err) {
-            if (!err.isNetworkError) {
-              showToast('Error inesperado al liberar bloqueo', '🚫');
-              return;
-            }
-          }
+        let res = await apiFetch(`/bloqueos/${ticketId}/liberar`, { method: 'PUT' });
+        // Un reintento puede recibir 409 si la primera liberación se confirmó y se perdió su respuesta.
+        if (res.status === 409) res = await apiFetch(`/bloqueos/${ticketId}`);
+        if (!res.ok) {
+          if (res.status >= 400 && res.status < 500) AppState.pendingOperation = null;
+          throw new Error(`El servidor respondió ${res.status}: ${extractApiError(res.data, res.status)}`);
         }
-
-        // Fallback Offline
-        const targetTicket = AppState.tickets.find(t => t.id === ticketId);
-        if (targetTicket) {
-          targetTicket.estado = 'CERRADO';
-          targetTicket.horaFin = new Date().toISOString();
-          targetTicket.duracionMinutos = Math.max(0, Math.round(AppState.timerSeconds / 60));
+        if (!validTicket(res.data, machineId, ticketId) || res.data.estado !== 'CERRADO') {
+          throw new Error('La respuesta no confirma la liberación del ticket.');
         }
-
-        if (machine) {
-          machine.activeLocks = Math.max(0, (machine.activeLocks || 1) - 1);
-          machine.isLocked = machine.activeLocks > 0;
-        }
-
-        AppState.auditLogs = buildAuditLogsFromTickets(AppState.tickets);
-
-        playBeep('unlock');
-        const remainingOffline = machine ? getActiveTicketsForMachine(machine.id) : [];
-
-        if (machine && machine.isLocked && remainingOffline.length > 0) {
-          AppState.selectedTicketId = remainingOffline[0].id;
-          showToast(`Candado #${ticketId} liberado. ${machine.id} sigue con ${machine.activeLocks} bloqueo(s)`, '🟡');
+        AppState.pendingOperation = null;
+        rememberConfirmedTicket(res.data);
+        const freshMachines = await loadMachinesFromApi();
+        const tickets = await loadBloqueosFromApi();
+        const machine = AppState.machines.find(m => m.id === machineId);
+        if (!freshMachines || !tickets?.ok || !machine) {
+          setOperationStatus(`Ticket #${ticketId} CERRADO confirmado. Estado del equipo sin verificar; actualiza antes de continuar.`, 'warning');
+        } else if (machine.isLocked || machine.activeLocks > 0) {
+          const remaining = getActiveTicketsForMachine(machineId);
+          AppState.selectedTicketId = remaining[0]?.id || null;
+          showTechStep(3);
           updateLockedDisplay(machine);
+          setOperationStatus(`Ticket #${ticketId} cerrado. ${machineId} sigue bloqueada (${machine.activeLocks} activo(s)).`, 'success');
         } else {
-          clearInterval(AppState.timerInterval);
           AppState.selectedTicketId = null;
-          showToast('Equipo liberado con éxito. Operación normal restablecida.', '🟢');
+          clearInterval(AppState.timerInterval);
           showTechStep(1);
-          const sel = document.getElementById('manual-machine-select');
-          if (sel) sel.value = '';
+          setOperationStatus(`Ticket #${ticketId} cerrado. El servidor registra cero bloqueos digitales en ${machineId}.`, 'success');
         }
-
+        playBeep('unlock');
         renderMobileHistorial();
+      } catch (err) {
+        setOperationStatus('Liberación sin confirmar. Se conserva el último estado conocido. ' + err.message
+          + (AppState.pendingOperation ? ' Reintenta la misma solicitud para verificar su resultado.' : ''), 'warning');
       } finally {
         AppState.isSubmitting = false;
-        unlockBtn.disabled = false;
-        unlockBtn.textContent = originalBtnText;
+        syncOperationControls();
+        if (AppState.needsRevalidation && !document.hidden) revalidateConnection();
       }
     }
+
+
 
     function showTechStep(step) {
       AppState.currentStep = step;
@@ -2815,6 +2743,10 @@
        ALTA DE TÉCNICOS DESDE TERRENO (POST /api/v1/tecnicos)
        ========================================================================== */
     async function createTechnicianFromForm() {
+      if (AppState.isSubmitting || AppState.pendingOperation) {
+        setOperationStatus('Resuelve la solicitud LOTO pendiente antes de administrar técnicos.', 'warning');
+        return;
+      }
       const nombreEl = document.getElementById('mtech-nombre');
       const usernameEl = document.getElementById('mtech-username');
       const passwordEl = document.getElementById('mtech-password');
@@ -2883,7 +2815,6 @@
           if (autoLoginBox && autoLoginBox.checked) {
             AppState.auth = {
               username: data.username,
-              password: createdPassword,
               header: encodeBasicAuth(data.username, createdPassword),
               rol: data.rol,
               id: data.id,
@@ -2938,8 +2869,14 @@
       if (!modal) return;
       const btnNative = document.getElementById('btn-native-pwa-install');
       if (btnNative) {
-        btnNative.classList.toggle('hidden', !AppState.deferredInstallPrompt);
+        btnNative.classList.toggle('hidden', isIOSDevice() || !AppState.deferredInstallPrompt || isInstalledPwa());
       }
+      document.getElementById('pwa-install-status').textContent = !window.isSecureContext
+        ? 'La instalación requiere HTTPS y un certificado confiable en este teléfono.'
+        : isInstalledPwa()
+          ? 'SILBOM ya está abierta como aplicación instalada.'
+          : isIOSDevice() ? 'En Safari: Compartir → Añadir a pantalla de inicio. iOS no muestra un botón automático de instalación.'
+            : 'Usa el menú de tu navegador para instalar la PWA.';
       modal.classList.remove('hidden');
     }
 
@@ -2949,8 +2886,8 @@
     }
 
     async function triggerNativePwaInstall() {
-      if (!AppState.deferredInstallPrompt) {
-        showToast('Usa Menú ⋮ → "Instalar aplicación" en Google Chrome', '📲');
+      if (isIOSDevice() || !AppState.deferredInstallPrompt) {
+        showToast(isIOSDevice() ? 'En Safari: Compartir → Añadir a pantalla de inicio' : 'Usa el menú de instalación de tu navegador', '📲');
         return;
       }
       AppState.deferredInstallPrompt.prompt();
@@ -2959,18 +2896,24 @@
       closeInstallModal();
     }
 
-    function downloadStandaloneTechnicianHtml() {
-      const serialized = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      const blob = new Blob([serialized], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'SILBOM-Tecnico-App.html';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast('Descargando SILBOM-Tecnico-App.html para Android', '⬇️');
+    async function downloadStandaloneTechnicianHtml() {
+      try {
+        // Descargar las fuentes estáticas, nunca el DOM con historial o datos de sesión.
+        const [html, client] = await Promise.all([
+          fetch('/app/index.html', { credentials: 'omit' }).then(r => { if (!r.ok) throw new Error(); return r.text(); }),
+          fetch('/app/api-client.js', { credentials: 'omit' }).then(r => { if (!r.ok) throw new Error(); return r.text(); })
+        ]);
+        const standalone = html.replace('<script src="./app/api-client.js"><\/script>', '<script>' + client + '<\/script>');
+        const url = URL.createObjectURL(new Blob([standalone], { type: 'text/html;charset=utf-8' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'SILBOM-Tecnico-App.html';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast('Interfaz descargada. Configura un backend HTTPS para operar.', '⬇️');
+      } catch (err) {
+        showToast('No se pudo descargar la interfaz. Conecta al servidor.', '⚠️');
+      }
     }
 
     function showToast(msg, icon = '🔔') {
@@ -2987,10 +2930,21 @@
       event.preventDefault();
       AppState.deferredInstallPrompt = event;
       const btnNative = document.getElementById('btn-native-pwa-install');
-      if (btnNative) btnNative.classList.remove('hidden');
+      if (btnNative && !isIOSDevice() && !isInstalledPwa()) btnNative.classList.remove('hidden');
     });
 
+    if ('serviceWorker' in navigator && window.isSecureContext && window.location.pathname.startsWith('/app/')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(() => {
+          document.getElementById('pwa-install-status').textContent = 'No se pudo preparar la instalación. Comprueba HTTPS y vuelve a abrir la app.';
+        });
+      });
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      AppState.pendingMachineLink = params.has('maquina') ? params.get('maquina').trim().toUpperCase()
+        : (params.has('machine') ? params.get('machine').trim().toUpperCase() : null);
       initTheme();
       renderAuthUI();
       selectInterventionType('correctiva');
@@ -2999,15 +2953,30 @@
       await loadMachinesFromApi();
       renderMobileHistorial();
 
-      const params = new URLSearchParams(window.location.search);
-      const maquinaUrl = params.get('maquina') || params.get('machine');
-      if (maquinaUrl) {
-        const normalized = maquinaUrl.trim().toUpperCase();
-        const matched = AppState.machines.find(m => m.id.toUpperCase() === normalized);
-        if (matched) {
-          simulateNfcTap(matched.id);
-        }
-      }
+      applyMachineLink();
+    });
+
+    window.addEventListener('offline', () => {
+      updateConnectionBadge(false);
+      setOperationStatus('Sin conexión. El estado actual no se pudo verificar.'
+        + (AppState.pendingOperation ? ' La solicitud sigue pendiente de confirmación.' : ''), 'warning');
+    });
+    window.addEventListener('online', revalidateConnection);
+    window.addEventListener('pageshow', event => { if (event.persisted) revalidateConnection(); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        AppState.needsRevalidation = true;
+        updateConnectionBadge(false);
+      } else revalidateConnection();
+    });
+
+    window.addEventListener('beforeunload', event => {
+      if (AppState.pendingOperation) { event.preventDefault(); event.returnValue = ''; }
+    });
+
+    window.addEventListener('appinstalled', () => {
+      AppState.deferredInstallPrompt = null;
+      document.getElementById('btn-native-pwa-install').classList.add('hidden');
     });
 
     window.addEventListener('keydown', event => {

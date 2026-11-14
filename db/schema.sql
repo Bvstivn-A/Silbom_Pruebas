@@ -55,6 +55,7 @@ COMMENT ON COLUMN bloqueos_loto.notas_auditoria_cifradas IS 'Notas confidenciale
 
 
 \ir migrations/V2__integridad_loto.sql
+\ir migrations/V3__solicitud_idempotente.sql
 GRANT USAGE ON SCHEMA public TO :"app_role";
 GRANT SELECT, INSERT, UPDATE ON maquinas,tecnicos,bloqueos_loto TO :"app_role";
 GRANT SELECT, INSERT ON fallas,eventos_loto TO :"app_role";

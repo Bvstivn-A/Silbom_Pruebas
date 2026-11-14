@@ -15,7 +15,7 @@ public class AppRoutesConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/app").setViewName("forward:/app/index.html");
+        registry.addRedirectViewController("/app", "/app/").setKeepQueryParams(true);
         registry.addViewController("/app/").setViewName("forward:/app/index.html");
     }
 }

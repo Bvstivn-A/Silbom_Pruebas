@@ -1,0 +1,6 @@
+# SILBOM_TEST_HOST es la IP LAN del computador, sin protocolo ni puerto.
+# Importar la CA pública de Caddy en los teléfonos de prueba. Ver docs/PRUEBAS_MOVILES.md.
+https://{$SILBOM_TEST_HOST}:8443 {
+    tls internal
+    reverse_proxy 127.0.0.1:8080
+}
