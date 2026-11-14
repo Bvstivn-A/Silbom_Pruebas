@@ -33,8 +33,8 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
                 "Content-Security-Policy",
                 esVistaWeb
                         ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self'"
-                            + " 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http:"
-                            + " https:"
+                            + " 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https:"
+                            + " http://localhost:* http://127.0.0.1:*; worker-src 'self'"
                         : "default-src 'self'");
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 

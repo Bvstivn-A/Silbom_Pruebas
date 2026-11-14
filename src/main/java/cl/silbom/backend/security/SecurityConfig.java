@@ -1,6 +1,8 @@
 package cl.silbom.backend.security;
 
 import java.util.List;
+import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +30,9 @@ public class SecurityConfig {
     private final SecurityHeadersFilter headers;
 
     private final RateLimitFilter rate;
+
+    @Value("${silbom.security.cors-origins:http://localhost:*,http://127.0.0.1:*,https://localhost:*,https://127.0.0.1:*,https://silbom.netlify.app}")
+    private String corsOrigins;
 
     public SecurityConfig(SecurityHeadersFilter headers, RateLimitFilter rate) {
         this.headers = headers;
@@ -122,15 +127,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(
-                List.of(
-                        "http://localhost:*",
-                        "http://127.0.0.1:*",
-                        "http://192.168.*.*:*",
-                        "http://10.*.*.*:*",
-                        "http://172.*.*.*:*",
-                        "https://silbom.netlify.app",
-                        "null"));
+        config.setAllowedOriginPatterns(Arrays.stream(corsOrigins.split(","))
+                .map(String::trim).filter(s -> !s.isEmpty()).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
         config.setAllowedHeaders(
                 List.of(
@@ -139,8 +137,10 @@ public class SecurityConfig {
                         "Accept",
                         "Origin",
                         "User-Agent",
+                        "Idempotency-Key",
                         "X-Requested-With"));
-        config.setAllowCredentials(true);
+        // La API usa Authorization explícito; no requiere cookies entre orígenes.
+        config.setAllowCredentials(false);
         config.setMaxAge(3600L);
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

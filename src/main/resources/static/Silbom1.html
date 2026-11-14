@@ -1188,7 +1188,7 @@
   <section class="session-control-bar" aria-label="Control de conexión y sesión HTTP Basic">
     <div class="session-left-group">
       <span class="connection-pill offline" id="api-connection-badge" aria-live="polite">
-        🟡 Modo Demo Local (Offline)
+        🟡 Sin conexión · último estado conocido
       </span>
 
       <form class="auth-inline-form" onsubmit="event.preventDefault(); loginOperator();">
@@ -1230,7 +1230,7 @@
         <div class="supervisor-toolbar-left">
           <strong style="font-size: 0.96rem; color: var(--text-main);">Consola Central de Supervisión · Planta San Joaquín</strong>
           <span class="sync-live-pill idle" id="supervisor-sync-pill" aria-live="polite">
-            ⏱️ Sync 2.5s en espera
+            ⏱️ Sync 10s en espera
           </span>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
@@ -1248,9 +1248,9 @@
             <span>🏭</span>
           </div>
           <div class="kpi-value" id="kpi-active-count">
-            0 <span class="unit">Bloqueos LOTO</span>
+            Sin verificar
           </div>
-          <span class="kpi-status-tag tag-green" id="kpi-plant-tag">Todos los equipos operativos</span>
+          <span class="kpi-status-tag tag-amber" id="kpi-plant-tag">Esperando confirmación del servidor</span>
         </div>
 
         <div class="kpi-card">
@@ -1259,9 +1259,9 @@
             <span>👷</span>
           </div>
           <div class="kpi-value" id="kpi-tech-count">
-            0 <span class="unit">activos</span>
+            Sin verificar
           </div>
-          <span class="kpi-status-tag tag-green" id="kpi-tech-tag">Sin riesgo de atrapamiento</span>
+          <span class="kpi-status-tag tag-amber" id="kpi-tech-tag">Estado actual sin verificar</span>
         </div>
 
         <div class="kpi-card">
@@ -1507,17 +1507,12 @@
   <!-- ========================================================================
        LÓGICA JAVASCRIPT (Robusta, Libre de Errores y Sincronizada)
        ======================================================================== -->
+  <script src="./app/api-client.js"></script>
   <script>
     /* ==========================================================================
        CONFIGURACIÓN Y ESTADO CENTRAL DE LA APLICACIÓN (SOLO EN MEMORIA)
        ========================================================================== */
-    const API_BASE_URL = (() => {
-      const host = window.location.hostname || 'localhost';
-      if (window.location.port === '8080') {
-        return `${window.location.origin}/api/v1`;
-      }
-      return `http://${host}:8080/api/v1`;
-    })();
+    const API_BASE_URL = '/api/v1';
 
     const HTTP_STATUS_LABELS = {
       200: 'OK',
@@ -1683,14 +1678,15 @@
       auditFilter: 'ALL',         // 'ALL' | 'ACTIVO' | 'CERRADO'
       selectedMachineId: 'EQ-ENV-01',
       apiOnline: false,
+      machinesConfirmed: false,
       auth: null,                 // SOLO EN MEMORIA: { username, password, header, rol, id, nombre }
       tecnicosList: [],
       pollInterval: null,
       pollPauseUntil: 0,
       lastMachineSnapshot: null,
-      machines: cloneDefaultMachines(),
-      tickets: cloneDefaultTickets(),
-      auditLogs: cloneDefaultLogs()
+      machines: [],
+      tickets: [],
+      auditLogs: []
     };
 
     /* ==========================================================================
@@ -1727,6 +1723,7 @@
        ========================================================================== */
     function updateConnectionBadge(isOnline) {
       AppState.apiOnline = isOnline;
+      if (!isOnline) AppState.machinesConfirmed = false;
       const badge = document.getElementById('api-connection-badge');
       if (!badge) return;
       if (isOnline) {
@@ -1734,7 +1731,7 @@
         badge.textContent = '🟢 API Conectada (PostgreSQL)';
       } else {
         badge.className = 'connection-pill offline';
-        badge.textContent = '🟡 Modo Demo Local (Offline)';
+        badge.textContent = '🟡 Sin conexión · último estado conocido';
       }
       updateSyncPillUI();
     }
@@ -1744,13 +1741,13 @@
       if (!pill) return;
       if (AppState.apiOnline && AppState.pollInterval) {
         pill.className = 'sync-live-pill';
-        pill.textContent = '⚡ Sync tiempo real (2.5s)';
+        pill.textContent = '⚡ Sync tiempo real (10s)';
       } else if (AppState.apiOnline) {
         pill.className = 'sync-live-pill idle';
         pill.textContent = '🟢 Conectado a PostgreSQL';
       } else {
         pill.className = 'sync-live-pill idle';
-        pill.textContent = '🟡 Modo Demo Local (Offline)';
+        pill.textContent = '🟡 Sin conexión · último estado conocido';
       }
     }
 
@@ -1778,72 +1775,22 @@
     }
 
     async function apiFetch(endpoint, options = {}) {
+      const { silentMonitor, authHeaderOverride, ...requestOptions } = options;
       const method = (options.method || 'GET').toUpperCase();
-      const silentMonitor = Boolean(options.silentMonitor);
-      const authHeaderOverride = options.authHeaderOverride || null;
-      const fetchOptions = { ...options };
-      delete fetchOptions.silentMonitor;
-      delete fetchOptions.authHeaderOverride;
-
-      const headers = {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        ...(fetchOptions.headers || {})
-      };
-
-      if (fetchOptions.body !== undefined && fetchOptions.body !== null && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
-      }
-
-      if (authHeaderOverride) {
-        headers['Authorization'] = authHeaderOverride;
-      } else if (AppState.auth && AppState.auth.header) {
-        headers['Authorization'] = AppState.auth.header;
-      }
-
-      let response;
+      const headers = { ...requestOptions.headers };
+      const auth = authHeaderOverride || AppState.auth?.header;
+      if (auth) headers.Authorization = auth;
       try {
-        response = await fetch(`${API_BASE_URL}${endpoint}`, {
-          ...fetchOptions,
-          method,
-          headers
-        });
-      } catch (networkErr) {
+        const res = await SilbomHttp.request(endpoint, { ...requestOptions, headers });
+        updateConnectionBadge(true);
+        if (res.status === 429) AppState.pollPauseUntil = Date.now() + res.retryAfter * 1000;
+        if (!silentMonitor) updateHttpMonitor(method, endpoint, res.status, HTTP_STATUS_LABELS[res.status]);
+        return res;
+      } catch (err) {
         updateConnectionBadge(false);
-        if (!silentMonitor) {
-          updateHttpMonitor(method, endpoint, 0, 'OFFLINE (Sin conexión)');
-        }
-        const err = new Error('Servidor backend no disponible');
-        err.isNetworkError = true;
+        if (!silentMonitor) updateHttpMonitor(method, endpoint, 0, 'Sin conexión · último estado conocido');
         throw err;
       }
-
-      updateConnectionBadge(true);
-
-      if (response.status === 429) {
-        const retryAfter = Number(response.headers.get('Retry-After')) || 10;
-        AppState.pollPauseUntil = Date.now() + retryAfter * 1000;
-      }
-
-      let data = null;
-      const rawText = await response.text();
-      if (rawText) {
-        try {
-          data = JSON.parse(rawText);
-        } catch (parseErr) {
-          data = { mensaje: rawText };
-        }
-      }
-
-      if (!silentMonitor) {
-        updateHttpMonitor(method, endpoint, response.status, response.statusText || HTTP_STATUS_LABELS[response.status]);
-      }
-
-      return {
-        ok: response.ok,
-        status: response.status,
-        data
-      };
     }
 
     function extractApiError(data, status) {
@@ -1899,44 +1846,32 @@
         showToast('Ingrese usuario y contraseña para autenticar', '⚠️');
         return false;
       }
-
-      AppState.auth = {
-        username,
-        password,
-        header: encodeBasicAuth(username, password),
-        rol: null,
-        id: null,
-        nombre: null
-      };
-      renderAuthUI();
-
-      await loadMachinesFromApi();
-
-      if (AppState.apiOnline) {
-        const res = await loadBloqueosFromApi();
-        if (res && res.status === 401) {
-          AppState.auth = null;
-          AppState.tickets = [];
-          AppState.tecnicosList = [];
-          renderAuthUI();
-          renderAuditLogs();
-          showToast('Credenciales inválidas (401 Unauthorized)', '🚫');
-          return false;
-        }
+      AppState.auth = { username, header: encodeBasicAuth(username, password), rol: null, id: null, nombre: null };
+      AppState.tickets = [];
+      AppState.auditLogs = [];
+      AppState.tecnicosList = [];
+      try {
+        const res = await apiFetch('/bloqueos');
+        if (!res.ok || !Array.isArray(res.data)) throw new Error(extractApiError(res.data, res.status));
+        AppState.tickets = res.data;
+        AppState.auditLogs = buildAuditLogsFromTickets(res.data);
         await probeAuthenticatedRole();
+        await loadMachinesFromApi();
         renderAuthUI();
-
-        const roleLabel = AppState.auth.rol || 'OPERADOR';
-        showToast(`Sesión iniciada: ${username} (${roleLabel})`, '👷');
-      } else {
-        AppState.auth.rol = username.toLowerCase().includes('supervisor') ? 'SUPERVISOR' : 'TECNICO';
+        renderSupervisorDashboard();
+        syncSupervisorPollingState();
+        showToast(`Sesión verificada: ${username}`, '👷');
+        return true;
+      } catch (err) {
+        AppState.auth = null;
+        AppState.tickets = [];
+        AppState.auditLogs = [];
+        AppState.tecnicosList = [];
         renderAuthUI();
-        showToast(`Operador cargado en modo offline: ${username}`, '🟡');
+        renderSupervisorDashboard();
+        showToast(`No se pudo verificar la sesión: ${err.message}`, '🚫');
+        return false;
       }
-
-      renderSupervisorDashboard();
-      syncSupervisorPollingState();
-      return true;
     }
 
     async function loginOperator() {
@@ -1951,17 +1886,10 @@
     function logoutOperator() {
       AppState.auth = null;
       AppState.tecnicosList = [];
+      AppState.tickets = [];
+      AppState.auditLogs = [];
       renderAuthUI();
       renderSupervisorTecnicos();
-
-      if (AppState.apiOnline) {
-        AppState.tickets = [];
-        AppState.auditLogs = [];
-      } else {
-        AppState.tickets = cloneDefaultTickets();
-        AppState.auditLogs = cloneDefaultLogs();
-      }
-
       renderSupervisorDashboard();
       showToast('Sesión cerrada de memoria', '🔒');
     }
@@ -1972,7 +1900,10 @@
     async function loadMachinesFromApi(silentMonitor = false) {
       try {
         const { ok, data } = await apiFetch('/maquinas', { silentMonitor });
-        if (ok && Array.isArray(data)) {
+        if (ok && Array.isArray(data) && data.every(m => typeof m.bloqueada === 'boolean'
+            && Number.isSafeInteger(m.bloqueosActivos) && m.bloqueosActivos >= 0
+            && m.bloqueada === (m.bloqueosActivos > 0))) {
+          AppState.machinesConfirmed = true;
           AppState.machines = data.map(m => ({
             id: m.id,
             name: m.nombre,
@@ -1992,8 +1923,9 @@
           return true;
         }
       } catch (err) {
-        // Fallback offline conserva máquinas locales
+        // Conservar los datos previos, señalando que no son el estado actual confirmado.
       }
+      updateConnectionBadge(false);
       return false;
     }
 
@@ -2152,9 +2084,9 @@
         card.onclick = selectCard;
         card.onkeydown = event => handleActivateKey(event, selectCard);
 
-        const pillText = m.isLocked
+        const pillText = !AppState.machinesConfirmed ? '🟡 SIN VERIFICAR' : m.isLocked
           ? (locksOnMachine > 1 ? `🔴 MULTI-LOTO (${locksOnMachine})` : '🔴 BLOQUEO LOTO')
-          : '🟢 OPERATIVO';
+          : 'Sin bloqueos digitales';
 
         card.innerHTML = `
           <div class="machine-card-header">
@@ -2179,7 +2111,13 @@
       const kpiTechTag = document.getElementById('kpi-tech-tag');
       const kpiPlantMtbf = document.getElementById('kpi-plant-mtbf');
 
-      if (totalActiveLocks > 0) {
+      if (!AppState.machinesConfirmed) {
+        kpiActive.textContent = 'Sin verificar';
+        kpiTechCount.textContent = 'Sin verificar';
+        kpiPlantTag.className = 'kpi-status-tag tag-amber';
+        kpiPlantTag.textContent = 'Estado actual sin verificar';
+        kpiTechTag.textContent = 'Últimos registros conocidos; actualiza la conexión';
+      } else if (totalActiveLocks > 0) {
         kpiActive.innerHTML = `${totalActiveLocks} <span class="unit">Bloqueo(s) LOTO</span>`;
         kpiActive.style.color = 'var(--rojo-peligro)';
         kpiPlantTag.className = 'kpi-status-tag tag-red';
@@ -2192,11 +2130,11 @@
         kpiActive.innerHTML = `0 <span class="unit">Bloqueos LOTO</span>`;
         kpiActive.style.color = 'var(--verde-seguridad)';
         kpiPlantTag.className = 'kpi-status-tag tag-green';
-        kpiPlantTag.textContent = 'Todos los equipos operativos';
+        kpiPlantTag.textContent = AppState.apiOnline ? 'Sin bloqueos digitales registrados' : 'Estado actual sin verificar';
 
         kpiTechCount.innerHTML = `0 <span class="unit">activos</span>`;
         kpiTechTag.className = 'kpi-status-tag tag-green';
-        kpiTechTag.textContent = 'Sin riesgo de atrapamiento';
+        kpiTechTag.textContent = 'El registro no verifica aislamiento físico';
       }
 
       if (kpiPlantMtbf) {
@@ -2601,7 +2539,7 @@
     }
 
     /* ==========================================================================
-       POLLING EN TIEMPO REAL PARA CONSOLA SUPERVISOR (CADA 2.5 SEGUNDOS)
+       POLLING EN TIEMPO REAL PARA CONSOLA SUPERVISOR (CADA 10 SEGUNDOS)
        ========================================================================== */
     function snapshotMachinesState(machines) {
       const map = new Map();
@@ -2620,7 +2558,7 @@
       if (!AppState.lastMachineSnapshot) {
         AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
       }
-      AppState.pollInterval = setInterval(runSupervisorPollTick, 2500);
+      AppState.pollInterval = setInterval(runSupervisorPollTick, 10000);
       updateSyncPillUI();
     }
 
@@ -2637,7 +2575,7 @@
 
       const prevSnap = AppState.lastMachineSnapshot || snapshotMachinesState(AppState.machines);
       const okMachines = await loadMachinesFromApi(true);
-      if (!okMachines) return;
+      if (!okMachines) { renderSupervisorDashboard(); return; }
 
       let newLockDetected = null;
       let unlockDetected = null;
@@ -2701,22 +2639,11 @@
 
     async function resetPrototypeDemo() {
       const loaded = await loadMachinesFromApi();
-      if (loaded) {
-        if (AppState.auth && AppState.auth.header) {
-          await loadBloqueosFromApi();
-        }
-        showToast('Vista resincronizada con PostgreSQL', '🔄');
-      } else {
-        AppState.machines = cloneDefaultMachines();
-        AppState.tickets = cloneDefaultTickets();
-        AppState.auditLogs = cloneDefaultLogs();
-        AppState.selectedMachineId = 'EQ-ENV-01';
-        showToast('Demostración local reiniciada a valores iniciales', '🔄');
-      }
-
+      if (loaded && AppState.auth?.header) await loadBloqueosFromApi();
       AppState.lastMachineSnapshot = snapshotMachinesState(AppState.machines);
       renderSupervisorDashboard();
       focusMachineMTBF(AppState.selectedMachineId);
+      showToast(loaded ? 'Vista actualizada desde el servidor' : 'Sin conexión. Estado actual sin verificar.', loaded ? '🔄' : '🟡');
     }
 
     // Inicialización al cargar la Consola Central de Supervisión (PC)
